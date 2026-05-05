@@ -5,14 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Complexe Beyla</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <!-- Firebase SDK version compat (globale) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
-<!-- AJOUTEZ CETTE LIGNE POUR L'AUTHENTIFICATION -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <style>
-/* TOUT LE CSS EST ICI (identique à avant) */
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap');
 :root {
   --bg:#f0ede8;--surface:#fff;--surface2:#f7f5f2;--border:#e0dbd3;
@@ -207,7 +203,6 @@ tbody td{padding:8px 10px;}
   .caisse-wrap{grid-template-columns:260px 1fr;}
   .prod-grid{grid-template-columns:1fr;}
 }
-/* À la place du @media(max-width:640px) existant, remplacez par : */
 @media(max-width:640px){
   :root{--nav-h:52px;--bottom-h:64px;}
   .header{padding:0 .8rem;gap:.6rem;}
@@ -215,57 +210,14 @@ tbody td{padding:8px 10px;}
   .logout-btn{display:none;}
   .h-role{display:none;}
   .bottom-nav{display:flex;}
-  
-  .caisse-wrap {
-    display: flex;
-    flex-direction: column;
-    height: auto;
-    min-height: calc(100vh - var(--nav-h) - var(--bottom-h));
-    overflow-y: auto;
-  }
-  
-  .left-p, .right-p {
-    height: auto;
-    min-height: calc(100vh - var(--nav-h) - var(--bottom-h));
-    overflow-y: auto;
-  }
-  
-  .right-p {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .order-items {
-    max-height: 40vh;
-    overflow-y: auto;
-  }
-  
-  .order-foot {
-    position: sticky;
-    bottom: 0;
-    background: var(--surface);
-    padding: 1rem 1.2rem;
-    border-top: 1px solid var(--border);
-    margin-top: auto;
-  }
-  
-  .act-row {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-  
-  .act-row .btn {
-    flex: 1;
-    min-width: 90px;
-    padding: 12px;
-  }
-  
-  .btn-ok {
-    background: var(--accent);
-    font-size: 1rem;
-  }
-  
+  .caisse-wrap{display:flex;flex-direction:column;height:auto;min-height:calc(100vh - var(--nav-h) - var(--bottom-h));overflow-y:auto;}
+  .left-p,.right-p{height:auto;min-height:calc(100vh - var(--nav-h) - var(--bottom-h));overflow-y:auto;}
+  .right-p{display:flex;flex-direction:column;}
+  .order-items{max-height:40vh;overflow-y:auto;}
+  .order-foot{position:sticky;bottom:0;background:var(--surface);padding:1rem 1.2rem;border-top:1px solid var(--border);margin-top:auto;}
+  .act-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .act-row .btn{flex:1;min-width:90px;padding:12px;}
+  .btn-ok{background:var(--accent);font-size:1rem;}
   .inner-page{padding:.9rem 1rem;height:auto;min-height:calc(100vh - var(--nav-h) - var(--bottom-h));overflow-y:auto;}
   .prod-grid{grid-template-columns:1fr 1fr;}
   .stats-grid{grid-template-columns:1fr 1fr;}
@@ -274,60 +226,32 @@ tbody td{padding:8px 10px;}
   .toast{bottom:calc(var(--bottom-h) + .8rem);}
   .modal{border-radius:20px 20px 0 0;}
 }
-
-/* Styles supplémentaires pour mobile */
 @media(max-width:480px){
-  .order-foot {
-    padding: 0.8rem 1rem;
-  }
-  
-  .btn {
-    padding: 10px;
-    font-size: 0.8rem;
-  }
-  
-  .btn-ok {
-    background: var(--accent);
-    font-size: 0.9rem;
-    font-weight: 700;
-  }
-  
-  .tbl-row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 6px;
-  }
-  
-  .tbl-row label {
-    min-width: auto;
-  }
-  
-  .order-item {
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-  
-  .oi-name {
-    width: 100%;
-    margin-bottom: 4px;
-  }
-  
-  .qty-ctrl {
-    margin-left: auto;
-  }
+  .order-foot{padding:0.8rem 1rem;}
+  .btn{padding:10px;font-size:0.8rem;}
+  .btn-ok{background:var(--accent);font-size:0.9rem;font-weight:700;}
+  .tbl-row{flex-direction:column;align-items:stretch;gap:6px;}
+  .tbl-row label{min-width:auto;}
+  .order-item{flex-wrap:wrap;gap:6px;}
+  .oi-name{width:100%;margin-bottom:4px;}
+  .qty-ctrl{margin-left:auto;}
 }
 @media(max-width:400px){
   .prod-card{padding:8px;}
   .prod-name{font-size:.78rem;}
   .prod-price{font-size:.8rem;}
 }
+.floating-validate{position:fixed;bottom:70px;left:0;right:0;z-index:999;padding:10px 16px;background:transparent;}
+.btn-floating{width:100%;background:var(--accent);color:white;border:none;padding:16px;border-radius:50px;font-size:1.1rem;font-weight:bold;cursor:pointer;box-shadow:0 4px 15px rgba(184,74,26,0.4);transition:0.2s;}
+.btn-floating:active{transform:scale(0.97);}
+@media(max-width:640px){.floating-validate{display:block;}.order-foot{margin-bottom:70px;}}
+@media(min-width:641px){.floating-validate{display:none !important;}}
 </style>
 </head>
 <body>
 
 <div id="syncBanner"></div>
 
-<!-- LOGIN -->
 <div id="loginScreen">
   <div class="login-box">
     <div class="login-logo">Complexe Beyla</div>
@@ -350,9 +274,7 @@ tbody td{padding:8px 10px;}
   </div>
 </div>
 
-<!-- APP -->
 <div id="app" style="display:none;">
-
 <header class="header">
   <div class="h-logo">Complexe Beyla</div>
   <div class="h-role" id="hRole"></div>
@@ -366,7 +288,6 @@ tbody td{padding:8px 10px;}
   </div>
 </header>
 
-<!-- CAISSE -->
 <div id="pg-caisse" class="page">
   <div class="caisse-mobile-tabs">
     <button class="cmt-btn act" id="cmt-catalogue" onclick="switchCaisseTab('catalogue')">📦 Catalogue</button>
@@ -413,7 +334,6 @@ tbody td{padding:8px 10px;}
   </div>
 </div>
 
-<!-- JOURNAL -->
 <div id="pg-journal" class="page">
   <div class="inner-page">
     <div class="pg-header">
@@ -431,7 +351,6 @@ tbody td{padding:8px 10px;}
   </div>
 </div>
 
-<!-- VERIFICATION -->
 <div id="pg-verif" class="page">
   <div class="inner-page">
     <div class="pg-header">
@@ -442,7 +361,6 @@ tbody td{padding:8px 10px;}
   </div>
 </div>
 
-<!-- CUISINE -->
 <div id="pg-cuisine" class="page">
   <div class="inner-page">
     <div class="pg-header">
@@ -452,7 +370,6 @@ tbody td{padding:8px 10px;}
   </div>
 </div>
 
-<!-- RECUS CUISINIERE -->
 <div id="pg-recus" class="page">
   <div class="inner-page">
     <div class="pg-header">
@@ -482,7 +399,6 @@ tbody td{padding:8px 10px;}
   </div>
 </div>
 
-<!-- ADMIN -->
 <div id="pg-admin" class="page">
   <div class="inner-page">
     <div class="pg-header"><div class="pg-title">Administration</div></div>
@@ -505,11 +421,10 @@ tbody td{padding:8px 10px;}
   </div>
 </div>
 
-</div><!-- /app -->
+</div>
 
 <div class="bottom-nav" id="bottomNav"></div>
 
-<!-- MODALS -->
 <div class="overlay" id="modalOrder">
   <div class="modal">
     <h3>Détail commande</h3>
@@ -563,9 +478,11 @@ tbody td{padding:8px 10px;}
 </div>
 
 <div class="toast" id="toast"></div>
+<div class="floating-validate" id="floatingValidate">
+  <button class="btn-floating" onclick="confirmOrder()">💾 VALIDER LA COMMANDE</button>
+</div>
 
 <script>
-// ==================== DONNÉES PAR DÉFAUT ====================
 const DEFAULT_USERS = [
   {id:1, name:'Administrateur', login:'admin', pass:'admin123', role:'admin'},
   {id:2, name:'Caissier Moussa', login:'moussa', pass:'caisse1', role:'comptable'},
@@ -599,7 +516,6 @@ const DEFAULT_PRODUCTS = [
   {id:24, name:'Yaourt Sucré', price:8000, cat:'Desserts'},
 ];
 
-// ==================== VARIABLES GLOBALES ====================
 let users = JSON.parse(localStorage.getItem('cb_users')) || DEFAULT_USERS;
 let products = JSON.parse(localStorage.getItem('cb_prods')) || DEFAULT_PRODUCTS;
 let orders = JSON.parse(localStorage.getItem('cb_orders')) || [];
@@ -608,7 +524,6 @@ let verifs = JSON.parse(localStorage.getItem('cb_verifs')) || {};
 let currentUser = null, cart = [], editUserId = null, editProdId = null, viewOrderId = null;
 let syncInProgress = false;
 
-// ==================== FIREBASE ====================
 const firebaseConfig = {
   apiKey: "AIzaSyChu30n42dZaGKZmjyrHsJdEg9UoRbRpyw",
   authDomain: "complexe-beyla.firebaseapp.com",
@@ -665,6 +580,21 @@ async function loadFromFirebase() {
   }
 }
 
+async function ensureFirebaseUsers() {
+  const auth = firebase.auth();
+  for (const u of DEFAULT_USERS) {
+    const email = u.login + '@beyla.com';
+    try {
+      await auth.createUserWithEmailAndPassword(email, u.pass);
+      console.log('✓ Compte créé :', email);
+    } catch(e) {
+      if (e.code !== 'auth/email-already-in-use') {
+        console.warn(e.message);
+      }
+    }
+  }
+}
+
 async function syncNow() {
   if (syncInProgress) return;
   syncInProgress = true;
@@ -677,7 +607,6 @@ async function syncNow() {
   if (btn) btn.classList.remove('spinning');
 }
 
-// ==================== UTILS ====================
 function fmt(n) { return Number(n).toLocaleString('fr-FR') + ' GNF'; }
 function today() { return new Date().toISOString().slice(0,10); }
 function nowTime() { return new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'}); }
@@ -686,7 +615,6 @@ function toast(msg) { const t = document.getElementById('toast'); t.textContent 
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-// ==================== LOGIN ====================
 let selRoleVal = 'admin';
 function selRole(r) { selRoleVal = r; document.querySelectorAll('.role-chip').forEach(c => c.classList.remove('sel')); event.target.classList.add('sel'); }
 
@@ -694,43 +622,21 @@ async function doLogin() {
   const login = document.getElementById('loginUser').value.trim();
   const pass = document.getElementById('loginPass').value;
   
-  await loadFromFirebase();
-  
-  const u = users.find(x => x.login === login && x.pass === pass && x.role === selRoleVal);
-  if (!u) { document.getElementById('loginErr').textContent = 'Identifiants incorrects.'; return; }
-  
-  currentUser = u;
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  initApp();
-}
-
-async function doLogin() {
-  const login = document.getElementById('loginUser').value.trim();
-  const pass = document.getElementById('loginPass').value;
-  
-  // Afficher chargement
   document.getElementById('loginErr').textContent = 'Connexion...';
   
   try {
-    // 1. AUTHENTIFICATION FIREBASE
     const auth = firebase.auth();
-    const email = login + '@beyla.com'; // Transforme admin → admin@beyla.com
+    const email = login + '@beyla.com';
     await auth.signInWithEmailAndPassword(email, pass);
-    
-    // 2. CHARGER LES DONNÉES
     await loadFromFirebase();
     
-    // 3. VÉRIFIER DANS LA LISTE LOCALE
     const u = users.find(x => x.login === login && x.pass === pass && x.role === selRoleVal);
     if (!u) {
-      // Déconnexion Firebase si utilisateur non trouvé
       await auth.signOut();
       document.getElementById('loginErr').textContent = 'Identifiants incorrects.';
       return;
     }
     
-    // 4. CONNEXION RÉUSSIE
     currentUser = u;
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
@@ -746,10 +652,9 @@ async function doLogin() {
     document.getElementById('loginErr').textContent = message;
   }
 }
-  function doLogout() {
-  // Déconnexion Firebase aussi
+
+function doLogout() {
   firebase.auth().signOut().catch(e => console.warn(e));
-  
   currentUser = null; cart = [];
   document.getElementById('app').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
@@ -757,7 +662,7 @@ async function doLogin() {
   document.getElementById('loginUser').value = '';
   document.getElementById('loginPass').value = '';
 }
-// ==================== APP INIT ====================
+
 const NAV_MAP = {
   admin: [{id:'caisse', label:'Caisse', icon:'🛒'}, {id:'journal', label:'Journal', icon:'📋'}, {id:'verif', label:'Vérif.', icon:'✅'}, {id:'cuisine', label:'Cuisine', icon:'🍳'}, {id:'recus', label:'Reçus', icon:'🧾'}, {id:'admin', label:'Admin', icon:'⚙️'}],
   comptable: [{id:'caisse', label:'Caisse', icon:'🛒'}, {id:'journal', label:'Journal', icon:'📋'}, {id:'cuisine', label:'Cuisine', icon:'🍳'}],
@@ -789,7 +694,6 @@ function showPage(id) {
 }
 function refreshCurrentPage() { if (currentPage) showPage(currentPage); }
 
-// ==================== CAISSE ====================
 function switchCaisseTab(tab) {
   const cat = document.getElementById('cataloguePanel');
   const cmd = document.getElementById('commandePanel');
@@ -895,7 +799,6 @@ function reprintOrder() { const o = orders.find(x => x.id === viewOrderId); if (
 function updateClock() { const el = document.getElementById('orderMeta'); if (el) el.textContent = new Date().toLocaleString('fr-FR', {weekday:'short', day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}); }
 setInterval(updateClock, 1000);
 
-// ==================== JOURNAL ====================
 function renderJournal() {
   const date = document.getElementById('jDate').value;
   const day = orders.filter(o => o.date === date);
@@ -914,7 +817,7 @@ function renderJournal() {
     <td><span class="badge bg-g">Validé</span></td>
     <td><button class="icon-btn" onclick="viewOrder('${o.id}')">👁</button>
     ${currentUser.role === 'admin' ? `<button class="icon-btn" onclick="delOrder('${o.id}')" style="margin-left:4px">🗑</button>` : ''}</td>
-  </tr>`).join('');
+   </tr>`).join('');
 }
 function viewOrder(id) {
   const o = orders.find(x => x.id === id); if (!o) return; viewOrderId = id;
@@ -929,7 +832,6 @@ function viewOrder(id) {
 }
 async function delOrder(id) { if (!confirm('Supprimer ?')) return; orders = orders.filter(o => o.id !== id); await saveToFirebase('cb_orders', orders); renderJournal(); toast('Supprimé'); }
 
-// ==================== EXPORT EXCEL ====================
 function exportExcel() {
   const date = document.getElementById('jDate').value;
   const day = orders.filter(o => o.date === date);
@@ -945,7 +847,6 @@ function exportExcel() {
   toast('Excel exporté');
 }
 
-// ==================== VERIFICATION ====================
 function renderVerif() {
   const date = document.getElementById('vDate').value;
   const day = orders.filter(o => o.date === date);
@@ -999,7 +900,6 @@ async function saveVerif(date, sysTotal, sysRecus) {
   renderVerif();
 }
 
-// ==================== CUISINE ====================
 function renderCuisine() {
   const k = today();
   if (!dispo[k]) { dispo[k] = {}; products.forEach(p => { dispo[k][p.id] = true; }); saveToFirebase('cb_dispo', dispo); }
@@ -1019,7 +919,6 @@ async function toggleDispo(id) {
   toast(dispo[k][id] ? '✓ Disponible' : 'Indisponible');
 }
 
-// ==================== RECUS CUISINIERE ====================
 function renderRecusCuisine() {
   const dateEl = document.getElementById('rcDate');
   if (!dateEl.value) dateEl.value = today();
@@ -1059,7 +958,6 @@ async function saveRecusCuisine() {
   toast('✓ Reçus enregistrés');
 }
 
-// ==================== ADMIN ====================
 function renderAdmin() {
   document.getElementById('userList').innerHTML = users.map(u => `<div class="user-row"><div class="user-avatar">${u.name.split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase()}</div>
     <div style="flex:1"><div class="user-name">${u.name}</div><div class="user-role">${{admin:'Admin', comptable:'Comptable', cuisiniere:'Cuisinière'}[u.role]} — @${u.login}</div></div>
@@ -1088,59 +986,11 @@ async function saveProd() {
 }
 async function delProd(id) { if (!confirm('Supprimer ?')) return; products = products.filter(p => p.id !== id); await saveToFirebase('cb_prods', products); renderAdmin(); renderProds(); toast('Supprimé'); }
 
-// ==================== INIT ====================
-loadFromFirebase();
-setInterval(() => { loadFromFirebase(); }, 30000);
+(async function init() {
+  await ensureFirebaseUsers();
+  await loadFromFirebase();
+  setInterval(() => { loadFromFirebase(); }, 30000);
+})();
 </script>
-<!-- BOUTON VALIDER FLOTTANT SUR MOBILE UNIQUEMENT -->
-<div class="floating-validate" id="floatingValidate" style="display:none;">
-  <button class="btn-floating" onclick="confirmOrder()">💾 VALIDER LA COMMANDE</button>
-</div>
-
-<style>
-/* Bouton flottant - visible seulement sur mobile */
-.floating-validate {
-  position: fixed;
-  bottom: 70px;
-  left: 0;
-  right: 0;
-  z-index: 999;
-  padding: 10px 16px;
-  background: transparent;
-}
-
-.btn-floating {
-  width: 100%;
-  background: var(--accent);
-  color: white;
-  border: none;
-  padding: 16px;
-  border-radius: 50px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(184, 74, 26, 0.4);
-  transition: 0.2s;
-}
-
-.btn-floating:active {
-  transform: scale(0.97);
-}
-
-@media(max-width:640px){
-  .floating-validate {
-    display: block;
-  }
-  .order-foot {
-    margin-bottom: 70px; /* Espace pour le bouton flottant */
-  }
-}
-
-@media(min-width:641px){
-  .floating-validate {
-    display: none !important;
-  }
-}
-</style>
 </body>
 </html>
