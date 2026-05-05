@@ -580,21 +580,6 @@ async function loadFromFirebase() {
   }
 }
 
-async function ensureFirebaseUsers() {
-  const auth = firebase.auth();
-  for (const u of DEFAULT_USERS) {
-    const email = u.login + '@beyla.com';
-    try {
-      await auth.createUserWithEmailAndPassword(email, u.pass);
-      console.log('✓ Compte créé :', email);
-    } catch(e) {
-      if (e.code !== 'auth/email-already-in-use') {
-        console.warn(e.message);
-      }
-    }
-  }
-}
-
 async function syncNow() {
   if (syncInProgress) return;
   syncInProgress = true;
@@ -616,46 +601,76 @@ function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
 let selRoleVal = 'admin';
-function selRole(r) { selRoleVal = r; document.querySelectorAll('.role-chip').forEach(c => c.classList.remove('sel')); event.target.classList.add('sel'); }
+function selRole(r) { 
+  selRoleVal = r; 
+  const chips = document.querySelectorAll('.role-chip');
+  chips.forEach(c => c.classList.remove('sel'));
+  if (event && event.target) event.target.classList.add('sel');
+}
 
 async function doLogin() {
   const login = document.getElementById('loginUser').value.trim();
   const pass = document.getElementById('loginPass').value;
+  
+  if (!login || !pass) {
+    document.getElementById('loginErr').textContent = 'Veuillez saisir nom d\'utilisateur et mot de passe';
+    return;
+  }
   
   document.getElementById('loginErr').textContent = 'Connexion...';
   
   try {
     const auth = firebase.auth();
     const email = login + '@beyla.com';
-    await auth.signInWithEmailAndPassword(email, pass);
+    
+    // Tentative de connexion
+    try {
+      await auth.signInWithEmailAndPassword(email, pass);
+    } catch(loginError) {
+      // Si l'utilisateur n'existe pas, on le crée automatiquement
+      if (loginError.code === 'auth/user-not-found') {
+        console.log('Utilisateur non trouvé, création automatique...');
+        await auth.createUserWithEmailAndPassword(email, pass);
+        // Reconnecter après création
+        await auth.signInWithEmailAndPassword(email, pass);
+      } else {
+        throw loginError;
+      }
+    }
+    
+    // Charger les données Firebase
     await loadFromFirebase();
     
+    // Vérifier dans la liste locale des utilisateurs
     const u = users.find(x => x.login === login && x.pass === pass && x.role === selRoleVal);
     if (!u) {
       await auth.signOut();
-      document.getElementById('loginErr').textContent = 'Identifiants incorrects.';
+      document.getElementById('loginErr').textContent = 'Identifiants incorrects ou rôle non autorisé.';
       return;
     }
     
+    // Succès
     currentUser = u;
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
-    initApp();
     document.getElementById('loginErr').textContent = '';
+    initApp();
     
   } catch(error) {
     console.error("Erreur auth:", error);
     let message = 'Identifiants incorrects.';
-    if (error.code === 'auth/user-not-found') message = 'Utilisateur non trouvé.';
     if (error.code === 'auth/wrong-password') message = 'Mot de passe incorrect.';
-    if (error.code === 'auth/invalid-email') message = 'Format invalide.';
+    if (error.code === 'auth/invalid-email') message = 'Format d\'email invalide.';
+    if (error.code === 'auth/weak-password') message = 'Mot de passe trop faible (6 caractères min).';
+    if (error.code === 'auth/email-already-in-use') message = 'Compte existant avec un mot de passe différent.';
     document.getElementById('loginErr').textContent = message;
   }
 }
 
 function doLogout() {
   firebase.auth().signOut().catch(e => console.warn(e));
-  currentUser = null; cart = [];
+  currentUser = null; 
+  cart = [];
   document.getElementById('app').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
   document.getElementById('loginErr').textContent = '';
@@ -986,8 +1001,8 @@ async function saveProd() {
 }
 async function delProd(id) { if (!confirm('Supprimer ?')) return; products = products.filter(p => p.id !== id); await saveToFirebase('cb_prods', products); renderAdmin(); renderProds(); toast('Supprimé'); }
 
+// Initialisation
 (async function init() {
-  await ensureFirebaseUsers();
   await loadFromFirebase();
   setInterval(() => { loadFromFirebase(); }, 30000);
 })();
