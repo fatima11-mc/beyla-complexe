@@ -5,8 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Complexe Beyla</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<!-- Firebase SDK version compat (globale) -->
+  <!-- Firebase SDK version compat (globale) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<!-- AJOUTEZ CETTE LIGNE POUR L'AUTHENTIFICATION -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <style>
 /* TOUT LE CSS EST ICI (identique à avant) */
@@ -702,7 +705,51 @@ async function doLogin() {
   initApp();
 }
 
-function doLogout() {
+async function doLogin() {
+  const login = document.getElementById('loginUser').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  
+  // Afficher chargement
+  document.getElementById('loginErr').textContent = 'Connexion...';
+  
+  try {
+    // 1. AUTHENTIFICATION FIREBASE
+    const auth = firebase.auth();
+    const email = login + '@beyla.com'; // Transforme admin → admin@beyla.com
+    await auth.signInWithEmailAndPassword(email, pass);
+    
+    // 2. CHARGER LES DONNÉES
+    await loadFromFirebase();
+    
+    // 3. VÉRIFIER DANS LA LISTE LOCALE
+    const u = users.find(x => x.login === login && x.pass === pass && x.role === selRoleVal);
+    if (!u) {
+      // Déconnexion Firebase si utilisateur non trouvé
+      await auth.signOut();
+      document.getElementById('loginErr').textContent = 'Identifiants incorrects.';
+      return;
+    }
+    
+    // 4. CONNEXION RÉUSSIE
+    currentUser = u;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    initApp();
+    document.getElementById('loginErr').textContent = '';
+    
+  } catch(error) {
+    console.error("Erreur auth:", error);
+    let message = 'Identifiants incorrects.';
+    if (error.code === 'auth/user-not-found') message = 'Utilisateur non trouvé.';
+    if (error.code === 'auth/wrong-password') message = 'Mot de passe incorrect.';
+    if (error.code === 'auth/invalid-email') message = 'Format invalide.';
+    document.getElementById('loginErr').textContent = message;
+  }
+}
+  function doLogout() {
+  // Déconnexion Firebase aussi
+  firebase.auth().signOut().catch(e => console.warn(e));
+  
   currentUser = null; cart = [];
   document.getElementById('app').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
@@ -710,8 +757,6 @@ function doLogout() {
   document.getElementById('loginUser').value = '';
   document.getElementById('loginPass').value = '';
 }
-document.getElementById('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-
 // ==================== APP INIT ====================
 const NAV_MAP = {
   admin: [{id:'caisse', label:'Caisse', icon:'🛒'}, {id:'journal', label:'Journal', icon:'📋'}, {id:'verif', label:'Vérif.', icon:'✅'}, {id:'cuisine', label:'Cuisine', icon:'🍳'}, {id:'recus', label:'Reçus', icon:'🧾'}, {id:'admin', label:'Admin', icon:'⚙️'}],
