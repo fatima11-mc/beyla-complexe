@@ -1047,5 +1047,55 @@ async function delProd(id) { if (!confirm('Supprimer ?')) return; products = pro
 loadFromFirebase();
 setInterval(() => { loadFromFirebase(); }, 30000);
 </script>
+<!-- BOUTON VALIDER FLOTTANT SUR MOBILE UNIQUEMENT -->
+<div class="floating-validate" id="floatingValidate" style="display:none;">
+  <button class="btn-floating" onclick="confirmOrder()">💾 VALIDER LA COMMANDE</button>
+</div>
+
+<style>
+/* Bouton flottant - visible seulement sur mobile */
+.floating-validate {
+  position: fixed;
+  bottom: 70px;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  padding: 10px 16px;
+  background: transparent;
+}
+
+.btn-floating {
+  width: 100%;
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 16px;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(184, 74, 26, 0.4);
+  transition: 0.2s;
+}
+
+.btn-floating:active {
+  transform: scale(0.97);
+}
+
+@media(max-width:640px){
+  .floating-validate {
+    display: block;
+  }
+  .order-foot {
+    margin-bottom: 70px; /* Espace pour le bouton flottant */
+  }
+}
+
+@media(min-width:641px){
+  .floating-validate {
+    display: none !important;
+  }
+}
+</style>
 </body>
 </html>
