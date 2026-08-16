@@ -182,6 +182,7 @@ input,select,textarea,button{font-family:inherit;}
 .kpi-card.red::before{background:linear-gradient(90deg,var(--red),#dc2626);}
 .kpi-card.amber::before{background:linear-gradient(90deg,var(--amber),#d97706);}
 .kpi-card.blue::before{background:linear-gradient(90deg,var(--blue),#2563eb);}
+.kpi-card.orange::before{background:linear-gradient(90deg,var(--orange),#ea580c);}
 .kpi-icon{font-size:1.5rem;margin-bottom:.4rem;}
 .kpi-val{font-size:1.3rem;font-weight:700;line-height:1;}
 .kpi-label{font-size:.66rem;color:var(--muted);margin-top:4px;font-weight:500;}
@@ -326,6 +327,7 @@ input,select,textarea,button{font-family:inherit;}
 .stat-v.g{color:var(--green);}
 .stat-v.r{color:var(--red);}
 .stat-v.a{color:var(--amber);}
+.stat-v.o{color:var(--orange);}
 
 /* ===== TABLES ===== */
 .tbl-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;overflow-x:auto;box-shadow:var(--sh);}
@@ -393,12 +395,12 @@ tbody td{padding:9px 10px;}
 .qc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem;}
 .qc-num{font-weight:700;font-size:.9rem;color:var(--text);}
 .qc-time{font-size:.7rem;color:var(--muted);}
-.qc-client{font-size:.78rem;margin-bottom:.5rem;color:var(--text);font-weight:600;}
 .qc-items{font-size:.82rem;line-height:1.8;margin-bottom:.8rem;}
 .qc-item-line{display:flex;justify-content:space-between;}
 .qc-note{font-size:.75rem;background:rgba(0,0,0,.06);border-radius:6px;padding:6px 8px;margin-bottom:.8rem;color:var(--amber);border-left:3px solid var(--amber);}
 .qc-actions{display:flex;gap:6px;flex-wrap:wrap;}
 .qc-btn{flex:1;padding:9px;border-radius:8px;border:none;cursor:pointer;font-size:.75rem;font-weight:700;transition:.15s;min-width:70px;}
+.qc-btn-validate{background:linear-gradient(135deg,var(--green),#2d9b5a);color:#fff;}
 .qc-btn-start{background:linear-gradient(135deg,var(--blue),#2563eb);color:#fff;}
 .qc-btn-done{background:linear-gradient(135deg,var(--green),#2d9b5a);color:#fff;}
 .qc-filter-bar{display:flex;gap:8px;margin-bottom:1.2rem;flex-wrap:wrap;}
@@ -417,7 +419,6 @@ tbody td{padding:9px 10px;}
 }
 .csc-id{font-weight:700;font-size:.82rem;color:var(--accent);min-width:110px;}
 .csc-info{flex:1;font-size:.8rem;color:var(--muted);}
-.csc-client{font-weight:600;color:var(--text);}
 
 /* ===== STOCK ===== */
 .stock-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem;}
@@ -709,7 +710,8 @@ tbody td{padding:9px 10px;}
     </div>
     <div class="qc-filter-bar" id="queueFilterBar">
       <button class="qc-filter-btn act" id="qf-tous" onclick="setQueueFilter('tous')">Toutes</button>
-      <button class="qc-filter-btn" id="qf-attente" onclick="setQueueFilter('attente')">En attente</button>
+      <button class="qc-filter-btn" id="qf-en_attente" onclick="setQueueFilter('en_attente')">À valider</button>
+      <button class="qc-filter-btn" id="qf-attente" onclick="setQueueFilter('attente')">En cuisine</button>
       <button class="qc-filter-btn" id="qf-preparation" onclick="setQueueFilter('preparation')">En prep.</button>
       <button class="qc-filter-btn" id="qf-servie" onclick="setQueueFilter('servie')">Servies</button>
     </div>
@@ -1150,6 +1152,7 @@ const NAV_MAP = {
     {id:'accueil', label:'Accueil'},
     {id:'caisse',  label:'Caisse'},
     {id:'journal', label:'Journal'},
+    {id:'queue',   label:'Validations'},
     {id:'stock',   label:'Mon stock'},
   ],
   serveur: [
@@ -1157,7 +1160,7 @@ const NAV_MAP = {
     {id:'caisse',  label:'Caisse'},
     {id:'journal', label:'Journal'},
     {id:'queue',   label:'Suivi'},
-    {id:'stock',   label:'Stocks'},
+    {id:'stock',   label:'Stocks'}, // visible mais masqué si serveur ne voit pas le stock
   ],
 };
 
@@ -1206,10 +1209,31 @@ function populateKiosqueSource() {
 function updateKiosqueSourceVisibility() {
   const row = document.getElementById('kiosqueSourceRow');
   const sel = document.getElementById('kiosqueSourceSel');
+  
+  // Pour les serveurs et les vendeurs, pré-sélectionner leur kiosque
   if (currentUser.role === 'vendeur') {
     row.style.display = 'none';
     currentKiosqueSource = currentUser.kiosque || '';
-  } else if (currentUser.role === 'serveur' || currentUser.role === 'admin' || currentUser.role === 'comptable') {
+    // Forcer la sélection du kiosque
+    if (currentKiosqueSource) {
+      sel.value = currentKiosqueSource;
+    }
+  } else if (currentUser.role === 'serveur') {
+    // Pour le serveur, afficher le sélecteur et pré-sélectionner le premier kiosque disponible
+    row.style.display = 'flex';
+    if (!currentKiosqueSource || !sel.querySelector(`option[value="${currentKiosqueSource}"]`)) {
+      const firstOption = sel.querySelector('option:not([value=""])');
+      if (firstOption) {
+        sel.value = firstOption.value;
+        currentKiosqueSource = firstOption.value;
+      } else {
+        sel.value = '';
+        currentKiosqueSource = '';
+      }
+    } else {
+      sel.value = currentKiosqueSource;
+    }
+  } else if (currentUser.role === 'admin' || currentUser.role === 'comptable') {
     row.style.display = 'flex';
     if (!currentKiosqueSource || !sel.querySelector(`option[value="${currentKiosqueSource}"]`)) {
       const firstOption = sel.querySelector('option:not([value=""])');
@@ -1280,13 +1304,13 @@ window.addEventListener('resize', () => {
 
 // ========== BADGE ==========
 function updateQueueBadge() {
-  const pending = orders.filter(o => o.date===today() && (o.status==='attente' || o.status==='preparation')).length;
+  const pending = orders.filter(o => o.date===today() && (o.status==='en_attente' || o.status==='attente' || o.status==='preparation')).length;
   ['hn-queue','bn-queue'].forEach(id => {
     const btn = document.getElementById(id);
     if (!btn) return;
     const old = btn.querySelector('.notif-dot, .bn-notif');
     if (old) old.remove();
-    if (pending > 0 && (currentUser.role === 'admin' || currentUser.role === 'cuisiniere' || currentUser.role === 'serveur')) {
+    if (pending > 0 && (currentUser.role === 'admin' || currentUser.role === 'cuisiniere' || currentUser.role === 'serveur' || currentUser.role === 'vendeur')) {
       const dot = document.createElement('span');
       dot.className = btn.id.startsWith('hn') ? 'notif-dot' : 'bn-notif';
       btn.appendChild(dot);
@@ -1297,37 +1321,43 @@ function updateQueueBadge() {
 // ========== DASHBOARD ==========
 function renderDashboard() {
   let todayOrders = orders.filter(o => o.date===today());
+  
+  // Filtrer selon le rôle
   let myOrders = todayOrders;
-  if (currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
+  if (currentUser.role === 'vendeur') {
     const vend = currentUser.kiosque || currentUser.name;
     myOrders = todayOrders.filter(o => o.vendeur === vend);
+  } else if (currentUser.role === 'serveur') {
+    const nom = currentUser.name;
+    myOrders = todayOrders.filter(o => o.vendeur === nom);
+  } else if (currentUser.role === 'comptable') {
+    const nom = currentUser.name;
+    myOrders = todayOrders.filter(o => o.caissier === nom);
   }
-  let totalJour, nbCommandes, enAttente, enPrep;
-  if (currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
-    totalJour = myOrders.reduce((s,o) => s+(o.total||0), 0);
-    nbCommandes = myOrders.length;
-    enAttente = myOrders.filter(o => o.status==='attente').length;
-    enPrep = myOrders.filter(o => o.status==='preparation').length;
-  } else {
-    totalJour = todayOrders.reduce((s,o) => s+(o.total||0), 0);
-    nbCommandes = todayOrders.length;
-    enAttente = todayOrders.filter(o => o.status==='attente').length;
-    enPrep = todayOrders.filter(o => o.status==='preparation').length;
-  }
+  // L'admin voit tout
+  
+  let totalJour = myOrders.reduce((s,o) => s+(o.total||0), 0);
+  let nbCommandes = myOrders.length;
+  let enAttentePaiement = myOrders.filter(o => o.status==='en_attente').length;
+  let enAttente = myOrders.filter(o => o.status==='attente').length;
+  let enPrep = myOrders.filter(o => o.status==='preparation').length;
 
-  const kiosques = users.filter(u => u.role === 'vendeur' && u.kiosque).map(u => u.kiosque);
+  // Alertes stock uniquement pour admin et vendeur
   let rupture = 0, stockBas = 0;
-  products.forEach(p => {
-    if (isFood(p)) return;
-    kiosques.forEach(k => {
-      const qty = (stockVendeur[k] && stockVendeur[k][p.id]) || 0;
-      if (qty <= 0) rupture++;
-      else if (qty <= 5) stockBas++;
+  if (currentUser.role === 'admin' || currentUser.role === 'vendeur') {
+    const kiosques = currentUser.role === 'vendeur' ? [currentUser.kiosque] : users.filter(u => u.role === 'vendeur' && u.kiosque).map(u => u.kiosque);
+    products.forEach(p => {
+      if (isFood(p)) return;
+      kiosques.forEach(k => {
+        const qty = (stockVendeur[k] && stockVendeur[k][p.id]) || 0;
+        if (qty <= 0) rupture++;
+        else if (qty <= 5) stockBas++;
+      });
     });
-  });
+  }
 
   let kpiHtml = '';
-  if (currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
+  if (currentUser.role === 'vendeur' || currentUser.role === 'serveur' || currentUser.role === 'comptable') {
     kpiHtml = `
       <div class="kpi-card green">
         <div class="kpi-icon">$</div>
@@ -1339,10 +1369,10 @@ function renderDashboard() {
         <div class="kpi-val">${nbCommandes}</div>
         <div class="kpi-label">Mes commandes</div>
       </div>
-      <div class="kpi-card amber">
-        <div class="kpi-icon">!</div>
-        <div class="kpi-val">${enAttente+enPrep}</div>
-        <div class="kpi-label">Mes commandes en cours</div>
+      <div class="kpi-card ${enAttentePaiement>0?'orange':'amber'}">
+        <div class="kpi-icon">⏳</div>
+        <div class="kpi-val">${enAttentePaiement+enAttente+enPrep}</div>
+        <div class="kpi-label">${enAttentePaiement>0?'À valider':'En cours'}</div>
       </div>
       <div class="kpi-card ${rupture>0?'red':stockBas>0?'amber':'green'}">
         <div class="kpi-icon">*</div>
@@ -1350,6 +1380,10 @@ function renderDashboard() {
         <div class="kpi-label">${rupture>0?'Ruptures de stock':stockBas>0?'Stock bas':'Stock OK'}</div>
       </div>`;
   } else {
+    // Admin voit tout
+    const allEnAttentePaiement = todayOrders.filter(o => o.status==='en_attente').length;
+    const allEnAttente = todayOrders.filter(o => o.status==='attente').length;
+    const allEnPrep = todayOrders.filter(o => o.status==='preparation').length;
     kpiHtml = `
       <div class="kpi-card green">
         <div class="kpi-icon">$</div>
@@ -1358,13 +1392,13 @@ function renderDashboard() {
       </div>
       <div class="kpi-card blue">
         <div class="kpi-icon">#</div>
-        <div class="kpi-val">${nbCommandes}</div>
+        <div class="kpi-val">${todayOrders.length}</div>
         <div class="kpi-label">Commandes aujourd'hui</div>
       </div>
-      <div class="kpi-card amber">
-        <div class="kpi-icon">!</div>
-        <div class="kpi-val">${enAttente+enPrep}</div>
-        <div class="kpi-label">En cours</div>
+      <div class="kpi-card orange">
+        <div class="kpi-icon">⏳</div>
+        <div class="kpi-val">${allEnAttentePaiement}</div>
+        <div class="kpi-label">En attente de validation</div>
       </div>
       <div class="kpi-card ${rupture>0?'red':stockBas>0?'amber':'green'}">
         <div class="kpi-icon">*</div>
@@ -1375,23 +1409,22 @@ function renderDashboard() {
   document.getElementById('dashKpi').innerHTML = kpiHtml;
 
   const alerts = [];
-  if (rupture>0) alerts.push({cls:'warn',msg:`Alerte: ${rupture} produit(s) en rupture dans certains kiosques`});
-  if (stockBas>0) alerts.push({cls:'warn',msg:`Alerte: ${stockBas} produit(s) avec stock bas (<=5) dans certains kiosques`});
-  if (enAttente>0 && currentUser.role !== 'vendeur' && currentUser.role !== 'serveur') alerts.push({cls:'info',msg:`Info: ${enAttente} commande(s) en attente en cuisine`});
-  if (enPrep>0 && currentUser.role !== 'vendeur' && currentUser.role !== 'serveur')    alerts.push({cls:'info',msg:`Info: ${enPrep} commande(s) en preparation`});
+  if (rupture>0) alerts.push({cls:'warn',msg:`Alerte: ${rupture} produit(s) en rupture`});
+  if (stockBas>0) alerts.push({cls:'warn',msg:`Alerte: ${stockBas} produit(s) avec stock bas`});
+  if (enAttentePaiement>0 && (currentUser.role === 'admin' || currentUser.role === 'vendeur')) alerts.push({cls:'info',msg:`Info: ${enAttentePaiement} commande(s) en attente de validation`});
+  if (enAttente>0 && (currentUser.role === 'admin' || currentUser.role === 'cuisiniere')) alerts.push({cls:'info',msg:`Info: ${enAttente} commande(s) en attente en cuisine`});
   if (!alerts.length) alerts.push({cls:'ok',msg:'Tout est en ordre'});
 
   document.getElementById('dashAlerts').innerHTML = alerts.map(a =>
     `<div class="alert-item ${a.cls}">${a.msg}</div>`
   ).join('');
 
-  const ordersToShow = (currentUser.role === 'vendeur' || currentUser.role === 'serveur') ? myOrders : todayOrders;
-  const recent = [...ordersToShow].reverse().slice(0,6);
+  const recent = [...myOrders].reverse().slice(0,6);
   if (!recent.length) {
     document.getElementById('dashOrders').innerHTML = '<div class="dash-empty">Aucune commande aujourd\'hui</div>';
   } else {
-    const stMap   = {attente:'bg-a',preparation:'bg-b',servie:'bg-g'};
-    const stLabel = {attente:'En cuisine',preparation:'En prep.',servie:'Servie'};
+    const stMap   = {en_attente:'bg-o',attente:'bg-a',preparation:'bg-b',servie:'bg-g'};
+    const stLabel = {en_attente:'À valider',attente:'En cuisine',preparation:'En prep.',servie:'Servie'};
     document.getElementById('dashOrders').innerHTML = recent.map(o => {
       const st = o.status||'attente';
       return `<div class="dash-order-row">
@@ -1465,7 +1498,13 @@ function renderProds() {
     let qty = 0;
     let stockMsg = '';
     let stockCls = 'ok';
-    if (hasStock) {
+    
+    // Les serveurs ne voient pas le stock
+    if (isServeur) {
+      stockMsg = 'Disponible';
+      stockCls = 'inf';
+      hasStock = false;
+    } else if (hasStock) {
       if (kiosqueAffiche && stockVendeur[kiosqueAffiche]) {
         qty = stockVendeur[kiosqueAffiche][p.id] || 0;
       } else {
@@ -1480,6 +1519,7 @@ function renderProds() {
       stockMsg = 'Disponible';
       stockCls = 'inf';
     }
+    
     const inCart   = (cart.find(c=>c.id===p.id)||{qty:0}).qty;
     const noStock  = hasStock && qty <= 0;
     const lowStock = hasStock && qty > 0 && qty <= 5;
@@ -1494,7 +1534,8 @@ function renderProds() {
       <div class="prod-price">${fmt(p.price)}</div>
       <div class="prod-stock ${stockCls}">${stockMsg}</div>
       ${!avail ? '<div class="prod-na">Indisponible</div>' : ''}
-      ${hasStock && kiosqueAffiche ? `<div style="font-size:.6rem;color:var(--muted);margin-top:2px;">${kiosqueAffiche}</div>` : ''}
+      ${hasStock && kiosqueAffiche && !isServeur ? `<div style="font-size:.6rem;color:var(--muted);margin-top:2px;">${kiosqueAffiche}</div>` : ''}
+      ${isServeur ? '<div style="font-size:.6rem;color:var(--muted);margin-top:2px;">👤 Serveur</div>' : ''}
     </button>`;
   }).join('');
 }
@@ -1503,7 +1544,7 @@ function addToCart(id) {
   const p = products.find(x => x.id===id);
   if (!p) return;
   let qtyStock = 0;
-  let hasStock = !isFood(p);
+  let hasStock = !isFood(p) && currentUser.role !== 'serveur'; // Les serveurs n'ont pas de stock
   if (hasStock) {
     let kiosque = '';
     if (currentUser.role === 'vendeur') {
@@ -1528,7 +1569,7 @@ function chgQty(id, d) {
   if (!item) return;
   const p = products.find(x=>x.id===id);
   if (!p) return;
-  if (d > 0 && !isFood(p)) {
+  if (d > 0 && !isFood(p) && currentUser.role !== 'serveur') {
     let kiosque = '';
     if (currentUser.role === 'vendeur') {
       kiosque = currentUser.kiosque || '';
@@ -1560,7 +1601,7 @@ function renderCart() {
   }
   el.innerHTML = cart.map(c => {
     const p = products.find(x=>x.id===c.id);
-    const hasStock = p && !isFood(p);
+    const hasStock = p && !isFood(p) && currentUser.role !== 'serveur';
     let stockRestant = 0;
     if (hasStock) {
       let kiosque = '';
@@ -1599,6 +1640,7 @@ function clearCart() {
   updateKiosqueSourceVisibility();
 }
 
+// ========== CONFIRMATION COMMANDE ==========
 async function confirmOrder() {
   if (!cart.length) { toast('La commande est vide'); return; }
   let kiosqueSource = '';
@@ -1609,21 +1651,45 @@ async function confirmOrder() {
   }
   if (!kiosqueSource) { toast('Sélectionner un kiosque source'); return; }
 
-  // Vérifier le stock pour les non-nourriture
-  for (const item of cart) {
-    const p = products.find(x=>x.id===item.id);
-    if (!p || isFood(p)) continue;
-    const qtyStock = (stockVendeur[kiosqueSource] && stockVendeur[kiosqueSource][item.id]) || 0;
-    if (qtyStock < item.qty) { toast('Stock insuffisant pour : '+item.name+' dans le kiosque '+kiosqueSource); return; }
+  // Vérifier le stock pour les non-nourriture (sauf serveurs qui ne gèrent pas le stock)
+  const isVendeur = currentUser.role === 'vendeur';
+  const isServeur = currentUser.role === 'serveur';
+  
+  if (isVendeur) {
+    for (const item of cart) {
+      const p = products.find(x=>x.id===item.id);
+      if (!p || isFood(p)) continue;
+      const qtyStock = (stockVendeur[kiosqueSource] && stockVendeur[kiosqueSource][item.id]) || 0;
+      if (qtyStock < item.qty) { toast('Stock insuffisant pour : '+item.name+' dans le kiosque '+kiosqueSource); return; }
+    }
   }
 
-  // Décrémenter le stock immédiatement
-  for (const item of cart) {
+  // Pour les serveurs, le stock sera déduit par le kiosque lors de la validation
+  if (isVendeur) {
+    // Vendeur : on déduit directement
+    for (const item of cart) {
+      const p = products.find(x=>x.id===item.id);
+      if (!p || isFood(p)) continue;
+      if (!stockVendeur[kiosqueSource]) stockVendeur[kiosqueSource] = {};
+      stockVendeur[kiosqueSource][item.id] = Math.max(0, (stockVendeur[kiosqueSource][item.id]||0) - item.qty);
+      await logStockMvt(item.id, 'vente', item.qty, stockVendeur[kiosqueSource][item.id], kiosqueSource, `Vente kiosque`);
+    }
+  }
+
+  // Déterminer si la commande contient de la nourriture
+  const hasFood = cart.some(item => {
     const p = products.find(x=>x.id===item.id);
-    if (!p || isFood(p)) continue;
-    if (!stockVendeur[kiosqueSource]) stockVendeur[kiosqueSource] = {};
-    stockVendeur[kiosqueSource][item.id] = Math.max(0, (stockVendeur[kiosqueSource][item.id]||0) - item.qty);
-    await logStockMvt(item.id, 'vente', item.qty, stockVendeur[kiosqueSource][item.id], kiosqueSource, `Commande`);
+    return p && isFood(p);
+  });
+
+  // Déterminer le statut initial
+  // - Si c'est un vendeur (kiosque) : statut = attente ou servie selon la présence de nourriture
+  // - Si c'est un serveur/admin/caissier : statut = en_attente (en attente de validation par le kiosque)
+  let orderStatus = '';
+  if (isVendeur) {
+    orderStatus = hasFood ? 'attente' : 'servie';
+  } else {
+    orderStatus = 'en_attente';
   }
 
   const order = {
@@ -1636,16 +1702,80 @@ async function confirmOrder() {
     note:     document.getElementById('noteIn').value,
     items:    cart.map(c=>({...c})),
     total:    cart.reduce((s,c)=>s+c.price*c.qty,0),
-    status:   'attente'
+    status:   orderStatus
   };
 
   orders.push(order);
   await saveFB('cb_orders', orders);
-  await saveFB('cb_stock_vendeur', stockVendeur);
-  logAction('Vente', 'Commande ' + order.id + ' - Kiosque source: ' + kiosqueSource + ' - Total ' + fmt(order.total));
-  toast('Commande '+order.id+' envoyee en cuisine');
+  if (isVendeur) {
+    await saveFB('cb_stock_vendeur', stockVendeur);
+  }
+  logAction('Commande', 'Commande ' + order.id + ' - Kiosque: ' + kiosqueSource + ' - Total ' + fmt(order.total) + ' - Statut: ' + orderStatus + ' - Pris par: ' + currentUser.role);
+  
+  if (isVendeur) {
+    toast(orderStatus === 'attente' ? 'Commande '+order.id+' envoyee en cuisine' : 'Commande '+order.id+' servie directement');
+  } else {
+    toast('Commande '+order.id+' en attente de validation par le kiosque');
+  }
   clearCart();
   updateQueueBadge();
+}
+
+// ========== VALIDATION PAR LE KIOSQUE (UNIQUEMENT VENDEUR) ==========
+async function validatePayment(id) {
+  const o = orders.find(x=>x.id===id);
+  if (!o) return;
+  if (o.status !== 'en_attente') { toast('Cette commande ne peut pas être validée'); return; }
+  
+  // SEUL le vendeur (agent de kiosque) peut valider
+  if (currentUser.role !== 'vendeur') {
+    toast('Seul l\'agent du kiosque peut valider cette commande');
+    return;
+  }
+  
+  const kiosque = o.kiosqueSource;
+  if (!kiosque) { toast('Kiosque source manquant'); return; }
+  
+  // Vérifier que le vendeur connecté correspond au kiosque source
+  if (currentUser.kiosque !== kiosque) {
+    toast('Vous ne pouvez valider que les commandes de votre kiosque');
+    return;
+  }
+  
+  // Vérifier le stock
+  for (const item of o.items) {
+    const p = products.find(x=>x.id===item.id);
+    if (!p || isFood(p)) continue;
+    const qtyStock = (stockVendeur[kiosque] && stockVendeur[kiosque][item.id]) || 0;
+    if (qtyStock < item.qty) {
+      toast('Stock insuffisant pour : '+item.name+' dans le kiosque '+kiosque);
+      return;
+    }
+  }
+  
+  // Déduire le stock
+  for (const item of o.items) {
+    const p = products.find(x=>x.id===item.id);
+    if (!p || isFood(p)) continue;
+    if (!stockVendeur[kiosque]) stockVendeur[kiosque] = {};
+    stockVendeur[kiosque][item.id] = Math.max(0, (stockVendeur[kiosque][item.id]||0) - item.qty);
+    await logStockMvt(item.id, 'vente', item.qty, stockVendeur[kiosque][item.id], kiosque, `Validation commande ${o.id}`);
+  }
+  
+  // Déterminer si la commande contient de la nourriture
+  const hasFood = o.items.some(item => {
+    const p = products.find(x=>x.id===item.id);
+    return p && isFood(p);
+  });
+  
+  o.status = hasFood ? 'attente' : 'servie';
+  await saveFB('cb_orders', orders);
+  await saveFB('cb_stock_vendeur', stockVendeur);
+  logAction('Validation paiement', 'Commande ' + o.id + ' validée par ' + currentUser.name + ' - Kiosque: ' + kiosque);
+  toast('Paiement validé, commande ' + (hasFood ? 'envoyée en cuisine' : 'servie directement'));
+  renderQueue();
+  updateQueueBadge();
+  if (currentPage==='journal') renderJournal();
 }
 
 function updateClock() {
@@ -1673,6 +1803,8 @@ function renderJournal() {
   if (currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
     const vend = currentUser.kiosque || currentUser.name;
     day = day.filter(o => o.vendeur === vend);
+  } else if (currentUser.role === 'comptable') {
+    day = day.filter(o => o.caissier === currentUser.name);
   } else if (currentUser.role === 'admin') {
     const filter = document.getElementById('jVendeurFilter').value;
     if (filter && filter !== 'tous') day = day.filter(o => o.vendeur === filter);
@@ -1690,8 +1822,8 @@ function renderJournal() {
     tb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--muted)">Aucune commande ce jour</td></tr>';
     return;
   }
-  const stMap   = {attente:'bg-a',preparation:'bg-b',servie:'bg-g'};
-  const stLabel = {attente:'En cuisine',preparation:'En prep.',servie:'Servie'};
+  const stMap   = {en_attente:'bg-o',attente:'bg-a',preparation:'bg-b',servie:'bg-g'};
+  const stLabel = {en_attente:'À valider',attente:'En cuisine',preparation:'En prep.',servie:'Servie'};
   tb.innerHTML = [...day].reverse().map(o => {
     const st = o.status||'attente';
     const articles = o.items.map(i => {
@@ -1719,8 +1851,8 @@ function viewOrder(id) {
   const o = orders.find(x=>x.id===id);
   if (!o) return;
   viewOrderId = id;
-  const stLabel = {attente:'En cuisine',preparation:'En preparation',servie:'Servie'};
-  const stCls   = {attente:'bg-a',preparation:'bg-b',servie:'bg-g'};
+  const stLabel = {en_attente:'En attente de validation',attente:'En cuisine',preparation:'En preparation',servie:'Servie'};
+  const stCls   = {en_attente:'bg-o',attente:'bg-a',preparation:'bg-b',servie:'bg-g'};
   const st = o.status||'attente';
   document.getElementById('modalOrderContent').innerHTML = `
     <div style="font-size:.85rem;line-height:2;">
@@ -1768,26 +1900,28 @@ async function confirmCancelOrder() {
   const o = orders.find(x => x.id === cancelOrderId);
   if (!o) { closeModal('modalCancelOrder'); return; }
   
-  // Restaurer le stock
-  const kiosque = o.kiosqueSource;
-  if (kiosque) {
-    for (const item of o.items) {
-      const p = products.find(x=>x.id===item.id);
-      if (!p || isFood(p)) continue;
-      if (!stockVendeur[kiosque]) stockVendeur[kiosque] = {};
-      stockVendeur[kiosque][item.id] = (stockVendeur[kiosque][item.id]||0) + item.qty;
-      await logStockMvt(item.id, 'ajustement', item.qty, stockVendeur[kiosque][item.id], kiosque,
-        `Annulation commande ${o.id}${reason?' -- '+reason:''} (restauration)`);
+  // Restaurer le stock si la commande était déjà validée (status != en_attente)
+  if (o.status !== 'en_attente') {
+    const kiosque = o.kiosqueSource;
+    if (kiosque) {
+      for (const item of o.items) {
+        const p = products.find(x=>x.id===item.id);
+        if (!p || isFood(p)) continue;
+        if (!stockVendeur[kiosque]) stockVendeur[kiosque] = {};
+        stockVendeur[kiosque][item.id] = (stockVendeur[kiosque][item.id]||0) + item.qty;
+        await logStockMvt(item.id, 'ajustement', item.qty, stockVendeur[kiosque][item.id], kiosque,
+          `Annulation commande ${o.id}${reason?' -- '+reason:''} (restauration)`);
+      }
+      await saveFB('cb_stock_vendeur', stockVendeur);
     }
   }
   
   orders = orders.filter(x => x.id !== cancelOrderId);
   await saveFB('cb_orders', orders);
-  await saveFB('cb_stock_vendeur', stockVendeur);
   logAction('Annulation commande', 'Commande ' + o.id + ' annulee par ' + currentUser.name + (reason?' - raison: '+reason:''));
   closeModal('modalCancelOrder');
   cancelOrderId = null;
-  toast('Commande annulee, stock restaure');
+  toast('Commande annulee' + (o.status !== 'en_attente' ? ', stock restaure' : ''));
   if (currentPage==='journal') renderJournal();
   if (currentPage==='queue')   renderQueue();
 }
@@ -1835,6 +1969,8 @@ function exportExcel() {
   } else if (currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
     const vend = currentUser.kiosque || currentUser.name;
     day = day.filter(o => o.vendeur === vend);
+  } else if (currentUser.role === 'comptable') {
+    day = day.filter(o => o.caissier === currentUser.name);
   }
   if (!day.length) { toast('Aucune donnee a exporter'); return; }
   const wb = XLSX.utils.book_new();
@@ -1869,6 +2005,8 @@ function renderVerif() {
   if (currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
     const vend = currentUser.kiosque || currentUser.name;
     day = day.filter(o => o.vendeur === vend);
+  } else if (currentUser.role === 'comptable') {
+    day = day.filter(o => o.caissier === currentUser.name);
   }
   const sysTotal = day.reduce((s,o)=>s+(o.total||0),0);
   const bycat    = {};
@@ -1883,7 +2021,7 @@ function renderVerif() {
     if (!byCaissier[c]) byCaissier[c]={n:0,total:0};
     byCaissier[c].n++; byCaissier[c].total+=(o.total||0);
   });
-  const byStatus = {attente:0,preparation:0,servie:0};
+  const byStatus = {en_attente:0,attente:0,preparation:0,servie:0};
   day.forEach(o=>{ byStatus[o.status||'attente']++; });
   const saved = verifs[date]||{};
 
@@ -1893,7 +2031,8 @@ function renderVerif() {
         <div class="verif-title">Recapitulatif systeme</div>
         <div class="verif-row"><span>Commandes enregistrees</span><strong>${day.length}</strong></div>
         <div class="verif-row"><span>Servies</span><strong style="color:var(--green)">${byStatus.servie}</strong></div>
-        <div class="verif-row"><span>En attente/prep.</span><strong style="color:var(--amber)">${byStatus.attente+byStatus.preparation}</strong></div>
+        <div class="verif-row"><span>En attente de validation</span><strong style="color:var(--orange)">${byStatus.en_attente}</strong></div>
+        <div class="verif-row"><span>En cuisine/prep.</span><strong style="color:var(--amber)">${byStatus.attente+byStatus.preparation}</strong></div>
         ${ALL_STOCK_CATS.map(cat=>`
           <div class="verif-row"><span>${getCatIcon(cat)}</span><strong>${fmt(bycat[cat]||0)}</strong></div>`
         ).join('')}
@@ -2015,9 +2154,13 @@ function renderQueue() {
     document.getElementById('queueTitle').textContent = 'Suivi commandes';
     document.getElementById('queueSub').textContent   = 'Statut de vos commandes (lecture seule)';
     document.getElementById('queueFilterBar').style.display = '';
-  } else if (currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
-    document.getElementById('queueTitle').textContent = 'Statut des commandes';
-    document.getElementById('queueSub').textContent   = 'Voir vos commandes en cours';
+  } else if (currentUser.role === 'vendeur') {
+    document.getElementById('queueTitle').textContent = 'Commandes à valider';
+    document.getElementById('queueSub').textContent   = 'Validez les paiements pour votre kiosque';
+    document.getElementById('queueFilterBar').style.display = '';
+  } else if (currentUser.role === 'serveur') {
+    document.getElementById('queueTitle').textContent = 'Suivi de mes commandes';
+    document.getElementById('queueSub').textContent   = 'Voir l\'état de vos commandes';
     document.getElementById('queueFilterBar').style.display = 'none';
   } else {
     document.getElementById('queueTitle').textContent = 'File d\'attente';
@@ -2026,17 +2169,23 @@ function renderQueue() {
   }
 
   let todayAll = orders.filter(o=>o.date===today());
-  if (currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
+  if (currentUser.role === 'vendeur') {
     const vend = currentUser.kiosque || currentUser.name;
-    todayAll = todayAll.filter(o => o.vendeur === vend);
+    todayAll = todayAll.filter(o => o.kiosqueSource === vend);
+  } else if (currentUser.role === 'serveur') {
+    todayAll = todayAll.filter(o => o.vendeur === currentUser.name);
+  } else if (currentUser.role === 'comptable') {
+    todayAll = todayAll.filter(o => o.caissier === currentUser.name);
   }
+  
   let filtered = todayAll;
+  if (queueFilter==='en_attente')  filtered = todayAll.filter(o=>o.status==='en_attente');
   if (queueFilter==='attente')     filtered = todayAll.filter(o=>o.status==='attente');
   if (queueFilter==='preparation') filtered = todayAll.filter(o=>o.status==='preparation');
   if (queueFilter==='servie')      filtered = todayAll.filter(o=>o.status==='servie');
 
   filtered.sort((a,b)=>{
-    const ord={attente:0,preparation:1,servie:2};
+    const ord={en_attente:0,attente:1,preparation:2,servie:3};
     const sa=ord[a.status||'attente']||0, sb=ord[b.status||'attente']||0;
     if (sa!==sb) return sa-sb;
     return a.time.localeCompare(b.time);
@@ -2048,10 +2197,33 @@ function renderQueue() {
     return;
   }
 
-  const stLabel = {attente:'En cuisine',preparation:'En prep.',servie:'Servie'};
-  const stMap   = {attente:'bg-a',preparation:'bg-b',servie:'bg-g'};
+  const stLabel = {en_attente:'À valider',attente:'En cuisine',preparation:'En prep.',servie:'Servie'};
+  const stMap   = {en_attente:'bg-o',attente:'bg-a',preparation:'bg-b',servie:'bg-g'};
 
-  if (currentUser.role === 'comptable' || currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
+  // VENDEUR (kiosque) - peut valider les commandes en_attente de son kiosque
+  if (currentUser.role === 'vendeur') {
+    grid.innerHTML = filtered.map(o => {
+      const st = o.status||'attente';
+      const isEnAttente = st === 'en_attente';
+      return `<div class="caissier-status-card" style="border-color:${isEnAttente ? 'var(--orange)' : 'var(--border)'};">
+        <div>
+          <div class="csc-id">${o.id}</div>
+          <div style="font-size:.7rem;color:var(--muted);margin-top:2px">${o.time}</div>
+        </div>
+        <div class="csc-info">
+          <div style="font-size:.75rem;">${o.items.length} article(s)</div>
+          <div style="font-size:.7rem;color:var(--muted);">${o.vendeur}</div>
+        </div>
+        <span class="badge ${stMap[st]||'bg-a'}">${stLabel[st]||'Attente'}</span>
+        ${isEnAttente ? `<button class="qc-btn qc-btn-validate" onclick="validatePayment('${o.id}')">Valider paiement</button>` : ''}
+      </div>`;
+    }).join('');
+    updateQueueBadge();
+    return;
+  }
+
+  // SERVEUR - voit ses commandes en lecture seule
+  if (currentUser.role === 'serveur') {
     grid.innerHTML = filtered.map(o => {
       const st = o.status||'attente';
       return `<div class="caissier-status-card">
@@ -2060,7 +2232,7 @@ function renderQueue() {
           <div style="font-size:.7rem;color:var(--muted);margin-top:2px">${o.time}</div>
         </div>
         <div class="csc-info">
-          <div style="font-size:.75rem;">${o.items.length} article(s) -- ${o.kiosqueSource||''}</div>
+          <div style="font-size:.75rem;">${o.items.length} article(s) - ${o.kiosqueSource||''}</div>
         </div>
         <span class="badge ${stMap[st]||'bg-a'}">${stLabel[st]||'Attente'}</span>
       </div>`;
@@ -2069,8 +2241,30 @@ function renderQueue() {
     return;
   }
 
-  // Vue cuisine / admin
-  grid.innerHTML = filtered.map(o => {
+  // ADMIN - peut tout voir mais NE PEUT PAS VALIDER
+  if (currentUser.role === 'admin' || currentUser.role === 'comptable') {
+    grid.innerHTML = filtered.map(o => {
+      const st = o.status||'attente';
+      const isEnAttente = st === 'en_attente';
+      return `<div class="caissier-status-card" style="border-color:${isEnAttente ? 'var(--orange)' : 'var(--border)'};">
+        <div>
+          <div class="csc-id">${o.id}</div>
+          <div style="font-size:.7rem;color:var(--muted);margin-top:2px">${o.time}</div>
+        </div>
+        <div class="csc-info">
+          <div style="font-size:.75rem;">${o.items.length} article(s) - ${o.kiosqueSource||''}</div>
+          <div style="font-size:.7rem;color:var(--muted);">${o.vendeur}</div>
+        </div>
+        <span class="badge ${stMap[st]||'bg-a'}">${stLabel[st]||'Attente'}</span>
+        ${isEnAttente ? `<span style="font-size:.7rem;color:var(--muted);">🔒 Seul le kiosque peut valider</span>` : ''}
+      </div>`;
+    }).join('');
+    updateQueueBadge();
+    return;
+  }
+
+  // CUISINE - uniquement les commandes en attente et preparation
+  grid.innerHTML = filtered.filter(o => o.status === 'attente' || o.status === 'preparation').map(o => {
     const st = o.status||'attente';
     const canStart = st==='attente';
     const canDone  = st==='preparation';
@@ -2093,12 +2287,19 @@ function renderQueue() {
       </div>
     </div>`;
   }).join('');
+  if (!grid.innerHTML) {
+    grid.innerHTML = '<div class="queue-empty"><div style="font-size:2.5rem;opacity:.2">-</div><div style="margin-top:.8rem;font-weight:600">Aucune commande en cuisine</div></div>';
+  }
   updateQueueBadge();
 }
 
 async function setOrderStatus(id, status) {
   const o = orders.find(x=>x.id===id);
   if (!o) return;
+  if (o.status === 'en_attente') {
+    toast('Cette commande doit d\'abord être validée par le kiosque');
+    return;
+  }
   o.status = status;
   await saveFB('cb_orders', orders);
   logAction('Changement statut', 'Commande ' + id + ' passe a ' + status);
@@ -2108,6 +2309,14 @@ async function setOrderStatus(id, status) {
 
 // ========== STOCK ==========
 function renderStock() {
+  // Les serveurs ne voient pas le stock
+  if (currentUser.role === 'serveur') {
+    document.getElementById('stockContent').innerHTML = '<div style="color:var(--muted);padding:2rem;text-align:center;">Le stock est géré par les kiosques. Vous pouvez consulter vos commandes dans l\'onglet "Suivi".</div>';
+    document.getElementById('stockTabs').innerHTML = '';
+    document.getElementById('mvtTable').innerHTML = '<tr><td colspan="8" style="text-align:center;padding:1.5rem;color:var(--muted)">Aucun mouvement pour vous</td></tr>';
+    return;
+  }
+  
   const tabsContainer = document.getElementById('stockTabs');
   const kiosques = users.filter(u => u.role === 'vendeur' && u.kiosque).map(u => u.kiosque);
   const uniqueKiosques = [...new Set(kiosques)];
@@ -2123,7 +2332,7 @@ function renderStock() {
     if (monKiosque) {
       tabsHtml += `<button class="stock-tab-btn act" data-tab="${monKiosque}" onclick="switchStockTab('${monKiosque}')">${monKiosque}</button>`;
     }
-  } else if (currentUser.role === 'serveur' || currentUser.role === 'comptable') {
+  } else if (currentUser.role === 'comptable') {
     tabsHtml += `<button class="stock-tab-btn act" data-tab="tous" onclick="switchStockTab('tous')">Stocks disponibles</button>`;
   }
   tabsContainer.innerHTML = tabsHtml;
@@ -2142,7 +2351,7 @@ function renderStockContent(tab) {
   const container = document.getElementById('stockContent');
   const isAdmin = currentUser.role === 'admin';
   const isVendeur = currentUser.role === 'vendeur';
-  const isServeur = currentUser.role === 'serveur' || currentUser.role === 'comptable';
+  const isComptable = currentUser.role === 'comptable';
 
   let html = '';
 
