@@ -562,24 +562,24 @@ tbody td{padding:9px 10px;}
   <div class="deco"></div>
   <div class="login-wrap">
     <div class="login-brand">
-      <span class="login-brand-icon">🏨</span>
+      <span class="login-brand-icon">H</span>
       <div class="login-brand-name">Complexe Beyla</div>
       <div class="login-brand-sep"></div>
-      <div class="login-brand-sub">Système de gestion</div>
+      <div class="login-brand-sub">Systeme de gestion</div>
     </div>
     <div class="login-box">
       <div class="login-title">Connexion</div>
       <div class="role-chips" id="roleChips">
-        <div class="role-chip sel" onclick="selRole('admin',this)">🔑 Admin</div>
-        <div class="role-chip" onclick="selRole('comptable',this)">🛒 Caissier</div>
-        <div class="role-chip" onclick="selRole('cuisiniere',this)">🍳 Cuisine</div>
-        <div class="role-chip" onclick="selRole('vendeur',this)">🥤 Vendeur</div>
+        <div class="role-chip sel" onclick="selRole('admin',this)">Admin</div>
+        <div class="role-chip" onclick="selRole('comptable',this)">Caissier</div>
+        <div class="role-chip" onclick="selRole('cuisiniere',this)">Cuisine</div>
+        <div class="role-chip" onclick="selRole('vendeur',this)">Vendeur</div>
       </div>
       <label class="login-label">Nom d'utilisateur</label>
       <input class="login-input" id="loginUser" placeholder="ex: admin" autocomplete="off">
       <label class="login-label">Mot de passe</label>
-      <input class="login-input" id="loginPass" type="password" placeholder="••••••">
-      <button class="login-btn" onclick="doLogin()">Se connecter →</button>
+      <input class="login-input" id="loginPass" type="password" placeholder="......">
+      <button class="login-btn" onclick="doLogin()">Se connecter</button>
       <div class="login-err" id="loginErr"></div>
     </div>
     <div class="login-sync">
@@ -593,16 +593,16 @@ tbody td{padding:9px 10px;}
 <div id="app" style="display:none;">
 
 <header class="header">
-  <div class="h-logo">🏨 Complexe Beyla</div>
+  <div class="h-logo">Complexe Beyla</div>
   <div class="h-role" id="hRole"></div>
   <div class="h-space"></div>
   <div class="h-nav" id="hNav"></div>
   <div class="h-user" id="hUser"></div>
   <div class="h-actions">
     <span class="sync-dot" id="headerSyncDot"></span>
-    <button class="pwd-btn" onclick="openChangePwd()" title="Modifier mot de passe">🔑</button>
+    <button class="pwd-btn" onclick="openChangePwd()" title="Modifier mot de passe">MDP</button>
     <button class="h-sync" id="syncBtn" onclick="syncNow()" title="Synchroniser">&#8635;</button>
-    <button class="logout-btn" onclick="doLogout()">↩ Déco.</button>
+    <button class="logout-btn" onclick="doLogout()">Deconnexion</button>
   </div>
 </header>
 
@@ -611,13 +611,13 @@ tbody td{padding:9px 10px;}
   <div class="dashboard-wrap">
     <div class="dash-welcome">
       <div class="dash-welcome-title" id="dashWelcomeTitle">Bienvenue</div>
-      <div class="dash-welcome-sub" id="dashWelcomeSub">Complexe Beyla — Système de gestion</div>
+      <div class="dash-welcome-sub" id="dashWelcomeSub">Complexe Beyla - Systeme de gestion</div>
     </div>
-    <div class="dash-section-title">📊 Aujourd'hui</div>
+    <div class="dash-section-title">Aujourd'hui</div>
     <div class="kpi-grid" id="dashKpi"></div>
-    <div class="dash-section-title">🔔 Alertes</div>
+    <div class="dash-section-title">Alertes</div>
     <div id="dashAlerts" style="margin-bottom:.5rem;"></div>
-    <div class="dash-section-title">🧾 Dernières commandes</div>
+    <div class="dash-section-title">Dernieres commandes</div>
     <div class="dash-orders-preview" id="dashOrders"></div>
   </div>
 </div>
@@ -625,8 +625,8 @@ tbody td{padding:9px 10px;}
 <!-- CAISSE -->
 <div id="pg-caisse" class="page">
   <div class="caisse-mobile-tabs">
-    <button class="cmt-btn act" id="cmt-catalogue" onclick="switchCaisseTab('catalogue')">📦 Catalogue</button>
-    <button class="cmt-btn" id="cmt-commande" onclick="switchCaisseTab('commande')">🛒 Commande <span id="cartCountBadge"></span></button>
+    <button class="cmt-btn act" id="cmt-catalogue" onclick="switchCaisseTab('catalogue')">Catalogue</button>
+    <button class="cmt-btn" id="cmt-commande" onclick="switchCaisseTab('commande')">Commande <span id="cartCountBadge"></span></button>
   </div>
   <div class="caisse-wrap">
     <div class="left-p m-act" id="cataloguePanel">
@@ -640,17 +640,17 @@ tbody td{padding:9px 10px;}
     <div class="right-p" id="commandePanel">
       <div class="order-top">
         <div style="font-weight:700;font-size:.9rem;">Nouvelle commande</div>
-        <div class="tbl-badge" id="tblBadge">Table —</div>
+        <div class="tbl-badge" id="tblBadge">Table --</div>
         <div class="order-meta" id="orderMeta"></div>
       </div>
       <div class="tbl-row">
         <label>Table</label>
         <select id="tblSel" onchange="updTable()">
-          <option value="">— Choisir —</option>
+          <option value="">-- Choisir --</option>
           <option>Table 1</option><option>Table 2</option><option>Table 3</option>
           <option>Table 4</option><option>Table 5</option><option>Table 6</option>
           <option>Table 7</option><option>Table 8</option>
-          <option>Bar</option><option>Terrasse</option><option>À emporter</option>
+          <option>Bar</option><option>Terrasse</option><option>A emporter</option>
         </select>
         <label>Client</label>
         <input type="text" id="clientIn" placeholder="Nom (opt.)">
@@ -661,8 +661,8 @@ tbody td{padding:9px 10px;}
         <div class="tot-row tot-main"><span>TOTAL</span><span id="totalT" style="color:var(--accent)">0 GNF</span></div>
         <textarea class="note-in" id="noteIn" rows="2" placeholder="Note pour la cuisine..."></textarea>
         <div class="act-row">
-          <button class="btn btn-ghost" onclick="clearCart()">✕ Annuler</button>
-          <button class="btn btn-ok" onclick="confirmOrder()">✓ Valider</button>
+          <button class="btn btn-ghost" onclick="clearCart()">Annuler</button>
+          <button class="btn btn-ok" onclick="confirmOrder()">Valider</button>
         </div>
       </div>
     </div>
@@ -673,12 +673,12 @@ tbody td{padding:9px 10px;}
 <div id="pg-journal" class="page">
   <div class="inner-page">
     <div class="pg-header">
-      <div><div class="pg-title">Journal</div><div class="pg-sub">Historique par journée</div></div>
+      <div><div class="pg-title">Journal</div><div class="pg-sub">Historique par journee</div></div>
       <input type="date" class="date-in" id="jDate" onchange="renderJournal()">
       <select class="filter-select" id="jVendeurFilter" onchange="renderJournal()" style="display:none;">
         <option value="tous">Tous les vendeurs</option>
       </select>
-      <button class="export-btn" onclick="exportExcel()">📥 Excel</button>
+      <button class="export-btn" onclick="exportExcel()">Excel</button>
     </div>
     <div class="stats-grid" id="statsGrid"></div>
     <div class="tbl-wrap">
@@ -694,7 +694,7 @@ tbody td{padding:9px 10px;}
 <div id="pg-verif" class="page">
   <div class="inner-page">
     <div class="pg-header">
-      <div><div class="pg-title">Vérification</div><div class="pg-sub">Rapprochement fin de journée</div></div>
+      <div><div class="pg-title">Verification</div><div class="pg-sub">Rapprochement fin de journee</div></div>
       <input type="date" class="date-in" id="vDate" onchange="renderVerif()">
     </div>
     <div class="verif-grid" id="verifGrid"></div>
@@ -706,13 +706,13 @@ tbody td{padding:9px 10px;}
   <div class="inner-page">
     <div class="pg-header">
       <div><div class="pg-title" id="queueTitle">File d'attente</div><div class="pg-sub" id="queueSub">Commandes en cours</div></div>
-      <button style="border:1.5px solid var(--border);border-radius:10px;padding:9px 14px;cursor:pointer;font-size:.82rem;background:var(--surface);font-weight:600;" onclick="syncNow()">↻ Actualiser</button>
+      <button style="border:1.5px solid var(--border);border-radius:10px;padding:9px 14px;cursor:pointer;font-size:.82rem;background:var(--surface);font-weight:600;" onclick="syncNow()">Actualiser</button>
     </div>
     <div class="qc-filter-bar" id="queueFilterBar">
       <button class="qc-filter-btn act" id="qf-tous" onclick="setQueueFilter('tous')">Toutes</button>
-      <button class="qc-filter-btn" id="qf-attente" onclick="setQueueFilter('attente')">⏳ En attente</button>
-      <button class="qc-filter-btn" id="qf-preparation" onclick="setQueueFilter('preparation')">⚡ En prép.</button>
-      <button class="qc-filter-btn" id="qf-servie" onclick="setQueueFilter('servie')">✓ Servies</button>
+      <button class="qc-filter-btn" id="qf-attente" onclick="setQueueFilter('attente')">En attente</button>
+      <button class="qc-filter-btn" id="qf-preparation" onclick="setQueueFilter('preparation')">En prep.</button>
+      <button class="qc-filter-btn" id="qf-servie" onclick="setQueueFilter('servie')">Servies</button>
     </div>
     <div class="queue-grid" id="queueGrid"></div>
   </div>
@@ -722,7 +722,7 @@ tbody td{padding:9px 10px;}
 <div id="pg-cuisine" class="page">
   <div class="inner-page">
     <div class="pg-header">
-      <div><div class="pg-title">Disponibilité</div><div class="pg-sub">Plats disponibles aujourd'hui</div></div>
+      <div><div class="pg-title">Disponibilite</div><div class="pg-sub">Plats disponibles aujourd'hui</div></div>
     </div>
     <div class="cuisine-grid" id="cuisineGrid"></div>
   </div>
@@ -738,10 +738,10 @@ tbody td{padding:9px 10px;}
     <div class="stock-cats" id="stockCatBar"></div>
     <div class="stock-grid" id="stockGrid"></div>
     <div class="mvt-grid">
-      <div class="mvt-title">📋 Historique des mouvements récents</div>
+      <div class="mvt-title">Historique des mouvements recents</div>
       <div class="tbl-wrap">
         <table>
-          <thead><tr><th>Date/Heure</th><th>Produit</th><th>Catégorie</th><th>Type</th><th>Quantité</th><th>Stock après</th><th>Par</th><th>Vendeur</th></tr></thead>
+          <thead><tr><th>Date/Heure</th><th>Produit</th><th>Categorie</th><th>Type</th><th>Quantite</th><th>Stock apres</th><th>Par</th><th>Vendeur</th></tr></thead>
           <tbody id="mvtTable"></tbody>
         </table>
       </div>
@@ -756,20 +756,28 @@ tbody td{padding:9px 10px;}
     <div class="admin-grid">
       <div class="admin-card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem;">
-          <div class="admin-card-title" style="margin:0">👥 Comptes utilisateurs</div>
+          <div class="admin-card-title" style="margin:0">Comptes utilisateurs</div>
           <button class="add-btn" onclick="openAddUser()">+ Ajouter</button>
         </div>
         <div id="userList"></div>
       </div>
       <div class="admin-card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem;">
-          <div class="admin-card-title" style="margin:0">📦 Produits & Menu</div>
+          <div class="admin-card-title" style="margin:0">Produits & Menu</div>
           <button class="add-btn" onclick="openAddProd()">+ Ajouter</button>
         </div>
         <div class="prod-mgmt-grid" id="prodMgmtGrid"></div>
       </div>
+      <!-- Gestion des stocks par vendeur -->
       <div class="admin-card" style="grid-column:1/-1;">
-        <div class="admin-card-title">📊 Ventes par vendeur (aujourd'hui)</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem;">
+          <div class="admin-card-title" style="margin:0">Allocation de stock par vendeur</div>
+          <button class="btn btn-green" style="flex:0;padding:8px 20px;" onclick="saveAllocationVendeur()">Enregistrer</button>
+        </div>
+        <div id="allocationVendeurContainer"></div>
+      </div>
+      <div class="admin-card" style="grid-column:1/-1;">
+        <div class="admin-card-title">Ventes par vendeur (aujourd'hui)</div>
         <div id="ventesVendeur"></div>
       </div>
     </div>
@@ -780,7 +788,7 @@ tbody td{padding:9px 10px;}
 
 <div class="bottom-nav" id="bottomNav"></div>
 <div id="floatingValidate">
-  <button onclick="confirmOrder()">✓ VALIDER LA COMMANDE</button>
+  <button onclick="confirmOrder()">VALIDER LA COMMANDE</button>
 </div>
 
 <!-- ===== MODALS ===== -->
@@ -789,7 +797,7 @@ tbody td{padding:9px 10px;}
 <div class="overlay" id="modalOrder">
   <div class="modal">
     <span class="modal-handle"></span>
-    <h3>Détail commande</h3>
+    <h3>Detail commande</h3>
     <div id="modalOrderContent"></div>
     <div class="modal-acts" id="modalOrderActs">
       <button class="btn btn-ghost" onclick="closeModal('modalOrder')">Fermer</button>
@@ -801,10 +809,10 @@ tbody td{padding:9px 10px;}
 <div class="overlay" id="modalCancelOrder">
   <div class="modal">
     <span class="modal-handle"></span>
-    <h3>⚠️ Annuler la commande</h3>
+    <h3>Annuler la commande</h3>
     <div style="font-size:.88rem;color:var(--muted);margin-bottom:1rem;line-height:1.7;">
-      Cette action supprime définitivement la commande.<br>
-      Le stock sera restauré automatiquement.
+      Cette action supprime definitivement la commande.<br>
+      Le stock sera restaure automatiquement.
     </div>
     <div class="form-group">
       <label class="form-label">Raison de l'annulation</label>
@@ -812,7 +820,7 @@ tbody td{padding:9px 10px;}
     </div>
     <div class="modal-acts">
       <button class="btn btn-ghost" onclick="closeModal('modalCancelOrder')">Retour</button>
-      <button class="btn" style="background:var(--red);color:#fff;" onclick="confirmCancelOrder()">🗑 Confirmer annulation</button>
+      <button class="btn" style="background:var(--red);color:#fff;" onclick="confirmCancelOrder()">Confirmer annulation</button>
     </div>
   </div>
 </div>
@@ -824,12 +832,12 @@ tbody td{padding:9px 10px;}
     <h3 id="modalUserTitle">Nouveau compte</h3>
     <div class="form-group"><label class="form-label">Nom complet</label><input class="form-in" id="uName" placeholder="ex: Mamadou Diallo"></div>
     <div class="form-group"><label class="form-label">Nom d'utilisateur</label><input class="form-in" id="uLogin" placeholder="ex: mamadou1"></div>
-    <div class="form-group"><label class="form-label">Mot de passe</label><input class="form-in" id="uPass" type="password" placeholder="••••••"></div>
-    <div class="form-group"><label class="form-label">Rôle</label>
+    <div class="form-group"><label class="form-label">Mot de passe</label><input class="form-in" id="uPass" type="password" placeholder="......"></div>
+    <div class="form-group"><label class="form-label">Role</label>
       <select class="form-in" id="uRole" onchange="toggleKiosqueField()">
         <option value="admin">Administrateur</option>
         <option value="comptable">Caissier / Comptable</option>
-        <option value="cuisiniere">Cuisinière</option>
+        <option value="cuisiniere">Cuisiniere</option>
         <option value="vendeur">Vendeur(euse) boissons</option>
       </select>
     </div>
@@ -851,21 +859,21 @@ tbody td{padding:9px 10px;}
     <h3 id="modalProdTitle">Nouveau produit</h3>
     <div class="form-group"><label class="form-label">Nom du produit</label><input class="form-in" id="pName" placeholder="ex: Jus Gingembre Frais"></div>
     <div class="form-group"><label class="form-label">Prix (GNF)</label><input class="form-in" id="pPrice" type="number" placeholder="ex: 10000"></div>
-    <div class="form-group"><label class="form-label">Catégorie</label>
+    <div class="form-group"><label class="form-label">Categorie</label>
       <select class="form-in" id="pCat">
-        <option value="Nourriture">🍛 Nourriture</option>
-        <option value="Boissons">🥤 Boissons & Jus</option>
-        <option value="Chicha">💨 Chicha</option>
-        <option value="Snacks">🍿 Snacks / Popcorn</option>
-        <option value="Desserts">🍦 Desserts / Crème glacée</option>
+        <option value="Nourriture">Nourriture</option>
+        <option value="Boissons">Boissons & Jus</option>
+        <option value="Chicha">Chicha</option>
+        <option value="Snacks">Snacks / Popcorn</option>
+        <option value="Desserts">Desserts / Creme glacee</option>
       </select>
     </div>
     <div class="form-group" id="stockFieldGroup">
-      <label class="form-label">Stock initial <span id="stockUnit" style="font-weight:400;color:var(--muted);">(unités)</span></label>
+      <label class="form-label">Stock initial <span id="stockUnit" style="font-weight:400;color:var(--muted);">(unites)</span></label>
       <input class="form-in" id="pStock" type="number" placeholder="ex: 20" min="0">
     </div>
     <div id="pStockNote" style="font-size:.75rem;color:var(--blue);background:var(--blue-bg);border-radius:8px;padding:8px 10px;margin-top:-6px;margin-bottom:10px;display:none;">
-      ℹ️ Les boissons, chichas et snacks utilisent la gestion par stock (unités).
+      Note: Les boissons, chichas et snacks utilisent la gestion par stock (unites).
     </div>
     <div class="modal-acts">
       <button class="btn btn-ghost" onclick="closeModal('modalProd')">Annuler</button>
@@ -878,10 +886,10 @@ tbody td{padding:9px 10px;}
 <div class="overlay" id="modalPwd">
   <div class="modal">
     <span class="modal-handle"></span>
-    <h3>🔑 Modifier mon mot de passe</h3>
-    <div class="form-group"><label class="form-label">Ancien mot de passe</label><input class="form-in" id="pwdOld" type="password" placeholder="••••••"></div>
-    <div class="form-group"><label class="form-label">Nouveau mot de passe</label><input class="form-in" id="pwdNew" type="password" placeholder="••••••"></div>
-    <div class="form-group"><label class="form-label">Confirmer le nouveau</label><input class="form-in" id="pwdConf" type="password" placeholder="••••••"></div>
+    <h3>Modifier mon mot de passe</h3>
+    <div class="form-group"><label class="form-label">Ancien mot de passe</label><input class="form-in" id="pwdOld" type="password" placeholder="......"></div>
+    <div class="form-group"><label class="form-label">Nouveau mot de passe</label><input class="form-in" id="pwdNew" type="password" placeholder="......"></div>
+    <div class="form-group"><label class="form-label">Confirmer le nouveau</label><input class="form-in" id="pwdConf" type="password" placeholder="......"></div>
     <div id="pwdErr" style="color:var(--red);font-size:.82rem;min-height:18px;margin-top:4px;"></div>
     <div class="modal-acts">
       <button class="btn btn-ghost" onclick="closeModal('modalPwd')">Annuler</button>
@@ -894,50 +902,45 @@ tbody td{padding:9px 10px;}
 
 <!-- ==================== JAVASCRIPT ==================== -->
 <script>
-// ========== DONNÉES PAR DÉFAUT ==========
+// ========== DONNEES PAR DEFAUT ==========
 const DEFAULT_USERS = [
   {id:1, name:'Administrateur', login:'admin',   pass:'admin123',  role:'admin', kiosque:null},
   {id:2, name:'Caissier Moussa',    login:'moussa',  pass:'caisse1',  role:'comptable', kiosque:null},
-  {id:3, name:'Caissière Fatoumata',login:'fato',    pass:'caisse2',  role:'comptable', kiosque:null},
-  {id:4, name:'Cuisinière Aminata', login:'aminata', pass:'cuisine1', role:'cuisiniere', kiosque:null},
+  {id:3, name:'Caissiere Fatoumata',login:'fato',    pass:'caisse2',  role:'comptable', kiosque:null},
+  {id:4, name:'Cuisiniere Aminata', login:'aminata', pass:'cuisine1', role:'cuisiniere', kiosque:null},
   {id:5, name:'Kiosque Sud - Mariama', login:'mariama', pass:'vendeur1', role:'vendeur', kiosque:'Kiosque Sud'},
   {id:6, name:'Kiosque Nord - Aissatou', login:'aissatou', pass:'vendeur2', role:'vendeur', kiosque:'Kiosque Nord'},
 ];
 const DEFAULT_PRODUCTS = [
-  // NOURRITURE
   {id:1,  name:'Riz Sauce Arachide',   price:25000, cat:'Nourriture', stock:20},
   {id:2,  name:'Riz Sauce Gombo',      price:22000, cat:'Nourriture', stock:20},
   {id:3,  name:'Riz Foutou',           price:20000, cat:'Nourriture', stock:20},
-  {id:4,  name:'Poulet Braisé',        price:35000, cat:'Nourriture', stock:15},
-  {id:5,  name:'Poisson Braisé',       price:30000, cat:'Nourriture', stock:15},
+  {id:4,  name:'Poulet Braise',        price:35000, cat:'Nourriture', stock:15},
+  {id:5,  name:'Poisson Braise',       price:30000, cat:'Nourriture', stock:15},
   {id:6,  name:'Viande Sauce',         price:40000, cat:'Nourriture', stock:10},
   {id:7,  name:'Omelette Pain',        price:15000, cat:'Nourriture', stock:20},
   {id:8,  name:'Placali Sauce',        price:18000, cat:'Nourriture', stock:20},
-  // BOISSONS & JUS
-  {id:9,  name:'Eau Minérale',         price:5000,  cat:'Boissons',   stock:50},
+  {id:9,  name:'Eau Minerale',         price:5000,  cat:'Boissons',   stock:50},
   {id:10, name:'Jus Naturel Gingembre',price:8000,  cat:'Boissons',   stock:30},
   {id:11, name:'Jus Naturel Bissap',   price:8000,  cat:'Boissons',   stock:30},
   {id:12, name:'Jus Naturel Ananas',   price:8000,  cat:'Boissons',   stock:25},
-  {id:13, name:'Bière Castel',         price:10000, cat:'Boissons',   stock:30},
+  {id:13, name:'Biere Castel',         price:10000, cat:'Boissons',   stock:30},
   {id:14, name:'Soda Coca-Cola',       price:6000,  cat:'Boissons',   stock:40},
   {id:15, name:'Soda Fanta',           price:6000,  cat:'Boissons',   stock:40},
-  {id:16, name:'Café',                 price:5000,  cat:'Boissons',   stock:30},
-  {id:17, name:'Thé Citron',           price:5000,  cat:'Boissons',   stock:30},
-  // CHICHA
+  {id:16, name:'Cafe',                 price:5000,  cat:'Boissons',   stock:30},
+  {id:17, name:'The Citron',           price:5000,  cat:'Boissons',   stock:30},
   {id:18, name:'Chicha Simple',        price:50000, cat:'Chicha',     stock:10},
   {id:19, name:'Chicha Double Pomme',  price:80000, cat:'Chicha',     stock:8},
   {id:20, name:'Chicha Fruits Mixtes', price:70000, cat:'Chicha',     stock:8},
-  {id:21, name:'Chicha Menthe Fraîche',price:60000, cat:'Chicha',     stock:8},
-  // SNACKS / POPCORN
+  {id:21, name:'Chicha Menthe Fraiche',price:60000, cat:'Chicha',     stock:8},
   {id:22, name:'Popcorn Sachet',       price:5000,  cat:'Snacks',     stock:50},
   {id:23, name:'Popcorn Grand Bol',    price:10000, cat:'Snacks',     stock:30},
-  {id:24, name:'Cacahuètes Grillées',  price:3000,  cat:'Snacks',     stock:50},
-  {id:25, name:'Chips Assaisonnées',   price:5000,  cat:'Snacks',     stock:30},
-  // DESSERTS
-  {id:26, name:'Crème Glacée Vanille', price:15000, cat:'Desserts',   stock:20},
-  {id:27, name:'Crème Glacée Chocolat',price:15000, cat:'Desserts',   stock:20},
-  {id:28, name:'Crème au Lait',        price:10000, cat:'Desserts',   stock:20},
-  {id:29, name:'Yaourt Sucré',         price:8000,  cat:'Desserts',   stock:25},
+  {id:24, name:'Cacahuetes Grillees',  price:3000,  cat:'Snacks',     stock:50},
+  {id:25, name:'Chips Assaisonnees',   price:5000,  cat:'Snacks',     stock:30},
+  {id:26, name:'Creme Glacee Vanille', price:15000, cat:'Desserts',   stock:20},
+  {id:27, name:'Creme Glacee Chocolat',price:15000, cat:'Desserts',   stock:20},
+  {id:28, name:'Creme au Lait',        price:10000, cat:'Desserts',   stock:20},
+  {id:29, name:'Yaourt Sucre',         price:8000,  cat:'Desserts',   stock:25},
 ];
 
 // ========== VARIABLES GLOBALES ==========
@@ -948,6 +951,7 @@ let dispo     = JSON.parse(localStorage.getItem('cb_dispo'))      || {};
 let verifs    = JSON.parse(localStorage.getItem('cb_verifs'))     || {};
 let stock     = JSON.parse(localStorage.getItem('cb_stock'))      || {};
 let stockMvts = JSON.parse(localStorage.getItem('cb_stock_mvts')) || [];
+let stockVendeur = JSON.parse(localStorage.getItem('cb_stock_vendeur')) || {}; // { vendeurNom: { produitId: qty } }
 
 let currentUser = null, cart = [], editUserId = null, editProdId = null;
 let viewOrderId = null, syncInProgress = false, queueFilter = 'tous';
@@ -955,19 +959,7 @@ let selRoleVal  = 'admin';
 let cancelOrderId = null;
 let stockCatFilter = 'Tout';
 
-// Catégories avec stock géré
 const ALL_STOCK_CATS = ['Nourriture','Boissons','Chicha','Snacks','Desserts'];
-
-function initStock() {
-  let changed = false;
-  products.forEach(p => {
-    if (stock[p.id] === undefined) {
-      stock[p.id] = p.stock !== undefined ? p.stock : 20;
-      changed = true;
-    }
-  });
-  if (changed) saveLS('cb_stock', stock);
-}
 
 // ========== FIREBASE ==========
 const fbConfig = {
@@ -1003,24 +995,25 @@ function setSyncDot(online) {
 
 async function loadFB() {
   try {
-    const keys = ['cb_users','cb_prods','cb_orders','cb_dispo','cb_verifs','cb_stock','cb_stock_mvts'];
+    const keys = ['cb_users','cb_prods','cb_orders','cb_dispo','cb_verifs','cb_stock','cb_stock_mvts','cb_stock_vendeur'];
     for (const key of keys) {
       const snap = await db.ref('beyla/' + key).once('value');
       if (snap.exists()) {
         const val = snap.val();
         saveLS(key, val);
-        if (key==='cb_users')      users     = val;
-        if (key==='cb_prods')      products  = val;
-        if (key==='cb_orders')     orders    = val;
-        if (key==='cb_dispo')      dispo     = val;
-        if (key==='cb_verifs')     verifs    = val;
-        if (key==='cb_stock')      stock     = val;
-        if (key==='cb_stock_mvts') stockMvts = Array.isArray(val) ? val : Object.values(val);
+        if (key==='cb_users')        users     = val;
+        if (key==='cb_prods')        products  = val;
+        if (key==='cb_orders')       orders    = val;
+        if (key==='cb_dispo')        dispo     = val;
+        if (key==='cb_verifs')       verifs    = val;
+        if (key==='cb_stock')        stock     = val;
+        if (key==='cb_stock_mvts')   stockMvts = Array.isArray(val) ? val : Object.values(val);
+        if (key==='cb_stock_vendeur') stockVendeur = val;
       }
     }
     setSyncDot(true);
     const msg = document.getElementById('loginSyncMsg');
-    if (msg) msg.textContent = 'Connecté ✓';
+    if (msg) msg.textContent = 'Connecte';
     return true;
   } catch(e) {
     const msg = document.getElementById('loginSyncMsg');
@@ -1037,7 +1030,7 @@ async function syncNow() {
   if (btn) btn.classList.add('spinning');
   await loadFB();
   refreshCurrentPage();
-  toast('✓ Synchronisé');
+  toast('Synchronise');
   syncInProgress = false;
   if (btn) btn.classList.remove('spinning');
 }
@@ -1061,6 +1054,13 @@ function listenOrders() {
       if (currentPage==='stock')  renderStock();
     }
   });
+  db.ref('beyla/cb_stock_vendeur').on('value', snap => {
+    if (snap.exists()) {
+      stockVendeur = snap.val();
+      saveLS('cb_stock_vendeur', stockVendeur);
+      if (currentPage==='caisse') renderProds();
+    }
+  });
 }
 
 // ========== UTILS ==========
@@ -1079,8 +1079,8 @@ function closeModal(id) { document.getElementById(id).classList.remove('open'); 
 function getStockClass(qty) { return qty <= 0 ? 'out' : qty <= 5 ? 'low' : 'ok'; }
 function getStockLabel(qty) { return qty <= 0 ? 'Rupture' : qty <= 5 ? 'Stock bas' : 'En stock'; }
 function getCatIcon(cat) {
-  const icons = {Nourriture:'🍛',Boissons:'🥤',Chicha:'💨',Snacks:'🍿',Desserts:'🍦'};
-  return icons[cat] || '📦';
+  const icons = {Nourriture:'Nourriture',Boissons:'Boissons',Chicha:'Chicha',Snacks:'Snacks',Desserts:'Desserts'};
+  return icons[cat] || cat;
 }
 
 async function logStockMvt(prodId, type, qty, stockAfter, note) {
@@ -1089,8 +1089,8 @@ async function logStockMvt(prodId, type, qty, stockAfter, note) {
     ts: nowFull(), date: today(), prodId,
     prodName: p ? p.name : '?', prodCat: p ? p.cat : '?',
     type, qty, stockAfter,
-    by: currentUser ? currentUser.name : '—',
-    vendeur: currentUser ? (currentUser.kiosque || currentUser.name) : '—',
+    by: currentUser ? currentUser.name : '--',
+    vendeur: currentUser ? (currentUser.kiosque || currentUser.name) : '--',
     note: note||''
   };
   stockMvts.unshift(mvt);
@@ -1132,38 +1132,38 @@ document.getElementById('loginPass').addEventListener('keydown', e => { if (e.ke
 // ========== APP INIT ==========
 const NAV_MAP = {
   admin: [
-    {id:'accueil', label:'Accueil',  icon:'🏠'},
-    {id:'caisse',  label:'Caisse',   icon:'🛒'},
-    {id:'journal', label:'Journal',  icon:'📋'},
-    {id:'verif',   label:'Vérif.',   icon:'✅'},
-    {id:'queue',   label:'Cuisine',  icon:'🍳'},
-    {id:'cuisine', label:'Dispo',    icon:'🔆'},
-    {id:'stock',   label:'Stock',    icon:'📦'},
-    {id:'admin',   label:'Admin',    icon:'⚙️'},
+    {id:'accueil', label:'Accueil'},
+    {id:'caisse',  label:'Caisse'},
+    {id:'journal', label:'Journal'},
+    {id:'verif',   label:'Verif.'},
+    {id:'queue',   label:'Cuisine'},
+    {id:'cuisine', label:'Dispo'},
+    {id:'stock',   label:'Stock'},
+    {id:'admin',   label:'Admin'},
   ],
   comptable: [
-    {id:'accueil', label:'Accueil',  icon:'🏠'},
-    {id:'caisse',  label:'Caisse',   icon:'🛒'},
-    {id:'journal', label:'Journal',  icon:'📋'},
-    {id:'verif',   label:'Vérif.',   icon:'✅'},
-    {id:'queue',   label:'Statut',   icon:'📡'},
+    {id:'accueil', label:'Accueil'},
+    {id:'caisse',  label:'Caisse'},
+    {id:'journal', label:'Journal'},
+    {id:'verif',   label:'Verif.'},
+    {id:'queue',   label:'Statut'},
   ],
   cuisiniere: [
-    {id:'queue',   label:'Commandes', icon:'🍳'},
+    {id:'queue',   label:'Commandes'},
   ],
   vendeur: [
-    {id:'accueil', label:'Accueil',  icon:'🏠'},
-    {id:'caisse',  label:'Caisse',   icon:'🛒'},
-    {id:'journal', label:'Journal',  icon:'📋'},
-    {id:'verif',   label:'Vérif.',   icon:'✅'},
+    {id:'accueil', label:'Accueil'},
+    {id:'caisse',  label:'Caisse'},
+    {id:'journal', label:'Journal'},
+    {id:'verif',   label:'Verif.'},
   ],
 };
 
 function initApp() {
-  const roleLabels = {admin:'Administrateur', comptable:'Caissier', cuisiniere:'Cuisinière', vendeur:'Vendeur'};
+  const roleLabels = {admin:'Administrateur', comptable:'Caissier', cuisiniere:'Cuisiniere', vendeur:'Vendeur'};
   document.getElementById('hRole').textContent = roleLabels[currentUser.role];
   document.getElementById('hUser').textContent = currentUser.name;
-  document.getElementById('dashWelcomeTitle').textContent = 'Bonjour, ' + currentUser.name.split(' ')[0] + ' 👋';
+  document.getElementById('dashWelcomeTitle').textContent = 'Bonjour, ' + currentUser.name.split(' ')[0];
   document.getElementById('dashWelcomeSub').textContent = new Date().toLocaleDateString('fr-FR', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
 
   const navs = NAV_MAP[currentUser.role] || [];
@@ -1173,17 +1173,17 @@ function initApp() {
 
   let bottomHTML = navs.map(n =>
     `<button class="bn-item" id="bn-${n.id}" onclick="showPage('${n.id}')">
-      <span class="bn-icon">${n.icon}</span>${n.label}
+      <span class="bn-icon">${n.label[0]}</span>${n.label}
     </button>`
   ).join('');
 
   if (currentUser.role !== 'cuisiniere') {
     bottomHTML += `<button class="bn-item" onclick="openChangePwd()" title="Mot de passe">
-      <span class="bn-icon">🔑</span>MDP
+      <span class="bn-icon">M</span>MDP
     </button>`;
   }
-  bottomHTML += `<button class="bn-logout" onclick="doLogout()" title="Déconnexion">
-    <span class="bn-icon" style="font-size:1.2rem;">↩</span>Déco.
+  bottomHTML += `<button class="bn-logout" onclick="doLogout()" title="Deconnexion">
+    <span class="bn-icon" style="font-size:1.2rem;">X</span>Deco.
   </button>`;
 
   document.getElementById('bottomNav').innerHTML = bottomHTML;
@@ -1249,7 +1249,6 @@ function updateQueueBadge() {
 // ========== DASHBOARD ==========
 function renderDashboard() {
   let todayOrders = orders.filter(o => o.date===today());
-  // Filtrer par vendeur si rôle = vendeur
   if (currentUser.role === 'vendeur') {
     const vend = currentUser.kiosque || currentUser.name;
     todayOrders = todayOrders.filter(o => o.vendeur === vend);
@@ -1262,32 +1261,32 @@ function renderDashboard() {
 
   document.getElementById('dashKpi').innerHTML = `
     <div class="kpi-card green">
-      <div class="kpi-icon">💰</div>
+      <div class="kpi-icon">$</div>
       <div class="kpi-val">${fmt(totalJour)}</div>
       <div class="kpi-label">Recettes du jour</div>
     </div>
     <div class="kpi-card blue">
-      <div class="kpi-icon">🧾</div>
+      <div class="kpi-icon">#</div>
       <div class="kpi-val">${todayOrders.length}</div>
       <div class="kpi-label">Commandes aujourd'hui</div>
     </div>
     <div class="kpi-card amber">
-      <div class="kpi-icon">⏳</div>
+      <div class="kpi-icon">!</div>
       <div class="kpi-val">${enAttente+enPrep}</div>
       <div class="kpi-label">En cuisine</div>
     </div>
     <div class="kpi-card ${rupture>0?'red':stockBas>0?'amber':'green'}">
-      <div class="kpi-icon">📦</div>
+      <div class="kpi-icon">*</div>
       <div class="kpi-val">${rupture>0?rupture:stockBas}</div>
       <div class="kpi-label">${rupture>0?'Ruptures de stock':stockBas>0?'Stock bas':'Stock OK'}</div>
     </div>`;
 
   const alerts = [];
-  if (rupture>0) alerts.push({cls:'warn',msg:`⚠️ ${rupture} article(s) en rupture de stock`});
-  if (stockBas>0) alerts.push({cls:'warn',msg:`⚠️ ${stockBas} article(s) avec stock bas (≤ 5 unités)`});
-  if (enAttente>0) alerts.push({cls:'info',msg:`ℹ️ ${enAttente} commande(s) en attente en cuisine`});
-  if (enPrep>0)    alerts.push({cls:'info',msg:`ℹ️ ${enPrep} commande(s) en cours de préparation`});
-  if (!alerts.length) alerts.push({cls:'ok',msg:'✓ Tout est en ordre'});
+  if (rupture>0) alerts.push({cls:'warn',msg:`Alerte: ${rupture} article(s) en rupture de stock`});
+  if (stockBas>0) alerts.push({cls:'warn',msg:`Alerte: ${stockBas} article(s) avec stock bas (<= 5 unites)`});
+  if (enAttente>0) alerts.push({cls:'info',msg:`Info: ${enAttente} commande(s) en attente en cuisine`});
+  if (enPrep>0)    alerts.push({cls:'info',msg:`Info: ${enPrep} commande(s) en cours de preparation`});
+  if (!alerts.length) alerts.push({cls:'ok',msg:'Tout est en ordre'});
 
   document.getElementById('dashAlerts').innerHTML = alerts.map(a =>
     `<div class="alert-item ${a.cls}">${a.msg}</div>`
@@ -1298,12 +1297,12 @@ function renderDashboard() {
     document.getElementById('dashOrders').innerHTML = '<div class="dash-empty">Aucune commande aujourd\'hui</div>';
   } else {
     const stMap   = {attente:'bg-a',preparation:'bg-b',servie:'bg-g'};
-    const stLabel = {attente:'Attente',preparation:'En prép.',servie:'Servie'};
+    const stLabel = {attente:'Attente',preparation:'En prep.',servie:'Servie'};
     document.getElementById('dashOrders').innerHTML = recent.map(o => {
       const st = o.status||'attente';
       return `<div class="dash-order-row">
         <span class="dash-order-id">${o.id}</span>
-        <span style="flex:1;color:var(--muted);font-size:.78rem">${o.table} — ${o.time}</span>
+        <span style="flex:1;color:var(--muted);font-size:.78rem">${o.table} -- ${o.time}</span>
         <span class="badge ${stMap[st]||'bg-a'}">${stLabel[st]||'Attente'}</span>
         <span style="font-weight:700;margin-left:auto;font-size:.85rem">${fmt(o.total)}</span>
       </div>`;
@@ -1329,9 +1328,9 @@ let activeCat = 'Tout';
 function initCaisse() { renderCatBar(); renderProds(); renderCart(); updateClock(); if (window.innerWidth<=640) switchCaisseTab('catalogue'); }
 
 function renderCatBar() {
-  const icons = {Tout:'🔀',Nourriture:'🍛',Boissons:'🥤',Chicha:'💨',Snacks:'🍿',Desserts:'🍦'};
+  const icons = {Tout:'Tout',Nourriture:'Nourriture',Boissons:'Boissons',Chicha:'Chicha',Snacks:'Snacks',Desserts:'Desserts'};
   document.getElementById('catBar').innerHTML = CATS.map(c =>
-    `<button class="cat-btn ${c===activeCat?'act':''}" onclick="setCat('${c}')">${icons[c]||''} ${c}</button>`
+    `<button class="cat-btn ${c===activeCat?'act':''}" onclick="setCat('${c}')">${icons[c]||c}</button>`
   ).join('');
 }
 function setCat(c) { activeCat=c; renderCatBar(); renderProds(); }
@@ -1349,19 +1348,26 @@ function renderProds() {
   }
   g.innerHTML = filtered.map(p => {
     const avail    = dispo[todayKey]===undefined || dispo[todayKey][p.id]!==false;
-    const qty      = stock[p.id]!==undefined ? stock[p.id] : 0;
+    let qty = 0;
+    // Pour un vendeur, on utilise son stock alloué
+    if (currentUser.role === 'vendeur') {
+      const vend = currentUser.kiosque || currentUser.name;
+      qty = (stockVendeur[vend] && stockVendeur[vend][p.id]) || 0;
+    } else {
+      qty = stock[p.id]!==undefined ? stock[p.id] : 0;
+    }
     const inCart   = (cart.find(c=>c.id===p.id)||{qty:0}).qty;
     const stockDispo = qty - inCart;
     const noStock  = qty <= 0;
     const lowStock = qty > 0 && qty <= 5;
     const disabled = !avail || noStock;
     const stockCls = noStock ? 'out' : lowStock ? 'low' : 'ok';
-    const stockTxt = noStock ? '✕ Rupture' : (lowStock ? `⚠ Reste: ${qty}` : `✓ ${qty} dispo`);
+    const stockTxt = noStock ? 'Rupture' : (lowStock ? `Reste: ${qty}` : `${qty} dispo`);
     return `<button class="prod-card ${disabled?'unavail':''} ${lowStock&&!noStock?'low-stock':''}"
         onclick="${disabled ? `toast('${noStock?'Rupture de stock':'Indisponible aujourd\'hui'}')` : `addToCart(${p.id})`}">
       <div class="prod-dispo ${avail&&!noStock?'':'off'}"></div>
       <div class="prod-name">${p.name}</div>
-      <div class="prod-cat">${getCatIcon(p.cat)} ${p.cat}</div>
+      <div class="prod-cat">${getCatIcon(p.cat)}</div>
       <div class="prod-price">${fmt(p.price)}</div>
       <div class="prod-stock ${stockCls}">${stockTxt}</div>
       ${!avail ? '<div class="prod-na">Indisponible</div>' : ''}
@@ -1372,9 +1378,15 @@ function renderProds() {
 function addToCart(id) {
   const p = products.find(x => x.id===id);
   if (!p) return;
-  const qty    = stock[p.id]!==undefined ? stock[p.id] : 0;
+  let qtyStock = 0;
+  if (currentUser.role === 'vendeur') {
+    const vend = currentUser.kiosque || currentUser.name;
+    qtyStock = (stockVendeur[vend] && stockVendeur[vend][id]) || 0;
+  } else {
+    qtyStock = stock[id]!==undefined ? stock[id] : 0;
+  }
   const inCart = (cart.find(c=>c.id===id)||{qty:0}).qty;
-  if (qty-inCart <= 0) { toast('Stock insuffisant'); return; }
+  if (qtyStock-inCart <= 0) { toast('Stock insuffisant'); return; }
   const ex = cart.find(c => c.id===id);
   if (ex) ex.qty++;
   else cart.push({id, name:p.name, price:p.price, qty:1});
@@ -1386,8 +1398,14 @@ function chgQty(id, d) {
   const item = cart.find(c=>c.id===id);
   if (!item) return;
   if (d > 0) {
-    const qty=stock[id]!==undefined?stock[id]:0;
-    if (item.qty>=qty) { toast('Stock insuffisant'); return; }
+    let qtyStock = 0;
+    if (currentUser.role === 'vendeur') {
+      const vend = currentUser.kiosque || currentUser.name;
+      qtyStock = (stockVendeur[vend] && stockVendeur[vend][id]) || 0;
+    } else {
+      qtyStock = stock[id]!==undefined ? stock[id] : 0;
+    }
+    if (item.qty>=qtyStock) { toast('Stock insuffisant'); return; }
   }
   item.qty += d;
   if (item.qty <= 0) cart = cart.filter(c=>c.id!==id);
@@ -1403,7 +1421,7 @@ function renderCart() {
   const totQty = cart.reduce((s,c) => s+c.qty, 0);
   if (badge) badge.innerHTML = totQty>0 ? `<span class="pending-badge">${totQty}</span>` : '';
   if (!cart.length) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-icon">🛒</div><div style="font-weight:700;font-size:.92rem">Commande vide</div><div style="font-size:.78rem;color:var(--muted)">Toucher un article pour l\'ajouter</div></div>';
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">-</div><div style="font-weight:700;font-size:.92rem">Commande vide</div><div style="font-size:.78rem;color:var(--muted)">Toucher un article pour l\'ajouter</div></div>';
     document.getElementById('subT').textContent  = '0 GNF';
     document.getElementById('totalT').textContent = '0 GNF';
     return;
@@ -1412,22 +1430,22 @@ function renderCart() {
     <div class="order-item">
       <div style="flex:1">
         <div class="oi-name">${c.name}</div>
-        <div class="oi-unit">${fmt(c.price)} / unité</div>
+        <div class="oi-unit">${fmt(c.price)} / unite</div>
       </div>
       <div class="qty-ctrl">
-        <button class="qb" onclick="chgQty(${c.id},-1)">−</button>
+        <button class="qb" onclick="chgQty(${c.id},-1)">-</button>
         <div class="qn">${c.qty}</div>
         <button class="qb" onclick="chgQty(${c.id},+1)">+</button>
       </div>
       <div class="oi-total">${fmt(c.price*c.qty)}</div>
-      <button class="del-btn" onclick="delItem(${c.id})">✕</button>
+      <button class="del-btn" onclick="delItem(${c.id})">X</button>
     </div>`).join('');
   document.getElementById('subT').textContent  = fmt(tot);
   document.getElementById('totalT').textContent = fmt(tot);
 }
 
 function updTable() {
-  document.getElementById('tblBadge').textContent = document.getElementById('tblSel').value || 'Table —';
+  document.getElementById('tblBadge').textContent = document.getElementById('tblSel').value || 'Table --';
 }
 
 function clearCart() {
@@ -1435,7 +1453,7 @@ function clearCart() {
   document.getElementById('tblSel').value='';
   document.getElementById('clientIn').value='';
   document.getElementById('noteIn').value='';
-  document.getElementById('tblBadge').textContent='Table —';
+  document.getElementById('tblBadge').textContent='Table --';
   renderCart(); renderProds();
 }
 
@@ -1443,7 +1461,13 @@ async function confirmOrder() {
   if (!cart.length) { toast('La commande est vide'); return; }
   if (!document.getElementById('tblSel').value) { toast('Choisir une table d\'abord'); return; }
   for (const item of cart) {
-    const stockQty = stock[item.id]!==undefined ? stock[item.id] : 0;
+    let stockQty = 0;
+    if (currentUser.role === 'vendeur') {
+      const vend = currentUser.kiosque || currentUser.name;
+      stockQty = (stockVendeur[vend] && stockVendeur[vend][item.id]) || 0;
+    } else {
+      stockQty = stock[item.id]!==undefined ? stock[item.id] : 0;
+    }
     if (stockQty < item.qty) { toast('Stock insuffisant pour : '+item.name); return; }
   }
   const order = {
@@ -1451,24 +1475,31 @@ async function confirmOrder() {
     date:     today(),
     time:     nowTime(),
     table:    document.getElementById('tblSel').value,
-    client:   document.getElementById('clientIn').value||'—',
+    client:   document.getElementById('clientIn').value||'--',
     caissier: currentUser.name,
-    vendeur:  currentUser.kiosque || currentUser.name, // ajout du vendeur
+    vendeur:  currentUser.kiosque || currentUser.name,
     note:     document.getElementById('noteIn').value,
     items:    cart.map(c=>({...c})),
     total:    cart.reduce((s,c)=>s+c.price*c.qty,0),
     status:   'attente'
   };
+  // Mise a jour du stock selon le role
   for (const item of cart) {
-    if (stock[item.id]!==undefined) {
-      stock[item.id] = Math.max(0, stock[item.id]-item.qty);
-      await logStockMvt(item.id,'vente',item.qty,stock[item.id],`Commande ${order.id} — ${order.table}`);
+    if (currentUser.role === 'vendeur') {
+      const vend = currentUser.kiosque || currentUser.name;
+      if (!stockVendeur[vend]) stockVendeur[vend] = {};
+      stockVendeur[vend][item.id] = Math.max(0, (stockVendeur[vend][item.id]||0) - item.qty);
+      await logStockMvt(item.id,'vente',item.qty,stockVendeur[vend][item.id],`Vendeur ${vend} - Commande ${order.id}`);
+    } else {
+      stock[item.id] = Math.max(0, (stock[item.id]||0) - item.qty);
+      await logStockMvt(item.id,'vente',item.qty,stock[item.id],`Commande ${order.id}`);
     }
   }
   orders.push(order);
   await saveFB('cb_orders', orders);
   await saveFB('cb_stock', stock);
-  toast('✓ Commande '+order.id+' envoyée en cuisine');
+  await saveFB('cb_stock_vendeur', stockVendeur);
+  toast('Commande '+order.id+' envoyee en cuisine');
   clearCart();
   updateQueueBadge();
 }
@@ -1495,7 +1526,6 @@ function populateVendeurFilter() {
 function renderJournal() {
   const date = document.getElementById('jDate').value;
   let day = orders.filter(o => o.date===date);
-  // Filtrer par vendeur si admin et sélection
   if (currentUser.role === 'admin') {
     const filter = document.getElementById('jVendeurFilter').value;
     if (filter !== 'tous') day = day.filter(o => o.vendeur === filter);
@@ -1517,7 +1547,7 @@ function renderJournal() {
     return;
   }
   const stMap   = {attente:'bg-a',preparation:'bg-b',servie:'bg-g'};
-  const stLabel = {attente:'Attente',preparation:'En prép.',servie:'✓ Servie'};
+  const stLabel = {attente:'Attente',preparation:'En prep.',servie:'Servie'};
   tb.innerHTML = [...day].reverse().map(o => {
     const st = o.status||'attente';
     return `<tr>
@@ -1525,13 +1555,13 @@ function renderJournal() {
       <td>${o.time}</td>
       <td>${o.table}</td>
       <td>${o.client}</td>
-      <td>${o.caissier||'—'}</td>
-      <td>${o.vendeur||'—'}</td>
+      <td>${o.caissier||'--'}</td>
+      <td>${o.vendeur||'--'}</td>
       <td><strong>${fmt(o.total)}</strong></td>
       <td><span class="badge ${stMap[st]||'bg-a'}">${stLabel[st]||'Attente'}</span></td>
       <td style="white-space:nowrap">
-        <button class="icon-btn" onclick="viewOrder('${o.id}')" title="Détail">👁</button>
-        ${currentUser.role==='admin' ? `<button class="icon-btn" onclick="openCancelOrder('${o.id}')" style="margin-left:4px" title="Annuler commande">🗑</button>` : ''}
+        <button class="icon-btn" onclick="viewOrder('${o.id}')" title="Detail">V</button>
+        ${currentUser.role==='admin' ? `<button class="icon-btn" onclick="openCancelOrder('${o.id}')" style="margin-left:4px" title="Annuler commande">X</button>` : ''}
       </td>
     </tr>`;
   }).join('');
@@ -1541,35 +1571,35 @@ function viewOrder(id) {
   const o = orders.find(x=>x.id===id);
   if (!o) return;
   viewOrderId = id;
-  const stLabel = {attente:'En attente',preparation:'En préparation',servie:'Servie'};
+  const stLabel = {attente:'En attente',preparation:'En preparation',servie:'Servie'};
   const stCls   = {attente:'bg-a',preparation:'bg-b',servie:'bg-g'};
   const st = o.status||'attente';
   document.getElementById('modalOrderContent').innerHTML = `
     <div style="font-size:.85rem;line-height:2;">
       <div><strong>N° :</strong> ${o.id}</div>
-      <div><strong>Date :</strong> ${o.date} à ${o.time}</div>
+      <div><strong>Date :</strong> ${o.date} a ${o.time}</div>
       <div><strong>Table :</strong> ${o.table} | <strong>Client :</strong> ${o.client}</div>
-      <div><strong>Caissier :</strong> ${o.caissier||'—'}</div>
-      <div><strong>Vendeur :</strong> ${o.vendeur||'—'}</div>
+      <div><strong>Caissier :</strong> ${o.caissier||'--'}</div>
+      <div><strong>Vendeur :</strong> ${o.vendeur||'--'}</div>
       <div><strong>Statut :</strong> <span class="badge ${stCls[st]||'bg-a'}">${stLabel[st]||'Attente'}</span></div>
       <hr style="margin:.6rem 0;border-color:var(--border);">
       ${o.items.map(i=>`
         <div style="display:flex;justify-content:space-between;padding:3px 0;">
-          <span>${getCatIcon(products.find(p=>p.id===i.id)?.cat||'')} ${i.name} ×${i.qty}</span>
+          <span>${getCatIcon(products.find(p=>p.id===i.id)?.cat||'')} ${i.name} x${i.qty}</span>
           <span style="font-weight:600">${fmt(i.price*i.qty)}</span>
         </div>`).join('')}
       <hr style="margin:.6rem 0;border-color:var(--border);">
       <div style="display:flex;justify-content:space-between;font-size:1rem">
         <strong>TOTAL</strong><strong style="color:var(--accent)">${fmt(o.total)}</strong>
       </div>
-      ${o.note ? `<div style="margin-top:8px;font-size:.78rem;color:var(--amber);background:var(--amber-bg);padding:6px 10px;border-radius:6px;">📝 Note cuisine: ${o.note}</div>` : ''}
+      ${o.note ? `<div style="margin-top:8px;font-size:.78rem;color:var(--amber);background:var(--amber-bg);padding:6px 10px;border-radius:6px;">Note cuisine: ${o.note}</div>` : ''}
     </div>`;
   const actsEl = document.getElementById('modalOrderActs');
   if (currentUser.role === 'admin') {
     actsEl.innerHTML = `
       <button class="btn btn-ghost" onclick="closeModal('modalOrder')">Fermer</button>
-      <button class="btn btn-blue" onclick="printBon('${id}')">🖨 Imprimer bon</button>
-      <button class="btn" style="background:var(--red);color:#fff;" onclick="closeModal('modalOrder');openCancelOrder('${id}')">🗑 Annuler</button>`;
+      <button class="btn btn-blue" onclick="printBon('${id}')">Imprimer</button>
+      <button class="btn" style="background:var(--red);color:#fff;" onclick="closeModal('modalOrder');openCancelOrder('${id}')">Annuler</button>`;
   } else {
     actsEl.innerHTML = `<button class="btn btn-ghost" onclick="closeModal('modalOrder')">Fermer</button>`;
   }
@@ -1587,25 +1617,35 @@ async function confirmCancelOrder() {
   const reason = document.getElementById('cancelReason').value.trim();
   const o = orders.find(x => x.id === cancelOrderId);
   if (!o) { closeModal('modalCancelOrder'); return; }
+  // Restaurer le stock
   for (const item of o.items) {
-    if (stock[item.id] !== undefined) {
-      stock[item.id] = (stock[item.id]||0) + item.qty;
-      await logStockMvt(item.id, 'ajustement', item.qty, stock[item.id],
-        `Annulation commande ${o.id}${reason?' — '+reason:''}`);
+    if (currentUser.role === 'admin') { // admin annule, on restaure selon le vendeur ou global
+      // On regarde si la commande a un vendeur
+      if (o.vendeur && o.vendeur !== '--') {
+        if (!stockVendeur[o.vendeur]) stockVendeur[o.vendeur] = {};
+        stockVendeur[o.vendeur][item.id] = (stockVendeur[o.vendeur][item.id]||0) + item.qty;
+        await logStockMvt(item.id, 'ajustement', item.qty, stockVendeur[o.vendeur][item.id],
+          `Annulation commande ${o.id}${reason?' -- '+reason:''} (restauration vendeur)`);
+      } else {
+        stock[item.id] = (stock[item.id]||0) + item.qty;
+        await logStockMvt(item.id, 'ajustement', item.qty, stock[item.id],
+          `Annulation commande ${o.id}${reason?' -- '+reason:''} (restauration global)`);
+      }
     }
   }
   orders = orders.filter(x => x.id !== cancelOrderId);
   await saveFB('cb_orders', orders);
   await saveFB('cb_stock', stock);
+  await saveFB('cb_stock_vendeur', stockVendeur);
   closeModal('modalCancelOrder');
   cancelOrderId = null;
-  toast('Commande annulée, stock restauré');
+  toast('Commande annulee, stock restaure');
   if (currentPage==='journal') renderJournal();
   if (currentPage==='queue')   renderQueue();
 }
 
 function printBon(id) {
-  if (currentUser.role !== 'admin') { toast('Action réservée à l\'administrateur'); return; }
+  if (currentUser.role !== 'admin') { toast('Action reservee a l\'administrateur'); return; }
   const order = orders.find(o=>o.id===id);
   if (!order) return;
   const bonHTML = `<div style="font-family:monospace;width:72mm;font-size:11px;line-height:1.8;padding:4mm;color:#000;background:#fff;">
@@ -1617,18 +1657,18 @@ function printBon(id) {
       <div><b>N° :</b> ${order.id}</div>
       <div><b>Date :</b> ${order.date} ${order.time}</div>
       <div><b>Table :</b> ${order.table}</div>
-      ${order.client&&order.client!=='—'?`<div><b>Client :</b> ${order.client}</div>`:''}
+      ${order.client&&order.client!=='--'?`<div><b>Client :</b> ${order.client}</div>`:''}
       ${order.vendeur?`<div><b>Vendeur :</b> ${order.vendeur}</div>`:''}
     </div>
     <div style="margin-bottom:8px;">
       ${order.items.map(i=>`
         <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px dotted #ddd;">
           <span style="font-size:13px;font-weight:bold;">${i.name}</span>
-          <span style="font-size:14px;font-weight:bold;background:#000;color:#fff;padding:1px 7px;border-radius:3px;">×${i.qty}</span>
+          <span style="font-size:14px;font-weight:bold;background:#000;color:#fff;padding:1px 7px;border-radius:3px;">x${i.qty}</span>
         </div>`).join('')}
     </div>
-    ${order.note?`<div style="border:1px solid #000;padding:5px 7px;font-size:10px;margin-top:4px;background:#fffbf0;"><b>⚠ NOTE :</b> ${order.note}</div>`:''}
-    <div style="text-align:center;margin-top:10px;font-size:9px;border-top:1px dashed #000;padding-top:4px;color:#666;">Imprimé ${order.date} à ${order.time}</div>
+    ${order.note?`<div style="border:1px solid #000;padding:5px 7px;font-size:10px;margin-top:4px;background:#fffbf0;"><b>NOTE :</b> ${order.note}</div>`:''}
+    <div style="text-align:center;margin-top:10px;font-size:9px;border-top:1px dashed #000;padding-top:4px;color:#666;">Imprime ${order.date} a ${order.time}</div>
   </div>`;
   const w = window.open('','','width=420,height=600');
   if (!w) { toast('Autoriser les popups pour imprimer'); return; }
@@ -1649,16 +1689,16 @@ function exportExcel() {
     const vend = currentUser.kiosque || currentUser.name;
     day = day.filter(o => o.vendeur === vend);
   }
-  if (!day.length) { toast('Aucune donnée à exporter'); return; }
+  if (!day.length) { toast('Aucune donnee a exporter'); return; }
   const wb = XLSX.utils.book_new();
   const rows = [
-    ['COMPLEXE BEYLA — JOURNAL DU ' + date],[],
+    ['COMPLEXE BEYLA -- JOURNAL DU ' + date],[],
     ['N° Commande','Date','Heure','Table','Client','Caissier','Vendeur','Statut','Articles','Total (GNF)']
   ];
   day.forEach(o => rows.push([
-    o.id, o.date, o.time, o.table, o.client, o.caissier||'—', o.vendeur||'—',
+    o.id, o.date, o.time, o.table, o.client, o.caissier||'--', o.vendeur||'--',
     o.status||'attente',
-    o.items.map(i=>i.name+' ×'+i.qty).join(' | '),
+    o.items.map(i=>i.name+' x'+i.qty).join(' | '),
     o.total
   ]));
   rows.push([],['','','','','','','','','TOTAL JOUR',day.reduce((s,o)=>s+(o.total||0),0)]);
@@ -1666,7 +1706,7 @@ function exportExcel() {
   ws['!cols'] = [{wch:16},{wch:12},{wch:8},{wch:12},{wch:18},{wch:18},{wch:16},{wch:14},{wch:50},{wch:16}];
   XLSX.utils.book_append_sheet(wb,ws,'Journal');
   XLSX.writeFile(wb,'Beyla_Journal_'+date+'.xlsx');
-  toast('Fichier Excel exporté');
+  toast('Fichier Excel exporte');
 }
 
 // ========== VERIFICATION ==========
@@ -1686,7 +1726,7 @@ function renderVerif() {
   }));
   const byCaissier = {};
   day.forEach(o=>{
-    const c = o.caissier||'—';
+    const c = o.caissier||'--';
     if (!byCaissier[c]) byCaissier[c]={n:0,total:0};
     byCaissier[c].n++; byCaissier[c].total+=(o.total||0);
   });
@@ -1697,12 +1737,12 @@ function renderVerif() {
   document.getElementById('verifGrid').innerHTML = `
     <div>
       <div class="verif-card">
-        <div class="verif-title">📊 Récapitulatif système</div>
-        <div class="verif-row"><span>Commandes enregistrées</span><strong>${day.length}</strong></div>
-        <div class="verif-row"><span>✓ Servies</span><strong style="color:var(--green)">${byStatus.servie}</strong></div>
-        <div class="verif-row"><span>⏳ En attente/prép.</span><strong style="color:var(--amber)">${byStatus.attente+byStatus.preparation}</strong></div>
+        <div class="verif-title">Recapitulatif systeme</div>
+        <div class="verif-row"><span>Commandes enregistrees</span><strong>${day.length}</strong></div>
+        <div class="verif-row"><span>Servies</span><strong style="color:var(--green)">${byStatus.servie}</strong></div>
+        <div class="verif-row"><span>En attente/prep.</span><strong style="color:var(--amber)">${byStatus.attente+byStatus.preparation}</strong></div>
         ${ALL_STOCK_CATS.map(cat=>`
-          <div class="verif-row"><span>${getCatIcon(cat)} ${cat}</span><strong>${fmt(bycat[cat]||0)}</strong></div>`
+          <div class="verif-row"><span>${getCatIcon(cat)}</span><strong>${fmt(bycat[cat]||0)}</strong></div>`
         ).join('')}
         <div class="verif-total">
           <span>Total attendu</span>
@@ -1710,7 +1750,7 @@ function renderVerif() {
         </div>
       </div>
       <div class="verif-card" style="margin-top:1.2rem;">
-        <div class="verif-title">👤 Par caissier / vendeur</div>
+        <div class="verif-title">Par caissier / vendeur</div>
         ${Object.entries(byCaissier).map(([c,v])=>`
           <div class="verif-row"><span>${c}</span>
             <div style="text-align:right">
@@ -1721,21 +1761,21 @@ function renderVerif() {
       </div>
     </div>
     <div class="verif-card">
-      <div class="verif-title">🧮 Vérification physique</div>
+      <div class="verif-title">Verification physique</div>
       <div class="verif-row">
-        <span>Argent compté (GNF)</span>
+        <span>Argent compte (GNF)</span>
         <input type="number" class="big-in" id="vCash" placeholder="0"
           value="${saved.cash||''}" oninput="calcEcart(${sysTotal})">
       </div>
       <div class="verif-total" id="vEcartRow">
-        <span>Écart de caisse</span><span id="vEcart" style="font-size:1.1rem">—</span>
+        <span>Ecart de caisse</span><span id="vEcart" style="font-size:1.1rem">--</span>
       </div>
       <div id="verifAlert"></div>
       <textarea class="note-in" id="vNote" rows="2" placeholder="Observations...">${saved.note||''}</textarea>
       <button class="btn btn-green" style="width:100%;margin-top:6px" onclick="saveVerif('${date}',${sysTotal})">
-        ✓ Enregistrer la vérification
+        Enregistrer la verification
       </button>
-      ${saved.savedAt?`<div style="font-size:.72rem;margin-top:8px;text-align:center;color:var(--muted)">Sauvegardé : ${saved.savedAt}</div>`:''}
+      ${saved.savedAt?`<div style="font-size:.72rem;margin-top:8px;text-align:center;color:var(--muted)">Sauvegarde : ${saved.savedAt}</div>`:''}
     </div>`;
   if (saved.cash!==undefined) calcEcart(sysTotal);
 }
@@ -1750,8 +1790,8 @@ function calcEcart(sysTotal) {
   }
   const al = document.getElementById('verifAlert');
   if (al&&cash>0) al.innerHTML = ecart===0
-    ? '<div class="verif-alert alert-ok">✓ La caisse est correcte — aucun écart</div>'
-    : '<div class="verif-alert alert-bad">⚠️ Anomalie de caisse — vérifier les transactions</div>';
+    ? '<div class="verif-alert alert-ok">La caisse est correcte -- aucun ecart</div>'
+    : '<div class="verif-alert alert-bad">Anomalie de caisse -- verifier les transactions</div>';
 }
 
 async function saveVerif(date, sysTotal) {
@@ -1759,7 +1799,7 @@ async function saveVerif(date, sysTotal) {
   const note = document.getElementById('vNote').value;
   verifs[date] = {cash,note,sysTotal,savedAt:new Date().toLocaleString('fr-FR')};
   await saveFB('cb_verifs', verifs);
-  toast('✓ Vérification enregistrée');
+  toast('Verification enregistree');
   renderVerif();
 }
 
@@ -1780,7 +1820,7 @@ function renderCuisine() {
   for (const [cat, prods] of Object.entries(byCat)) {
     html += `<div style="grid-column:1/-1;margin-top:.5rem;margin-bottom:.3rem;">
       <span style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)">
-        ${getCatIcon(cat)} ${cat}
+        ${getCatIcon(cat)}
       </span>
     </div>`;
     html += prods.map(p => {
@@ -1804,7 +1844,7 @@ async function toggleDispo(id) {
   await saveFB('cb_dispo', dispo);
   renderCuisine();
   if (currentPage==='caisse') renderProds();
-  toast(dispo[k][id]?'✓ Disponible':'Marqué indisponible');
+  toast(dispo[k][id]?'Disponible':'Marque indisponible');
 }
 
 // ========== FILE D'ATTENTE CUISINE ==========
@@ -1831,7 +1871,6 @@ function renderQueue() {
   }
 
   let todayAll = orders.filter(o=>o.date===today());
-  // pour vendeur, filtrer ses commandes
   if (currentUser.role === 'vendeur') {
     const vend = currentUser.kiosque || currentUser.name;
     todayAll = todayAll.filter(o => o.vendeur === vend);
@@ -1850,11 +1889,11 @@ function renderQueue() {
 
   const grid = document.getElementById('queueGrid');
   if (!filtered.length) {
-    grid.innerHTML = '<div class="queue-empty"><div style="font-size:2.5rem;opacity:.2">🍳</div><div style="margin-top:.8rem;font-weight:600">Aucune commande</div></div>';
+    grid.innerHTML = '<div class="queue-empty"><div style="font-size:2.5rem;opacity:.2">-</div><div style="margin-top:.8rem;font-weight:600">Aucune commande</div></div>';
     return;
   }
 
-  const stLabel = {attente:'⏳ En attente',preparation:'⚡ En préparation',servie:'✓ Servie'};
+  const stLabel = {attente:'En attente',preparation:'En preparation',servie:'Servie'};
 
   if (currentUser.role === 'comptable' || currentUser.role === 'vendeur') {
     grid.innerHTML = filtered.map(o => {
@@ -1876,7 +1915,6 @@ function renderQueue() {
     return;
   }
 
-  // Admin ou cuisinier : actions
   grid.innerHTML = filtered.map(o => {
     const st = o.status||'attente';
     const canStart = st==='attente';
@@ -1887,16 +1925,16 @@ function renderQueue() {
         <span><span class="badge ${st==='attente'?'bg-a':st==='preparation'?'bg-b':'bg-g'}">${stLabel[st]}</span></span>
         <span class="qc-time">${o.time}</span>
       </div>
-      <div class="qc-table">🪑 <strong>${o.table}</strong>${o.client&&o.client!=='—'?' — '+o.client:''}${o.vendeur?' — Vendeur: '+o.vendeur:''}</div>
+      <div class="qc-table">Table <strong>${o.table}</strong>${o.client&&o.client!=='--'?' -- '+o.client:''}${o.vendeur?' -- Vendeur: '+o.vendeur:''}</div>
       <div class="qc-items">
-        ${o.items.map(i=>`<div class="qc-item-line"><span>${i.name}</span><strong style="background:var(--text);color:#fff;padding:1px 7px;border-radius:4px;font-size:.78rem">×${i.qty}</strong></div>`).join('')}
+        ${o.items.map(i=>`<div class="qc-item-line"><span>${i.name}</span><strong style="background:var(--text);color:#fff;padding:1px 7px;border-radius:4px;font-size:.78rem">x${i.qty}</strong></div>`).join('')}
       </div>
-      ${o.note?`<div class="qc-note">📝 Note : ${o.note}</div>`:''}
+      ${o.note?`<div class="qc-note">Note : ${o.note}</div>`:''}
       <div class="qc-actions">
-        ${canStart?`<button class="qc-btn qc-btn-start" onclick="setOrderStatus('${o.id}','preparation')">⚡ Prendre en charge</button>`:''}
-        ${canDone ?`<button class="qc-btn qc-btn-done"  onclick="setOrderStatus('${o.id}','servie')">✓ Commande servie</button>`:''}
-        ${st==='servie'?`<span style="font-size:.8rem;color:var(--green);flex:1;text-align:center;font-weight:700">✓ Servie</span>`:''}
-        ${currentUser.role==='admin'?`<button class="qc-btn" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);flex:0 0 auto;width:40px;font-size:1rem;" onclick="printBon('${o.id}')" title="Imprimer">🖨</button>`:''}
+        ${canStart?`<button class="qc-btn qc-btn-start" onclick="setOrderStatus('${o.id}','preparation')">Prendre en charge</button>`:''}
+        ${canDone ?`<button class="qc-btn qc-btn-done"  onclick="setOrderStatus('${o.id}','servie')">Commande servie</button>`:''}
+        ${st==='servie'?`<span style="font-size:.8rem;color:var(--green);flex:1;text-align:center;font-weight:700">Servie</span>`:''}
+        ${currentUser.role==='admin'?`<button class="qc-btn" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);flex:0 0 auto;width:40px;font-size:1rem;" onclick="printBon('${o.id}')" title="Imprimer">I</button>`:''}
       </div>
     </div>`;
   }).join('');
@@ -1909,7 +1947,7 @@ async function setOrderStatus(id, status) {
   o.status = status;
   await saveFB('cb_orders', orders);
   renderQueue();
-  const labels = {preparation:'⚡ Commande prise en charge',servie:'✓ Commande servie'};
+  const labels = {preparation:'Commande prise en charge',servie:'Commande servie'};
   toast(labels[status]||status);
 }
 
@@ -1918,13 +1956,13 @@ function renderStock() {
   const bas     = products.filter(p=>{const q=stock[p.id]||0;return q>0&&q<=5;});
   const rupture = products.filter(p=>(stock[p.id]||0)<=0);
   let alertHtml = '';
-  if (rupture.length>0) alertHtml+=`<div class="alert-item warn">⚠️ Rupture : ${rupture.map(p=>p.name).join(', ')}</div>`;
-  if (bas.length>0)     alertHtml+=`<div class="alert-item warn">⚠️ Stock bas (≤5) : ${bas.map(p=>p.name+' ('+stock[p.id]+')').join(', ')}</div>`;
+  if (rupture.length>0) alertHtml+=`<div class="alert-item warn">Rupture : ${rupture.map(p=>p.name).join(', ')}</div>`;
+  if (bas.length>0)     alertHtml+=`<div class="alert-item warn">Stock bas (<=5) : ${bas.map(p=>p.name+' ('+stock[p.id]+')').join(', ')}</div>`;
   document.getElementById('stockAlertBar').innerHTML = alertHtml;
 
   const allCats = ['Tout', ...ALL_STOCK_CATS];
   document.getElementById('stockCatBar').innerHTML = allCats.map(c =>
-    `<button class="stock-cat-btn ${c===stockCatFilter?'act':''}" onclick="setStockCat('${c}')">${c==='Tout'?'🔀 ':getCatIcon(c)+' '}${c}</button>`
+    `<button class="stock-cat-btn ${c===stockCatFilter?'act':''}" onclick="setStockCat('${c}')">${c==='Tout'?'Tout':getCatIcon(c)}</button>`
   ).join('');
 
   let filtered = products;
@@ -1937,34 +1975,34 @@ function renderStock() {
     return `<div class="stock-card ${qty<=0?'out':qty<=5?'low':''}">
       <div class="sc-info">
         <div class="sc-name">${getCatIcon(p.cat)} ${p.name}</div>
-        <div class="sc-cat">${p.cat} — ${fmt(p.price)}</div>
-        <div class="sc-stock ${cls}">${qty} unité(s) — ${getStockLabel(qty)}</div>
+        <div class="sc-cat">${p.cat} -- ${fmt(p.price)}</div>
+        <div class="sc-stock ${cls}">${qty} unite(s) -- ${getStockLabel(qty)}</div>
       </div>
       <div class="sc-controls">
         <input type="number" class="stock-adj-input" id="si-${p.id}" value="1" min="0">
-        <button class="stock-adj-btn stock-set-btn" onclick="adjustStock(${p.id},'set')" title="Définir ce stock">⚙ Définir</button>
-        <button class="stock-adj-btn stock-add-btn" onclick="adjustStock(${p.id},'add')" title="Ajouter au stock">+ Réassort</button>
-        <button class="stock-adj-btn stock-sub-btn" onclick="adjustStock(${p.id},'sub')" title="Retirer du stock">− Perte</button>
+        <button class="stock-adj-btn stock-set-btn" onclick="adjustStock(${p.id},'set')" title="Definir ce stock">Definir</button>
+        <button class="stock-adj-btn stock-add-btn" onclick="adjustStock(${p.id},'add')" title="Ajouter au stock">+ Reassort</button>
+        <button class="stock-adj-btn stock-sub-btn" onclick="adjustStock(${p.id},'sub')" title="Retirer du stock">- Perte</button>
       </div>
     </div>`;
   }).join('');
 
   const tb = document.getElementById('mvtTable');
   if (!stockMvts.length) {
-    tb.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:1.5rem;color:var(--muted)">Aucun mouvement enregistré</td></tr>';
+    tb.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:1.5rem;color:var(--muted)">Aucun mouvement enregistre</td></tr>';
     return;
   }
   const typeMap   = {vente:'bg-r',reassort:'bg-g',ajustement:'bg-b',perte:'bg-a'};
-  const typeLabel = {vente:'Vente',reassort:'Réassort',ajustement:'Ajust.',perte:'Perte'};
+  const typeLabel = {vente:'Vente',reassort:'Reassort',ajustement:'Ajust.',perte:'Perte'};
   tb.innerHTML = stockMvts.slice(0,60).map(m=>`<tr>
     <td style="font-size:.75rem">${m.ts}</td>
     <td><strong>${m.prodName}</strong></td>
-    <td><span style="font-size:.7rem;color:var(--muted)">${getCatIcon(m.prodCat||'')} ${m.prodCat||'—'}</span></td>
+    <td><span style="font-size:.7rem;color:var(--muted)">${getCatIcon(m.prodCat||'')} ${m.prodCat||'--'}</span></td>
     <td><span class="badge ${typeMap[m.type]||'bg-b'}">${typeLabel[m.type]||m.type}</span></td>
     <td><strong style="color:${m.type==='vente'||m.type==='perte'?'var(--red)':'var(--green)'}">${m.type==='vente'||m.type==='perte'?'-':'+'}${m.qty}</strong></td>
     <td>${m.stockAfter}</td>
     <td style="font-size:.75rem">${m.by}</td>
-    <td style="font-size:.75rem">${m.vendeur||'—'}</td>
+    <td style="font-size:.75rem">${m.vendeur||'--'}</td>
   </tr>`).join('');
 }
 
@@ -1973,7 +2011,7 @@ function setStockCat(cat) { stockCatFilter=cat; renderStock(); }
 async function adjustStock(id, mode) {
   const inp = document.getElementById('si-'+id);
   const val = parseInt(inp.value)||0;
-  if (val<=0&&mode!=='set') { toast('Entrer une quantité valide'); return; }
+  if (val<=0&&mode!=='set') { toast('Entrer une quantite valide'); return; }
   const before = stock[id]||0;
   let after=before, type='ajustement';
   if (mode==='set') { after=Math.max(0,val); type='ajustement'; }
@@ -1981,10 +2019,10 @@ async function adjustStock(id, mode) {
   if (mode==='sub') { after=Math.max(0,before-val); type='perte'; }
   stock[id]=after;
   await saveFB('cb_stock',stock);
-  await logStockMvt(id,type,val,after,mode==='set'?'Défini à '+after:'');
+  await logStockMvt(id,type,val,after,mode==='set'?'Defini a '+after:'');
   renderStock();
   if (currentPage==='caisse') renderProds();
-  toast('✓ Stock mis à jour');
+  toast('Stock mis a jour');
 }
 
 // ========== ADMIN ==========
@@ -1994,11 +2032,11 @@ function renderAdmin() {
       <div class="user-avatar">${u.name.split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase()}</div>
       <div style="flex:1">
         <div class="user-name">${u.name}</div>
-        <div class="user-role">${{admin:'Admin',comptable:'Caissier',cuisiniere:'Cuisinière',vendeur:'Vendeur'}[u.role]||u.role} — @${u.login}${u.kiosque?' — '+u.kiosque:''}</div>
+        <div class="user-role">${{admin:'Admin',comptable:'Caissier',cuisiniere:'Cuisiniere',vendeur:'Vendeur'}[u.role]||u.role} -- @${u.login}${u.kiosque?' -- '+u.kiosque:''}</div>
       </div>
       ${u.id!==1?`
-        <button class="icon-btn" onclick="editUserModal(${u.id})" title="Modifier">✏️</button>
-        <button class="icon-btn" onclick="delUser(${u.id})" style="margin-left:4px" title="Supprimer">🗑</button>`
+        <button class="icon-btn" onclick="editUserModal(${u.id})" title="Modifier">M</button>
+        <button class="icon-btn" onclick="delUser(${u.id})" style="margin-left:4px" title="Supprimer">X</button>`
       :''}
     </div>`).join('');
 
@@ -2009,18 +2047,21 @@ function renderAdmin() {
       <div class="pm-info">
         <div class="pm-name">${getCatIcon(p.cat)} ${p.name}</div>
         <div class="pm-cat">${p.cat}</div>
-        <div class="pm-price">${fmt(p.price)} — <span class="sc-stock ${stCls}" style="font-size:.72rem">${qty} en stock</span></div>
+        <div class="pm-price">${fmt(p.price)} -- <span class="sc-stock ${stCls}" style="font-size:.72rem">${qty} en stock</span></div>
       </div>
-      <button class="icon-btn" onclick="editProdModal(${p.id})" title="Modifier">✏️</button>
-      <button class="icon-btn" onclick="delProd(${p.id})" style="margin-left:4px" title="Supprimer">🗑</button>
+      <button class="icon-btn" onclick="editProdModal(${p.id})" title="Modifier">M</button>
+      <button class="icon-btn" onclick="delProd(${p.id})" style="margin-left:4px" title="Supprimer">X</button>
     </div>`;
   }).join('');
+
+  // Allocation par vendeur
+  renderAllocationVendeur();
 
   // Statistiques ventes par vendeur (aujourd'hui)
   const todayOrders = orders.filter(o=>o.date===today());
   const vendeurStats = {};
   todayOrders.forEach(o => {
-    const v = o.vendeur || 'Non défini';
+    const v = o.vendeur || 'Non defini';
     if (!vendeurStats[v]) vendeurStats[v] = {total:0, nb:0};
     vendeurStats[v].total += o.total || 0;
     vendeurStats[v].nb++;
@@ -2036,6 +2077,49 @@ function renderAdmin() {
     html += '</tbody></table></div>';
   }
   document.getElementById('ventesVendeur').innerHTML = html;
+}
+
+function renderAllocationVendeur() {
+  const container = document.getElementById('allocationVendeurContainer');
+  // Liste des vendeurs (role vendeur)
+  const vendeurs = users.filter(u => u.role === 'vendeur' && u.kiosque);
+  if (!vendeurs.length) {
+    container.innerHTML = '<div style="color:var(--muted);padding:.5rem 0">Aucun vendeur enregistre.</div>';
+    return;
+  }
+  // Construire un tableau : produits en lignes, vendeurs en colonnes
+  let html = `<div class="tbl-wrap"><table><thead><tr><th>Produit</th>`;
+  vendeurs.forEach(v => {
+    html += `<th>${v.kiosque}</th>`;
+  });
+  html += `</tr></thead><tbody>`;
+  products.forEach(p => {
+    html += `<tr><td><strong>${p.name}</strong></td>`;
+    vendeurs.forEach(v => {
+      const val = (stockVendeur[v.kiosque] && stockVendeur[v.kiosque][p.id]) || 0;
+      html += `<td><input type="number" class="form-in alloc-input" style="width:70px;padding:4px;" 
+                data-vendeur="${v.kiosque}" data-prod="${p.id}" value="${val}"></td>`;
+    });
+    html += `</tr>`;
+  });
+  html += `</tbody></table></div>`;
+  container.innerHTML = html;
+}
+
+async function saveAllocationVendeur() {
+  if (currentUser.role !== 'admin') { toast('Reserve a l\'admin'); return; }
+  const inputs = document.querySelectorAll('.alloc-input');
+  inputs.forEach(inp => {
+    const vendeur = inp.dataset.vendeur;
+    const prodId = parseInt(inp.dataset.prod);
+    const val = parseInt(inp.value)||0;
+    if (!stockVendeur[vendeur]) stockVendeur[vendeur] = {};
+    stockVendeur[vendeur][prodId] = val;
+  });
+  await saveFB('cb_stock_vendeur', stockVendeur);
+  toast('Allocations enregistrees');
+  renderAllocationVendeur();
+  if (currentPage==='caisse') renderProds();
 }
 
 function openAddUser() {
@@ -2079,7 +2163,7 @@ async function saveUser() {
   const kiosque = document.getElementById('uKiosque').value.trim() || null;
   if (!name||!login) { toast('Remplir nom et login'); return; }
   if (!editUserId&&!pass) { toast('Mot de passe requis'); return; }
-  if (users.find(u=>u.login===login&&u.id!==editUserId)) { toast('Login déjà utilisé'); return; }
+  if (users.find(u=>u.login===login&&u.id!==editUserId)) { toast('Login deja utilise'); return; }
   if (editUserId) {
     const u = users.find(x=>x.id===editUserId);
     if (u) { u.name=name; u.login=login; if (pass) u.pass=pass; u.role=role; u.kiosque=kiosque; }
@@ -2090,7 +2174,7 @@ async function saveUser() {
   await saveFB('cb_users', users);
   closeModal('modalUser');
   renderAdmin();
-  toast('✓ Compte enregistré');
+  toast('Compte enregistre');
 }
 
 async function delUser(id) {
@@ -2099,7 +2183,7 @@ async function delUser(id) {
   users=users.filter(u=>u.id!==id);
   await saveFB('cb_users',users);
   renderAdmin();
-  toast('Compte supprimé');
+  toast('Compte supprime');
 }
 
 document.getElementById('pCat').addEventListener('change', function() {
@@ -2155,18 +2239,18 @@ async function saveProd() {
   closeModal('modalProd');
   renderAdmin();
   renderProds();
-  toast('✓ Produit enregistré');
+  toast('Produit enregistre');
 }
 
 async function delProd(id) {
-  if (!confirm('Supprimer ce produit définitivement ?')) return;
+  if (!confirm('Supprimer ce produit definitivement ?')) return;
   products=products.filter(p=>p.id!==id);
   delete stock[id];
   await saveFB('cb_prods',products);
   await saveFB('cb_stock',stock);
   renderAdmin();
   renderProds();
-  toast('Produit supprimé');
+  toast('Produit supprime');
 }
 
 // ========== MOT DE PASSE ==========
@@ -2183,13 +2267,13 @@ async function doChangePwd() {
   const errEl = document.getElementById('pwdErr');
   if (!old||!nw||!conf) { errEl.textContent='Remplir tous les champs.'; return; }
   if (old!==currentUser.pass) { errEl.textContent='Ancien mot de passe incorrect.'; return; }
-  if (nw.length<4) { errEl.textContent='Minimum 4 caractères requis.'; return; }
+  if (nw.length<4) { errEl.textContent='Minimum 4 caracteres requis.'; return; }
   if (nw!==conf) { errEl.textContent='Les mots de passe ne correspondent pas.'; return; }
   const u = users.find(x=>x.id===currentUser.id);
   if (u) { u.pass=nw; currentUser.pass=nw; }
   await saveFB('cb_users',users);
   closeModal('modalPwd');
-  toast('✓ Mot de passe modifié');
+  toast('Mot de passe modifie');
 }
 
 // ========== FERMER LES MODALS EN CLIQUANT DEHORS ==========
@@ -2202,6 +2286,16 @@ document.querySelectorAll('.overlay').forEach(overlay => {
 });
 
 // ========== INITIALISATION ==========
+function initStock() {
+  let changed = false;
+  products.forEach(p => {
+    if (stock[p.id] === undefined) {
+      stock[p.id] = p.stock !== undefined ? p.stock : 20;
+      changed = true;
+    }
+  });
+  if (changed) saveLS('cb_stock', stock);
+}
 initStock();
 loadFB().then(()=>{ initStock(); });
 setInterval(()=>{ loadFB(); }, 30000);
