@@ -575,7 +575,8 @@ tbody td{padding:9px 10px;}
         <div class="role-chip sel" onclick="selRole('admin',this)">Admin</div>
         <div class="role-chip" onclick="selRole('comptable',this)">Caissier</div>
         <div class="role-chip" onclick="selRole('cuisiniere',this)">Cuisine</div>
-        <div class="role-chip" onclick="selRole('vendeur',this)">Vendeur</div>
+        <div class="role-chip" onclick="selRole('vendeur',this)">Kiosque</div>
+        <div class="role-chip" onclick="selRole('serveur',this)">Serveur</div>
       </div>
       <label class="login-label">Nom d'utilisateur</label>
       <input class="login-input" id="loginUser" placeholder="ex: admin" autocomplete="off">
@@ -657,6 +658,13 @@ tbody td{padding:9px 10px;}
         <label>Client</label>
         <input type="text" id="clientIn" placeholder="Nom (opt.)">
       </div>
+      <!-- Nouvelle ligne pour choisir le kiosque source (visible pour serveur et admin/caissier) -->
+      <div class="tbl-row" id="kiosqueSourceRow">
+        <label>Kiosque source</label>
+        <select id="kiosqueSourceSel">
+          <option value="">-- Sélectionner --</option>
+        </select>
+      </div>
       <div class="order-items" id="orderItems"></div>
       <div class="order-foot">
         <div class="tot-row"><span style="color:var(--muted)">Sous-total</span><span id="subT">0 GNF</span></div>
@@ -685,7 +693,7 @@ tbody td{padding:9px 10px;}
     <div class="stats-grid" id="statsGrid"></div>
     <div class="tbl-wrap">
       <table>
-        <thead><tr><th>N° Commande</th><th>Heure</th><th>Table</th><th>Client</th><th>Caissier</th><th>Vendeur</th><th>Total</th><th>Statut</th><th>Actions</th></tr></thead>
+        <thead><tr><th>N° Commande</th><th>Heure</th><th>Table</th><th>Client</th><th>Caissier</th><th>Vendeur</th><th>Kiosque source</th><th>Total</th><th>Statut</th><th>Actions</th></tr></thead>
         <tbody id="jTable"></tbody>
       </table>
     </div>
@@ -734,18 +742,18 @@ tbody td{padding:9px 10px;}
 <div id="pg-stock" class="page">
   <div class="inner-page">
     <div class="pg-header">
-      <div><div class="pg-title">Stock</div><div class="pg-sub">Gestion des stocks produits et allocations vendeurs</div></div>
+      <div><div class="pg-title">Stock</div><div class="pg-sub">Gestion des stocks par kiosque</div></div>
     </div>
     <div id="stockAlertBar" style="margin-bottom:1rem;"></div>
     <div class="stock-cats" id="stockCatBar"></div>
     <div class="stock-grid" id="stockGrid"></div>
-    <!-- Gestion des allocations par vendeur (visible uniquement pour admin) -->
+    <!-- Gestion des stocks par kiosque (admin seulement) -->
     <div id="allocationVendeurSection" style="margin-top:2rem;display:none;">
-      <div class="mvt-title">Allocation de stock par vendeur</div>
+      <div class="mvt-title">Gestion des stocks par kiosque</div>
       <div id="allocationVendeurContainer"></div>
-      <p style="font-size:.8rem;color:var(--muted);margin-top:.5rem;">Saisissez une quantite dans le champ, puis cliquez sur le bouton <strong>+</strong> pour l'ajouter au stock existant du vendeur, ou sur <strong>Definir</strong> pour remplacer la valeur.</p>
+      <p style="font-size:.8rem;color:var(--muted);margin-top:.5rem;">Saisissez une quantite pour chaque kiosque, puis cliquez sur <strong>Définir</strong> pour remplacer ou <strong>Ajouter</strong> pour incrémenter.</p>
       <div style="margin-top:.5rem;">
-        <button class="btn btn-green" style="flex:0;padding:8px 20px;margin-right:8px;" onclick="saveAllocationVendeur('set')">Definir tout</button>
+        <button class="btn btn-green" style="flex:0;padding:8px 20px;margin-right:8px;" onclick="saveAllocationVendeur('set')">Définir tout</button>
         <button class="btn btn-blue" style="flex:0;padding:8px 20px;" onclick="saveAllocationVendeur('add')">Ajouter tout</button>
       </div>
     </div>
@@ -753,7 +761,7 @@ tbody td{padding:9px 10px;}
       <div class="mvt-title">Historique des mouvements recents</div>
       <div class="tbl-wrap">
         <table>
-          <thead><tr><th>Date/Heure</th><th>Produit</th><th>Categorie</th><th>Type</th><th>Quantite</th><th>Stock apres</th><th>Par</th><th>Vendeur</th></tr></thead>
+          <thead><tr><th>Date/Heure</th><th>Produit</th><th>Categorie</th><th>Type</th><th>Quantite</th><th>Stock apres</th><th>Par</th><th>Kiosque</th></tr></thead>
           <tbody id="mvtTable"></tbody>
         </table>
       </div>
@@ -782,7 +790,7 @@ tbody td{padding:9px 10px;}
       </div>
       <!-- Tableau de bord anti-vol -->
       <div class="admin-card" style="grid-column:1/-1;">
-        <div class="admin-card-title">Controle anti-vol - Ventes par vendeur</div>
+        <div class="admin-card-title">Controle anti-vol - Ventes par kiosque</div>
         <div id="ventesVendeur"></div>
         <div style="margin-top:1rem;">
           <button class="btn btn-blue" onclick="exportVentesVendeur()" style="flex:0;padding:8px 20px;">Exporter les ventes</button>
@@ -851,7 +859,8 @@ tbody td{padding:9px 10px;}
         <option value="admin">Administrateur</option>
         <option value="comptable">Caissier / Comptable</option>
         <option value="cuisiniere">Cuisiniere</option>
-        <option value="vendeur">Vendeur(euse) boissons</option>
+        <option value="vendeur">Vendeur(euse) kiosque</option>
+        <option value="serveur">Serveur(euse) salle</option>
       </select>
     </div>
     <div class="form-group" id="kiosqueGroup" style="display:none;">
@@ -881,13 +890,7 @@ tbody td{padding:9px 10px;}
         <option value="Desserts">Desserts / Creme glacee</option>
       </select>
     </div>
-    <div class="form-group" id="stockFieldGroup">
-      <label class="form-label">Stock initial <span id="stockUnit" style="font-weight:400;color:var(--muted);">(unites)</span></label>
-      <input class="form-in" id="pStock" type="number" placeholder="ex: 20" min="0">
-    </div>
-    <div id="pStockNote" style="font-size:.75rem;color:var(--blue);background:var(--blue-bg);border-radius:8px;padding:8px 10px;margin-top:-6px;margin-bottom:10px;display:none;">
-      Note: Les boissons, chichas, snacks et desserts gerent un stock. La nourriture est illimitee.
-    </div>
+    <!-- Stock initial pour chaque kiosque ? On le gère via la page Stock, pas ici -->
     <div class="modal-acts">
       <button class="btn btn-ghost" onclick="closeModal('modalProd')">Annuler</button>
       <button class="btn btn-ok" onclick="saveProd()">Enregistrer</button>
@@ -923,37 +926,38 @@ const DEFAULT_USERS = [
   {id:4, name:'Cuisiniere Aminata', login:'aminata', pass:'cuisine1', role:'cuisiniere', kiosque:null},
   {id:5, name:'Kiosque Sud - Zenab', login:'zenab', pass:'vendeur1', role:'vendeur', kiosque:'Kiosque Sud'},
   {id:6, name:'Kiosque Nord - Mariame', login:'mariame', pass:'vendeur2', role:'vendeur', kiosque:'Kiosque Nord'},
+  {id:7, name:'Serveuse Aicha', login:'aicha', pass:'serveur1', role:'serveur', kiosque:null},
 ];
 const DEFAULT_PRODUCTS = [
-  {id:1,  name:'Riz Sauce Arachide',   price:25000, cat:'Nourriture', stock:20},
-  {id:2,  name:'Riz Sauce Gombo',      price:22000, cat:'Nourriture', stock:20},
-  {id:3,  name:'Riz Foutou',           price:20000, cat:'Nourriture', stock:20},
-  {id:4,  name:'Poulet Braise',        price:35000, cat:'Nourriture', stock:15},
-  {id:5,  name:'Poisson Braise',       price:30000, cat:'Nourriture', stock:15},
-  {id:6,  name:'Viande Sauce',         price:40000, cat:'Nourriture', stock:10},
-  {id:7,  name:'Omelette Pain',        price:15000, cat:'Nourriture', stock:20},
-  {id:8,  name:'Placali Sauce',        price:18000, cat:'Nourriture', stock:20},
-  {id:9,  name:'Eau Minerale',         price:5000,  cat:'Boissons',   stock:50},
-  {id:10, name:'Jus Naturel Gingembre',price:8000,  cat:'Boissons',   stock:30},
-  {id:11, name:'Jus Naturel Bissap',   price:8000,  cat:'Boissons',   stock:30},
-  {id:12, name:'Jus Naturel Ananas',   price:8000,  cat:'Boissons',   stock:25},
-  {id:13, name:'Biere Castel',         price:10000, cat:'Boissons',   stock:30},
-  {id:14, name:'Soda Coca-Cola',       price:6000,  cat:'Boissons',   stock:40},
-  {id:15, name:'Soda Fanta',           price:6000,  cat:'Boissons',   stock:40},
-  {id:16, name:'Cafe',                 price:5000,  cat:'Boissons',   stock:30},
-  {id:17, name:'The Citron',           price:5000,  cat:'Boissons',   stock:30},
-  {id:18, name:'Chicha Simple',        price:50000, cat:'Chicha',     stock:10},
-  {id:19, name:'Chicha Double Pomme',  price:80000, cat:'Chicha',     stock:8},
-  {id:20, name:'Chicha Fruits Mixtes', price:70000, cat:'Chicha',     stock:8},
-  {id:21, name:'Chicha Menthe Fraiche',price:60000, cat:'Chicha',     stock:8},
-  {id:22, name:'Popcorn Sachet',       price:5000,  cat:'Snacks',     stock:50},
-  {id:23, name:'Popcorn Grand Bol',    price:10000, cat:'Snacks',     stock:30},
-  {id:24, name:'Cacahuetes Grillees',  price:3000,  cat:'Snacks',     stock:50},
-  {id:25, name:'Chips Assaisonnees',   price:5000,  cat:'Snacks',     stock:30},
-  {id:26, name:'Creme Glacee Vanille', price:15000, cat:'Desserts',   stock:20},
-  {id:27, name:'Creme Glacee Chocolat',price:15000, cat:'Desserts',   stock:20},
-  {id:28, name:'Creme au Lait',        price:10000, cat:'Desserts',   stock:20},
-  {id:29, name:'Yaourt Sucre',         price:8000,  cat:'Desserts',   stock:25},
+  {id:1,  name:'Riz Sauce Arachide',   price:25000, cat:'Nourriture'},
+  {id:2,  name:'Riz Sauce Gombo',      price:22000, cat:'Nourriture'},
+  {id:3,  name:'Riz Foutou',           price:20000, cat:'Nourriture'},
+  {id:4,  name:'Poulet Braise',        price:35000, cat:'Nourriture'},
+  {id:5,  name:'Poisson Braise',       price:30000, cat:'Nourriture'},
+  {id:6,  name:'Viande Sauce',         price:40000, cat:'Nourriture'},
+  {id:7,  name:'Omelette Pain',        price:15000, cat:'Nourriture'},
+  {id:8,  name:'Placali Sauce',        price:18000, cat:'Nourriture'},
+  {id:9,  name:'Eau Minerale',         price:5000,  cat:'Boissons'},
+  {id:10, name:'Jus Naturel Gingembre',price:8000,  cat:'Boissons'},
+  {id:11, name:'Jus Naturel Bissap',   price:8000,  cat:'Boissons'},
+  {id:12, name:'Jus Naturel Ananas',   price:8000,  cat:'Boissons'},
+  {id:13, name:'Biere Castel',         price:10000, cat:'Boissons'},
+  {id:14, name:'Soda Coca-Cola',       price:6000,  cat:'Boissons'},
+  {id:15, name:'Soda Fanta',           price:6000,  cat:'Boissons'},
+  {id:16, name:'Cafe',                 price:5000,  cat:'Boissons'},
+  {id:17, name:'The Citron',           price:5000,  cat:'Boissons'},
+  {id:18, name:'Chicha Simple',        price:50000, cat:'Chicha'},
+  {id:19, name:'Chicha Double Pomme',  price:80000, cat:'Chicha'},
+  {id:20, name:'Chicha Fruits Mixtes', price:70000, cat:'Chicha'},
+  {id:21, name:'Chicha Menthe Fraiche',price:60000, cat:'Chicha'},
+  {id:22, name:'Popcorn Sachet',       price:5000,  cat:'Snacks'},
+  {id:23, name:'Popcorn Grand Bol',    price:10000, cat:'Snacks'},
+  {id:24, name:'Cacahuetes Grillees',  price:3000,  cat:'Snacks'},
+  {id:25, name:'Chips Assaisonnees',   price:5000,  cat:'Snacks'},
+  {id:26, name:'Creme Glacee Vanille', price:15000, cat:'Desserts'},
+  {id:27, name:'Creme Glacee Chocolat',price:15000, cat:'Desserts'},
+  {id:28, name:'Creme au Lait',        price:10000, cat:'Desserts'},
+  {id:29, name:'Yaourt Sucre',         price:8000,  cat:'Desserts'},
 ];
 
 // ========== VARIABLES GLOBALES ==========
@@ -962,9 +966,10 @@ let products  = JSON.parse(localStorage.getItem('cb_prods'))      || DEFAULT_PRO
 let orders    = JSON.parse(localStorage.getItem('cb_orders'))     || [];
 let dispo     = JSON.parse(localStorage.getItem('cb_dispo'))      || {};
 let verifs    = JSON.parse(localStorage.getItem('cb_verifs'))     || {};
-let stock     = JSON.parse(localStorage.getItem('cb_stock'))      || {};
-let stockMvts = JSON.parse(localStorage.getItem('cb_stock_mvts')) || [];
+// Stock par kiosque : stockVendeur[kiosque][prodId] = quantite
 let stockVendeur = JSON.parse(localStorage.getItem('cb_stock_vendeur')) || {};
+// Historique des mouvements
+let stockMvts = JSON.parse(localStorage.getItem('cb_stock_mvts')) || [];
 let journalActions = JSON.parse(localStorage.getItem('cb_journal_actions')) || [];
 
 let currentUser = null, cart = [], editUserId = null, editProdId = null;
@@ -1009,7 +1014,7 @@ function setSyncDot(online) {
 
 async function loadFB() {
   try {
-    const keys = ['cb_users','cb_prods','cb_orders','cb_dispo','cb_verifs','cb_stock','cb_stock_mvts','cb_stock_vendeur','cb_journal_actions'];
+    const keys = ['cb_users','cb_prods','cb_orders','cb_dispo','cb_verifs','cb_stock_vendeur','cb_stock_mvts','cb_journal_actions'];
     for (const key of keys) {
       const snap = await db.ref('beyla/' + key).once('value');
       if (snap.exists()) {
@@ -1020,9 +1025,8 @@ async function loadFB() {
         if (key==='cb_orders')       orders    = val;
         if (key==='cb_dispo')        dispo     = val;
         if (key==='cb_verifs')       verifs    = val;
-        if (key==='cb_stock')        stock     = val;
-        if (key==='cb_stock_mvts')   stockMvts = Array.isArray(val) ? val : Object.values(val);
         if (key==='cb_stock_vendeur') stockVendeur = val;
+        if (key==='cb_stock_mvts')   stockMvts = Array.isArray(val) ? val : Object.values(val);
         if (key==='cb_journal_actions') journalActions = Array.isArray(val) ? val : Object.values(val);
       }
     }
@@ -1061,14 +1065,6 @@ function listenOrders() {
       updateQueueBadge();
     }
   });
-  db.ref('beyla/cb_stock').on('value', snap => {
-    if (snap.exists()) {
-      stock = snap.val();
-      saveLS('cb_stock', stock);
-      if (currentPage==='caisse') renderProds();
-      if (currentPage==='stock')  renderStock();
-    }
-  });
   db.ref('beyla/cb_stock_vendeur').on('value', snap => {
     if (snap.exists()) {
       stockVendeur = snap.val();
@@ -1100,14 +1096,14 @@ function getCatIcon(cat) {
 }
 function isFood(product) { return product.cat === 'Nourriture'; }
 
-async function logStockMvt(prodId, type, qty, stockAfter, note) {
+async function logStockMvt(prodId, type, qty, stockAfter, kiosque, note) {
   const p = products.find(x => x.id === prodId);
   const mvt = {
     ts: nowFull(), date: today(), prodId,
     prodName: p ? p.name : '?', prodCat: p ? p.cat : '?',
     type, qty, stockAfter,
     by: currentUser ? currentUser.name : '--',
-    vendeur: currentUser ? (currentUser.kiosque || currentUser.name) : '--',
+    kiosque: kiosque || '--',
     note: note||''
   };
   stockMvts.unshift(mvt);
@@ -1187,12 +1183,19 @@ const NAV_MAP = {
     {id:'accueil', label:'Accueil'},
     {id:'caisse',  label:'Caisse'},
     {id:'journal', label:'Journal'},
-    // pas de verif ni stock ni admin
+    {id:'stock',   label:'Mon stock'}, // le vendeur voit son stock
+  ],
+  serveur: [
+    {id:'accueil', label:'Accueil'},
+    {id:'caisse',  label:'Caisse'},
+    {id:'journal', label:'Journal'},
+    {id:'queue',   label:'Suivi'},
+    {id:'stock',   label:'Stocks'}, // les serveurs voient les stocks des kiosques
   ],
 };
 
 function initApp() {
-  const roleLabels = {admin:'Administrateur', comptable:'Caissier', cuisiniere:'Cuisiniere', vendeur:'Vendeur'};
+  const roleLabels = {admin:'Administrateur', comptable:'Caissier', cuisiniere:'Cuisiniere', vendeur:'Kiosque', serveur:'Serveur'};
   document.getElementById('hRole').textContent = roleLabels[currentUser.role];
   document.getElementById('hUser').textContent = currentUser.name;
   document.getElementById('dashWelcomeTitle').textContent = 'Bonjour, ' + currentUser.name.split(' ')[0];
@@ -1220,9 +1223,62 @@ function initApp() {
 
   document.getElementById('bottomNav').innerHTML = bottomHTML;
 
+  // Peupler la liste des kiosques pour le sélecteur de source
+  populateKiosqueSource();
+
   listenOrders();
   showPage(navs[0].id);
 }
+
+function populateKiosqueSource() {
+  const sel = document.getElementById('kiosqueSourceSel');
+  // Récupérer les kiosques des utilisateurs de type vendeur
+  const kiosques = users.filter(u => u.role === 'vendeur' && u.kiosque).map(u => u.kiosque);
+  // Enlever les doublons
+  const unique = [...new Set(kiosques)];
+  sel.innerHTML = '<option value="">-- Sélectionner --</option>' + 
+    unique.map(k => `<option value="${k}">${k}</option>`).join('');
+}
+
+let currentKiosqueSource = ''; // stocke le kiosque choisi pour la commande en cours
+
+function updateKiosqueSourceVisibility() {
+  const row = document.getElementById('kiosqueSourceRow');
+  const sel = document.getElementById('kiosqueSourceSel');
+  if (currentUser.role === 'vendeur') {
+    // Le vendeur a son propre kiosque, pas besoin de sélecteur
+    row.style.display = 'none';
+    currentKiosqueSource = currentUser.kiosque || '';
+    // On pré-remplit la commande avec son kiosque
+    document.getElementById('tblBadge').textContent = 'Kiosque: ' + currentKiosqueSource;
+  } else if (currentUser.role === 'serveur' || currentUser.role === 'admin' || currentUser.role === 'comptable') {
+    row.style.display = 'flex';
+    // Si un kiosque est déjà sélectionné, on le garde, sinon on prend le premier
+    if (!currentKiosqueSource || !sel.querySelector(`option[value="${currentKiosqueSource}"]`)) {
+      const firstOption = sel.querySelector('option:not([value=""])');
+      if (firstOption) {
+        sel.value = firstOption.value;
+        currentKiosqueSource = firstOption.value;
+      } else {
+        sel.value = '';
+        currentKiosqueSource = '';
+      }
+    } else {
+      sel.value = currentKiosqueSource;
+    }
+    // Mettre à jour le badge
+    document.getElementById('tblBadge').textContent = currentKiosqueSource ? 'Kiosque: ' + currentKiosqueSource : 'Choisir un kiosque';
+  } else {
+    row.style.display = 'none';
+    currentKiosqueSource = '';
+  }
+}
+
+document.getElementById('kiosqueSourceSel').addEventListener('change', function() {
+  currentKiosqueSource = this.value;
+  document.getElementById('tblBadge').textContent = currentKiosqueSource ? 'Kiosque: ' + currentKiosqueSource : 'Choisir un kiosque';
+  renderProds(); // Rafraîchir les stocks affichés
+});
 
 let currentPage = '';
 function showPage(id) {
@@ -1252,6 +1308,9 @@ function showPage(id) {
   if (id==='stock')   renderStock();
   if (id==='admin')   renderAdmin();
 
+  // Mettre à jour la visibilité du sélecteur de kiosque
+  updateKiosqueSourceVisibility();
+
   const fv = document.getElementById('floatingValidate');
   if (fv) fv.style.display = (id==='caisse' && window.innerWidth <= 640) ? 'block' : 'none';
 }
@@ -1276,7 +1335,7 @@ function updateQueueBadge() {
     if (!btn) return;
     const old = btn.querySelector('.notif-dot, .bn-notif');
     if (old) old.remove();
-    if (pending > 0 && (currentUser.role === 'admin' || currentUser.role === 'cuisiniere')) {
+    if (pending > 0 && (currentUser.role === 'admin' || currentUser.role === 'cuisiniere' || currentUser.role === 'serveur')) {
       const dot = document.createElement('span');
       dot.className = btn.id.startsWith('hn') ? 'notif-dot' : 'bn-notif';
       btn.appendChild(dot);
@@ -1288,13 +1347,12 @@ function updateQueueBadge() {
 function renderDashboard() {
   let todayOrders = orders.filter(o => o.date===today());
   let myOrders = todayOrders;
-  let vend = null;
-  if (currentUser.role === 'vendeur') {
-    vend = currentUser.kiosque || currentUser.name;
+  if (currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
+    const vend = currentUser.kiosque || currentUser.name;
     myOrders = todayOrders.filter(o => o.vendeur === vend);
   }
   let totalJour, nbCommandes, enAttente, enPrep;
-  if (currentUser.role === 'vendeur') {
+  if (currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
     totalJour = myOrders.reduce((s,o) => s+(o.total||0), 0);
     nbCommandes = myOrders.length;
     enAttente = myOrders.filter(o => !o.status||o.status==='attente').length;
@@ -1305,13 +1363,21 @@ function renderDashboard() {
     enAttente = todayOrders.filter(o => !o.status||o.status==='attente').length;
     enPrep = todayOrders.filter(o => o.status==='preparation').length;
   }
-  // Alertes stock : exclure la nourriture
-  const stockItems = products.filter(p => !isFood(p));
-  const stockBas    = stockItems.filter(p => { const q=stock[p.id]||0; return q>0&&q<=5; }).length;
-  const rupture     = stockItems.filter(p => (stock[p.id]||0)<=0).length;
+
+  // Alertes stock : on vérifie les stocks des kiosques
+  const kiosques = users.filter(u => u.role === 'vendeur' && u.kiosque).map(u => u.kiosque);
+  let rupture = 0, stockBas = 0;
+  products.forEach(p => {
+    if (isFood(p)) return;
+    kiosques.forEach(k => {
+      const qty = (stockVendeur[k] && stockVendeur[k][p.id]) || 0;
+      if (qty <= 0) rupture++;
+      else if (qty <= 5) stockBas++;
+    });
+  });
 
   let kpiHtml = '';
-  if (currentUser.role === 'vendeur') {
+  if (currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
     kpiHtml = `
       <div class="kpi-card green">
         <div class="kpi-icon">$</div>
@@ -1359,17 +1425,17 @@ function renderDashboard() {
   document.getElementById('dashKpi').innerHTML = kpiHtml;
 
   const alerts = [];
-  if (rupture>0) alerts.push({cls:'warn',msg:`Alerte: ${rupture} article(s) en rupture de stock`});
-  if (stockBas>0) alerts.push({cls:'warn',msg:`Alerte: ${stockBas} article(s) avec stock bas (<= 5 unites)`});
-  if (enAttente>0 && currentUser.role !== 'vendeur') alerts.push({cls:'info',msg:`Info: ${enAttente} commande(s) en attente en cuisine`});
-  if (enPrep>0 && currentUser.role !== 'vendeur')    alerts.push({cls:'info',msg:`Info: ${enPrep} commande(s) en cours de preparation`});
+  if (rupture>0) alerts.push({cls:'warn',msg:`Alerte: ${rupture} produit(s) en rupture dans certains kiosques`});
+  if (stockBas>0) alerts.push({cls:'warn',msg:`Alerte: ${stockBas} produit(s) avec stock bas (<=5) dans certains kiosques`});
+  if (enAttente>0 && currentUser.role !== 'vendeur' && currentUser.role !== 'serveur') alerts.push({cls:'info',msg:`Info: ${enAttente} commande(s) en attente en cuisine`});
+  if (enPrep>0 && currentUser.role !== 'vendeur' && currentUser.role !== 'serveur')    alerts.push({cls:'info',msg:`Info: ${enPrep} commande(s) en cours de preparation`});
   if (!alerts.length) alerts.push({cls:'ok',msg:'Tout est en ordre'});
 
   document.getElementById('dashAlerts').innerHTML = alerts.map(a =>
     `<div class="alert-item ${a.cls}">${a.msg}</div>`
   ).join('');
 
-  const ordersToShow = (currentUser.role === 'vendeur') ? myOrders : todayOrders;
+  const ordersToShow = (currentUser.role === 'vendeur' || currentUser.role === 'serveur') ? myOrders : todayOrders;
   const recent = [...ordersToShow].reverse().slice(0,6);
   if (!recent.length) {
     document.getElementById('dashOrders').innerHTML = '<div class="dash-empty">Aucune commande aujourd\'hui</div>';
@@ -1403,7 +1469,14 @@ function switchCaisseTab(tab) {
 const CATS = ['Tout','Nourriture','Boissons','Chicha','Snacks','Desserts'];
 let activeCat = 'Tout';
 
-function initCaisse() { renderCatBar(); renderProds(); renderCart(); updateClock(); if (window.innerWidth<=640) switchCaisseTab('catalogue'); }
+function initCaisse() { 
+  renderCatBar(); 
+  renderProds(); 
+  renderCart(); 
+  updateClock(); 
+  updateKiosqueSourceVisibility();
+  if (window.innerWidth<=640) switchCaisseTab('catalogue'); 
+}
 
 function renderCatBar() {
   const icons = {Tout:'Tout',Nourriture:'Nourriture',Boissons:'Boissons',Chicha:'Chicha',Snacks:'Snacks',Desserts:'Desserts'};
@@ -1424,27 +1497,39 @@ function renderProds() {
     g.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--muted)">Aucun article</div>';
     return;
   }
+
   const isVendeur = currentUser.role === 'vendeur';
-  const vend = isVendeur ? currentUser.kiosque || currentUser.name : null;
+  const isServeur = currentUser.role === 'serveur';
+  const isAdminOrCaissier = (currentUser.role === 'admin' || currentUser.role === 'comptable');
+
+  // Déterminer le kiosque source pour l'affichage du stock
+  let kiosqueAffiche = '';
+  if (isVendeur) {
+    kiosqueAffiche = currentUser.kiosque || '';
+  } else if (isServeur || isAdminOrCaissier) {
+    kiosqueAffiche = currentKiosqueSource;
+  }
 
   g.innerHTML = filtered.map(p => {
     const avail    = dispo[todayKey]===undefined || dispo[todayKey][p.id]!==false;
-    let qty = 0;
     let hasStock = !isFood(p);
+    let qty = 0;
     let stockMsg = '';
     let stockCls = 'ok';
     if (hasStock) {
-      if (isVendeur) {
-        qty = (stockVendeur[vend] && stockVendeur[vend][p.id]) || 0;
-        stockMsg = `Mon stock: ${qty}`;
+      if (kiosqueAffiche && stockVendeur[kiosqueAffiche]) {
+        qty = stockVendeur[kiosqueAffiche][p.id] || 0;
       } else {
-        qty = stock[p.id]!==undefined ? stock[p.id] : 0;
-        stockMsg = `${qty} en stock`;
+        // Si pas de kiosque sélectionné, on affiche une somme de tous les kiosques ? Ou on affiche 0.
+        // Pour les serveurs/admin, on peut afficher le stock du kiosque sélectionné, ou une vue globale.
+        // Ici on affiche le stock du kiosque sélectionné, sinon 'N/A'
+        qty = 0;
       }
       const cls = getStockClass(qty);
       stockCls = cls;
       if (qty <= 0) stockMsg = 'Rupture';
       else if (qty <= 5) stockMsg = `Reste: ${qty}`;
+      else stockMsg = `${qty} dispo`;
     } else {
       stockMsg = 'Disponible';
       stockCls = 'inf';
@@ -1454,15 +1539,18 @@ function renderProds() {
     const noStock  = hasStock && qty <= 0;
     const lowStock = hasStock && qty > 0 && qty <= 5;
     const disabled = !avail || noStock;
-    return `<button class="prod-card ${disabled?'unavail':''} ${lowStock&&!noStock?'low-stock':''}"
-        onclick="${disabled ? `toast('${noStock?'Rupture de stock':'Indisponible aujourd\'hui'}')` : `addToCart(${p.id})`}">
+    // Si serveur et pas de kiosque sélectionné, on désactive
+    const serveurDisabled = (isServeur || isAdminOrCaissier) && !kiosqueAffiche;
+    const finalDisabled = disabled || serveurDisabled;
+    return `<button class="prod-card ${finalDisabled?'unavail':''} ${lowStock&&!noStock?'low-stock':''}"
+        onclick="${finalDisabled ? `toast('${noStock?'Rupture de stock':serveurDisabled?'Veuillez choisir un kiosque source':'Indisponible aujourd\'hui'}')` : `addToCart(${p.id})`}">
       <div class="prod-dispo ${avail&&!noStock?'':'off'}"></div>
       <div class="prod-name">${p.name}</div>
       <div class="prod-cat">${getCatIcon(p.cat)}</div>
       <div class="prod-price">${fmt(p.price)}</div>
       <div class="prod-stock ${stockCls}">${stockMsg}</div>
       ${!avail ? '<div class="prod-na">Indisponible</div>' : ''}
-      ${isVendeur && hasStock ? '<div style="font-size:.55rem;color:var(--muted);margin-top:2px;">Mon stock</div>' : ''}
+      ${hasStock && kiosqueAffiche ? `<div style="font-size:.55rem;color:var(--muted);margin-top:2px;">${kiosqueAffiche}</div>` : ''}
     </button>`;
   }).join('');
 }
@@ -1473,14 +1561,17 @@ function addToCart(id) {
   let qtyStock = 0;
   let hasStock = !isFood(p);
   if (hasStock) {
+    // Déterminer le kiosque source
+    let kiosque = '';
     if (currentUser.role === 'vendeur') {
-      const vend = currentUser.kiosque || currentUser.name;
-      qtyStock = (stockVendeur[vend] && stockVendeur[vend][id]) || 0;
+      kiosque = currentUser.kiosque || '';
     } else {
-      qtyStock = stock[id]!==undefined ? stock[id] : 0;
+      kiosque = currentKiosqueSource;
     }
+    if (!kiosque) { toast('Veuillez sélectionner un kiosque source'); return; }
+    qtyStock = (stockVendeur[kiosque] && stockVendeur[kiosque][id]) || 0;
     const inCart = (cart.find(c=>c.id===id)||{qty:0}).qty;
-    if (qtyStock - inCart <= 0) { toast('Stock insuffisant'); return; }
+    if (qtyStock - inCart <= 0) { toast('Stock insuffisant pour ce kiosque'); return; }
   }
   const ex = cart.find(c => c.id===id);
   if (ex) ex.qty++;
@@ -1495,13 +1586,14 @@ function chgQty(id, d) {
   const p = products.find(x=>x.id===id);
   if (!p) return;
   if (d > 0 && !isFood(p)) {
-    let qtyStock = 0;
+    let kiosque = '';
     if (currentUser.role === 'vendeur') {
-      const vend = currentUser.kiosque || currentUser.name;
-      qtyStock = (stockVendeur[vend] && stockVendeur[vend][id]) || 0;
+      kiosque = currentUser.kiosque || '';
     } else {
-      qtyStock = stock[id]!==undefined ? stock[id] : 0;
+      kiosque = currentKiosqueSource;
     }
+    if (!kiosque) { toast('Kiosque source manquant'); return; }
+    const qtyStock = (stockVendeur[kiosque] && stockVendeur[kiosque][id]) || 0;
     if (item.qty >= qtyStock) { toast('Stock insuffisant'); return; }
   }
   item.qty += d;
@@ -1526,11 +1618,23 @@ function renderCart() {
   el.innerHTML = cart.map(c => {
     const p = products.find(x=>x.id===c.id);
     const hasStock = p && !isFood(p);
+    let stockRestant = 0;
+    if (hasStock) {
+      let kiosque = '';
+      if (currentUser.role === 'vendeur') {
+        kiosque = currentUser.kiosque || '';
+      } else {
+        kiosque = currentKiosqueSource;
+      }
+      if (kiosque && stockVendeur[kiosque]) {
+        stockRestant = (stockVendeur[kiosque][c.id] || 0) - c.qty;
+      }
+    }
     return `<div class="order-item">
       <div style="flex:1">
         <div class="oi-name">${c.name}</div>
         <div class="oi-unit">${fmt(c.price)} / unite</div>
-        ${hasStock && currentUser.role==='vendeur' ? `<div style="font-size:.65rem;color:var(--muted);">Stock restant: ${(stockVendeur[currentUser.kiosque||currentUser.name]?.[c.id]||0) - c.qty}</div>` : ''}
+        ${hasStock ? `<div style="font-size:.65rem;color:var(--muted);">Reste: ${Math.max(0, stockRestant)}</div>` : ''}
       </div>
       <div class="qty-ctrl">
         <button class="qb" onclick="chgQty(${c.id},-1)">-</button>
@@ -1546,7 +1650,7 @@ function renderCart() {
 }
 
 function updTable() {
-  document.getElementById('tblBadge').textContent = document.getElementById('tblSel').value || 'Table --';
+  // Le badge est déjà mis à jour par le sélecteur de kiosque
 }
 
 function clearCart() {
@@ -1554,27 +1658,32 @@ function clearCart() {
   document.getElementById('tblSel').value='';
   document.getElementById('clientIn').value='';
   document.getElementById('noteIn').value='';
-  document.getElementById('tblBadge').textContent='Table --';
   renderCart(); renderProds();
+  // Réinitialiser le badge
+  updateKiosqueSourceVisibility();
 }
 
 async function confirmOrder() {
   if (!cart.length) { toast('La commande est vide'); return; }
   if (!document.getElementById('tblSel').value) { toast('Choisir une table d\'abord'); return; }
+  // Vérifier le kiosque source
+  let kiosqueSource = '';
+  if (currentUser.role === 'vendeur') {
+    kiosqueSource = currentUser.kiosque || '';
+  } else {
+    kiosqueSource = currentKiosqueSource;
+  }
+  if (!kiosqueSource) { toast('Sélectionner un kiosque source'); return; }
+
   // Vérifier le stock pour les non-nourriture
   for (const item of cart) {
     const p = products.find(x=>x.id===item.id);
     if (!p) continue;
     if (isFood(p)) continue;
-    let stockQty = 0;
-    if (currentUser.role === 'vendeur') {
-      const vend = currentUser.kiosque || currentUser.name;
-      stockQty = (stockVendeur[vend] && stockVendeur[vend][item.id]) || 0;
-    } else {
-      stockQty = stock[item.id]!==undefined ? stock[item.id] : 0;
-    }
-    if (stockQty < item.qty) { toast('Stock insuffisant pour : '+item.name); return; }
+    const qtyStock = (stockVendeur[kiosqueSource] && stockVendeur[kiosqueSource][item.id]) || 0;
+    if (qtyStock < item.qty) { toast('Stock insuffisant pour : '+item.name+' dans le kiosque '+kiosqueSource); return; }
   }
+
   const order = {
     id:       genId(),
     date:     today(),
@@ -1582,31 +1691,27 @@ async function confirmOrder() {
     table:    document.getElementById('tblSel').value,
     client:   document.getElementById('clientIn').value||'--',
     caissier: currentUser.name,
-    vendeur:  currentUser.kiosque || currentUser.name,
+    vendeur:  currentUser.kiosque || currentUser.name, // pour traçabilité
+    kiosqueSource: kiosqueSource, // important
     note:     document.getElementById('noteIn').value,
     items:    cart.map(c=>({...c})),
     total:    cart.reduce((s,c)=>s+c.price*c.qty,0),
     status:   'attente'
   };
-  // Décrémenter le stock seulement pour les non-nourriture
+
+  // Décrémenter le stock du kiosque source
   for (const item of cart) {
     const p = products.find(x=>x.id===item.id);
     if (!p || isFood(p)) continue;
-    if (currentUser.role === 'vendeur') {
-      const vend = currentUser.kiosque || currentUser.name;
-      if (!stockVendeur[vend]) stockVendeur[vend] = {};
-      stockVendeur[vend][item.id] = Math.max(0, (stockVendeur[vend][item.id]||0) - item.qty);
-      await logStockMvt(item.id,'vente',item.qty,stockVendeur[vend][item.id],`Vendeur ${vend} - Commande ${order.id}`);
-    } else {
-      stock[item.id] = Math.max(0, (stock[item.id]||0) - item.qty);
-      await logStockMvt(item.id,'vente',item.qty,stock[item.id],`Commande ${order.id}`);
-    }
+    if (!stockVendeur[kiosqueSource]) stockVendeur[kiosqueSource] = {};
+    stockVendeur[kiosqueSource][item.id] = Math.max(0, (stockVendeur[kiosqueSource][item.id]||0) - item.qty);
+    await logStockMvt(item.id, 'vente', item.qty, stockVendeur[kiosqueSource][item.id], kiosqueSource, `Commande ${order.id}`);
   }
+
   orders.push(order);
   await saveFB('cb_orders', orders);
-  await saveFB('cb_stock', stock);
   await saveFB('cb_stock_vendeur', stockVendeur);
-  logAction('Vente', 'Commande ' + order.id + ' - ' + order.vendeur + ' - Total ' + fmt(order.total));
+  logAction('Vente', 'Commande ' + order.id + ' - Kiosque source: ' + kiosqueSource + ' - Total ' + fmt(order.total));
   toast('Commande '+order.id+' envoyee en cuisine');
   clearCart();
   updateQueueBadge();
@@ -1634,7 +1739,7 @@ function populateVendeurFilter() {
 function renderJournal() {
   const date = document.getElementById('jDate').value;
   let day = orders.filter(o => o.date===date);
-  if (currentUser.role === 'vendeur') {
+  if (currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
     const vend = currentUser.kiosque || currentUser.name;
     day = day.filter(o => o.vendeur === vend);
   } else if (currentUser.role === 'admin') {
@@ -1651,7 +1756,7 @@ function renderJournal() {
 
   const tb = document.getElementById('jTable');
   if (!day.length) {
-    tb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--muted)">Aucune commande ce jour</td></tr>';
+    tb.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:2rem;color:var(--muted)">Aucune commande ce jour</td></tr>';
     return;
   }
   const stMap   = {attente:'bg-a',preparation:'bg-b',servie:'bg-g'};
@@ -1665,6 +1770,7 @@ function renderJournal() {
       <td>${o.client}</td>
       <td>${o.caissier||'--'}</td>
       <td>${o.vendeur||'--'}</td>
+      <td>${o.kiosqueSource||'--'}</td>
       <td><strong>${fmt(o.total)}</strong></td>
       <td><span class="badge ${stMap[st]||'bg-a'}">${stLabel[st]||'Attente'}</span></td>
       <td style="white-space:nowrap">
@@ -1689,6 +1795,7 @@ function viewOrder(id) {
       <div><strong>Table :</strong> ${o.table} | <strong>Client :</strong> ${o.client}</div>
       <div><strong>Caissier :</strong> ${o.caissier||'--'}</div>
       <div><strong>Vendeur :</strong> ${o.vendeur||'--'}</div>
+      <div><strong>Kiosque source :</strong> ${o.kiosqueSource||'--'}</div>
       <div><strong>Statut :</strong> <span class="badge ${stCls[st]||'bg-a'}">${stLabel[st]||'Attente'}</span></div>
       <hr style="margin:.6rem 0;border-color:var(--border);">
       ${o.items.map(i=>`
@@ -1725,23 +1832,20 @@ async function confirmCancelOrder() {
   const reason = document.getElementById('cancelReason').value.trim();
   const o = orders.find(x => x.id === cancelOrderId);
   if (!o) { closeModal('modalCancelOrder'); return; }
-  for (const item of o.items) {
-    const p = products.find(x=>x.id===item.id);
-    if (!p || isFood(p)) continue; // Ne pas restaurer le stock pour la nourriture
-    if (o.vendeur && o.vendeur !== '--') {
-      if (!stockVendeur[o.vendeur]) stockVendeur[o.vendeur] = {};
-      stockVendeur[o.vendeur][item.id] = (stockVendeur[o.vendeur][item.id]||0) + item.qty;
-      await logStockMvt(item.id, 'ajustement', item.qty, stockVendeur[o.vendeur][item.id],
-        `Annulation commande ${o.id}${reason?' -- '+reason:''} (restauration vendeur)`);
-    } else {
-      stock[item.id] = (stock[item.id]||0) + item.qty;
-      await logStockMvt(item.id, 'ajustement', item.qty, stock[item.id],
-        `Annulation commande ${o.id}${reason?' -- '+reason:''} (restauration global)`);
+  // Restaurer le stock dans le kiosque source
+  const kiosque = o.kiosqueSource;
+  if (kiosque) {
+    for (const item of o.items) {
+      const p = products.find(x=>x.id===item.id);
+      if (!p || isFood(p)) continue;
+      if (!stockVendeur[kiosque]) stockVendeur[kiosque] = {};
+      stockVendeur[kiosque][item.id] = (stockVendeur[kiosque][item.id]||0) + item.qty;
+      await logStockMvt(item.id, 'ajustement', item.qty, stockVendeur[kiosque][item.id], kiosque,
+        `Annulation commande ${o.id}${reason?' -- '+reason:''} (restauration)`);
     }
   }
   orders = orders.filter(x => x.id !== cancelOrderId);
   await saveFB('cb_orders', orders);
-  await saveFB('cb_stock', stock);
   await saveFB('cb_stock_vendeur', stockVendeur);
   logAction('Annulation commande', 'Commande ' + o.id + ' annulee par ' + currentUser.name + (reason?' - raison: '+reason:''));
   closeModal('modalCancelOrder');
@@ -1766,6 +1870,7 @@ function printBon(id) {
       <div><b>Table :</b> ${order.table}</div>
       ${order.client&&order.client!=='--'?`<div><b>Client :</b> ${order.client}</div>`:''}
       ${order.vendeur?`<div><b>Vendeur :</b> ${order.vendeur}</div>`:''}
+      ${order.kiosqueSource?`<div><b>Kiosque :</b> ${order.kiosqueSource}</div>`:''}
     </div>
     <div style="margin-bottom:8px;">
       ${order.items.map(i=>`
@@ -1792,7 +1897,7 @@ function exportExcel() {
   if (currentUser.role === 'admin') {
     const filter = document.getElementById('jVendeurFilter').value;
     if (filter !== 'tous') day = day.filter(o => o.vendeur === filter);
-  } else if (currentUser.role === 'vendeur') {
+  } else if (currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
     const vend = currentUser.kiosque || currentUser.name;
     day = day.filter(o => o.vendeur === vend);
   }
@@ -1800,17 +1905,17 @@ function exportExcel() {
   const wb = XLSX.utils.book_new();
   const rows = [
     ['COMPLEXE BEYLA -- JOURNAL DU ' + date],[],
-    ['N° Commande','Date','Heure','Table','Client','Caissier','Vendeur','Statut','Articles','Total (GNF)']
+    ['N° Commande','Date','Heure','Table','Client','Caissier','Vendeur','Kiosque source','Statut','Articles','Total (GNF)']
   ];
   day.forEach(o => rows.push([
-    o.id, o.date, o.time, o.table, o.client, o.caissier||'--', o.vendeur||'--',
+    o.id, o.date, o.time, o.table, o.client, o.caissier||'--', o.vendeur||'--', o.kiosqueSource||'--',
     o.status||'attente',
     o.items.map(i=>i.name+' x'+i.qty).join(' | '),
     o.total
   ]));
   rows.push([],['','','','','','','','','TOTAL JOUR',day.reduce((s,o)=>s+(o.total||0),0)]);
   const ws = XLSX.utils.aoa_to_sheet(rows);
-  ws['!cols'] = [{wch:16},{wch:12},{wch:8},{wch:12},{wch:18},{wch:18},{wch:16},{wch:14},{wch:50},{wch:16}];
+  ws['!cols'] = [{wch:16},{wch:12},{wch:8},{wch:12},{wch:18},{wch:18},{wch:16},{wch:14},{wch:14},{wch:50},{wch:16}];
   XLSX.utils.book_append_sheet(wb,ws,'Journal');
   XLSX.writeFile(wb,'Beyla_Journal_'+date+'.xlsx');
   toast('Fichier Excel exporte');
@@ -1820,7 +1925,7 @@ function exportExcel() {
 function renderVerif() {
   const date = document.getElementById('vDate').value;
   let day = orders.filter(o=>o.date===date);
-  if (currentUser.role === 'vendeur') {
+  if (currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
     const vend = currentUser.kiosque || currentUser.name;
     day = day.filter(o => o.vendeur === vend);
   }
@@ -1969,7 +2074,7 @@ function renderQueue() {
     document.getElementById('queueTitle').textContent = 'Suivi commandes';
     document.getElementById('queueSub').textContent   = 'Statut de vos commandes (lecture seule)';
     document.getElementById('queueFilterBar').style.display = '';
-  } else if (currentUser.role === 'vendeur') {
+  } else if (currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
     document.getElementById('queueTitle').textContent = 'Statut des commandes';
     document.getElementById('queueSub').textContent   = 'Voir vos commandes en cuisine';
     document.getElementById('queueFilterBar').style.display = 'none';
@@ -1980,7 +2085,7 @@ function renderQueue() {
   }
 
   let todayAll = orders.filter(o=>o.date===today());
-  if (currentUser.role === 'vendeur') {
+  if (currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
     const vend = currentUser.kiosque || currentUser.name;
     todayAll = todayAll.filter(o => o.vendeur === vend);
   }
@@ -2004,7 +2109,7 @@ function renderQueue() {
 
   const stLabel = {attente:'En attente',preparation:'En preparation',servie:'Servie'};
 
-  if (currentUser.role === 'comptable' || currentUser.role === 'vendeur') {
+  if (currentUser.role === 'comptable' || currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
     grid.innerHTML = filtered.map(o => {
       const st = o.status||'attente';
       const stMap = {attente:'bg-a',preparation:'bg-b',servie:'bg-g'};
@@ -2034,7 +2139,7 @@ function renderQueue() {
         <span><span class="badge ${st==='attente'?'bg-a':st==='preparation'?'bg-b':'bg-g'}">${stLabel[st]}</span></span>
         <span class="qc-time">${o.time}</span>
       </div>
-      <div class="qc-table">Table <strong>${o.table}</strong>${o.client&&o.client!=='--'?' -- '+o.client:''}${o.vendeur?' -- Vendeur: '+o.vendeur:''}</div>
+      <div class="qc-table">Table <strong>${o.table}</strong>${o.client&&o.client!=='--'?' -- '+o.client:''}${o.vendeur?' -- Vendeur: '+o.vendeur:''}${o.kiosqueSource?' -- Kiosque: '+o.kiosqueSource:''}</div>
       <div class="qc-items">
         ${o.items.map(i=>`<div class="qc-item-line"><span>${i.name}</span><strong style="background:var(--text);color:#fff;padding:1px 7px;border-radius:4px;font-size:.78rem">x${i.qty}</strong></div>`).join('')}
       </div>
@@ -2063,70 +2168,72 @@ async function setOrderStatus(id, status) {
 
 // ========== STOCK ==========
 function renderStock() {
-  // Alertes stock global (exclure nourriture)
-  const stockItems = products.filter(p => !isFood(p));
-  const bas     = stockItems.filter(p=>{const q=stock[p.id]||0;return q>0&&q<=5;});
-  const rupture = stockItems.filter(p=>(stock[p.id]||0)<=0);
-  let alertHtml = '';
-  if (rupture.length>0) alertHtml+=`<div class="alert-item warn">Rupture : ${rupture.map(p=>p.name).join(', ')}</div>`;
-  if (bas.length>0)     alertHtml+=`<div class="alert-item warn">Stock bas (<=5) : ${bas.map(p=>p.name+' ('+stock[p.id]+')').join(', ')}</div>`;
-  document.getElementById('stockAlertBar').innerHTML = alertHtml;
-
-  // Filtres catégorie (incluant Nourriture pour affichage)
-  const allCats = ['Tout', ...ALL_STOCK_CATS];
-  document.getElementById('stockCatBar').innerHTML = allCats.map(c =>
-    `<button class="stock-cat-btn ${c===stockCatFilter?'act':''}" onclick="setStockCat('${c}')">${c==='Tout'?'Tout':getCatIcon(c)}</button>`
-  ).join('');
+  // On va afficher les stocks par kiosque
+  const kiosques = users.filter(u => u.role === 'vendeur' && u.kiosque).map(u => u.kiosque);
+  // Enlever les doublons
+  const uniqueKiosques = [...new Set(kiosques)];
 
   let filtered = products;
   if (stockCatFilter !== 'Tout') filtered = products.filter(p=>p.cat===stockCatFilter);
-  const sorted = [...filtered].sort((a,b)=>(stock[a.id]||0)-(stock[b.id]||0));
+  const sorted = [...filtered].sort((a,b)=>a.name.localeCompare(b.name));
 
   let stockHtml = '';
+
   if (currentUser.role === 'vendeur') {
-    // Pour les vendeurs : afficher uniquement les produits non-nourriture avec leur stock alloué
-    const vend = currentUser.kiosque || currentUser.name;
-    const vendProducts = sorted.filter(p => !isFood(p));
-    stockHtml = vendProducts.map(p => {
-      const qty = (stockVendeur[vend] && stockVendeur[vend][p.id]) || 0;
-      const cls = getStockClass(qty);
-      return `<div class="stock-card ${qty<=0?'out':qty<=5?'low':''}">
-        <div class="sc-info">
-          <div class="sc-name">${getCatIcon(p.cat)} ${p.name}</div>
-          <div class="sc-cat">${p.cat} -- ${fmt(p.price)}</div>
-          <div class="sc-stock ${cls}">${qty} unite(s) -- ${getStockLabel(qty)}</div>
-        </div>
-        <div style="font-size:.75rem;color:var(--muted);">Mon stock</div>
-      </div>`;
-    }).join('');
-    if (!stockHtml) stockHtml = '<div style="color:var(--muted);padding:.5rem;">Aucun produit avec stock</div>';
-  } else {
-    // Admin ou comptable : afficher tous les produits, mais avec "Illimité" pour la nourriture
-    stockHtml = sorted.map(p => {
-      const isFoodCat = isFood(p);
-      const qty = isFoodCat ? Infinity : (stock[p.id]!==undefined?stock[p.id]:0);
-      const cls = isFoodCat ? 'inf' : getStockClass(qty);
-      const label = isFoodCat ? 'Illimité' : (qty <= 0 ? 'Rupture' : (qty <= 5 ? 'Stock bas' : 'En stock'));
-      const displayQty = isFoodCat ? '∞' : qty;
-      return `<div class="stock-card ${!isFoodCat && qty<=0?'out':!isFoodCat && qty<=5?'low':''}">
-        <div class="sc-info">
-          <div class="sc-name">${getCatIcon(p.cat)} ${p.name}</div>
-          <div class="sc-cat">${p.cat} -- ${fmt(p.price)}</div>
-          <div class="sc-stock ${cls}">${displayQty} unite(s) -- ${label}</div>
-        </div>
-        ${!isFoodCat ? `
-        <div class="sc-controls">
-          <input type="number" class="stock-adj-input" id="si-${p.id}" value="1" min="0">
-          <button class="stock-adj-btn stock-set-btn" onclick="adjustStock(${p.id},'set')" title="Definir ce stock">Definir</button>
-          <button class="stock-adj-btn stock-add-btn" onclick="adjustStock(${p.id},'add')" title="Ajouter au stock">+ Reassort</button>
-          <button class="stock-adj-btn stock-sub-btn" onclick="adjustStock(${p.id},'sub')" title="Retirer du stock">- Perte</button>
-        </div>` : '<div style="font-size:.8rem;color:var(--green);">⚠️ Pas de gestion de stock</div>'}
-      </div>`;
-    }).join('');
+    // Le vendeur voit son propre stock
+    const monKiosque = currentUser.kiosque;
+    if (!monKiosque) { stockHtml = '<div style="color:var(--muted);padding:.5rem;">Aucun kiosque associé</div>'; }
+    else {
+      const myProducts = sorted.filter(p => !isFood(p));
+      stockHtml = myProducts.map(p => {
+        const qty = (stockVendeur[monKiosque] && stockVendeur[monKiosque][p.id]) || 0;
+        const cls = getStockClass(qty);
+        return `<div class="stock-card ${qty<=0?'out':qty<=5?'low':''}">
+          <div class="sc-info">
+            <div class="sc-name">${getCatIcon(p.cat)} ${p.name}</div>
+            <div class="sc-cat">${p.cat} -- ${fmt(p.price)}</div>
+            <div class="sc-stock ${cls}">${qty} unite(s) -- ${getStockLabel(qty)}</div>
+          </div>
+          <div style="font-size:.75rem;color:var(--muted);">Mon stock (${monKiosque})</div>
+        </div>`;
+      }).join('');
+      if (!stockHtml) stockHtml = '<div style="color:var(--muted);padding:.5rem;">Aucun produit avec stock</div>';
+    }
+  } else if (currentUser.role === 'serveur' || currentUser.role === 'admin' || currentUser.role === 'comptable') {
+    // Pour les serveurs et admin, afficher tous les kiosques
+    if (uniqueKiosques.length === 0) {
+      stockHtml = '<div style="color:var(--muted);padding:.5rem;">Aucun kiosque enregistré</div>';
+    } else {
+      // Afficher un tableau avec les produits en ligne et les kiosques en colonnes
+      const productsAStock = sorted.filter(p => !isFood(p));
+      if (productsAStock.length === 0) {
+        stockHtml = '<div style="color:var(--muted);padding:.5rem;">Aucun produit avec stock</div>';
+      } else {
+        // Construction d'un tableau HTML
+        let tableHtml = `<div class="tbl-wrap"><table><thead><tr><th>Produit</th>`;
+        uniqueKiosques.forEach(k => {
+          tableHtml += `<th>${k}</th>`;
+        });
+        tableHtml += `</tr></thead><tbody>`;
+        productsAStock.forEach(p => {
+          tableHtml += `<tr><td><strong>${p.name}</strong></td>`;
+          uniqueKiosques.forEach(k => {
+            const qty = (stockVendeur[k] && stockVendeur[k][p.id]) || 0;
+            const cls = getStockClass(qty);
+            const label = qty <= 0 ? 'Rupture' : (qty <= 5 ? 'Stock bas' : '');
+            tableHtml += `<td><span class="sc-stock ${cls}">${qty}</span> ${label ? `<span style="font-size:.6rem;color:var(--amber);">${label}</span>` : ''}</td>`;
+          });
+          tableHtml += `</tr>`;
+        });
+        tableHtml += `</tbody></table></div>`;
+        stockHtml = tableHtml;
+      }
+    }
   }
+
   document.getElementById('stockGrid').innerHTML = stockHtml;
 
-  // Gestion des allocations par vendeur (uniquement pour admin)
+  // Gestion des stocks par kiosque (admin seulement)
   const allocSection = document.getElementById('allocationVendeurSection');
   if (currentUser.role === 'admin') {
     allocSection.style.display = 'block';
@@ -2135,7 +2242,7 @@ function renderStock() {
     allocSection.style.display = 'none';
   }
 
-  // Historique des mouvements (visible par admin et comptable)
+  // Historique des mouvements (filtré par kiosque si vendeur/serveur)
   const tb = document.getElementById('mvtTable');
   if (!stockMvts.length) {
     tb.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:1.5rem;color:var(--muted)">Aucun mouvement enregistre</td></tr>';
@@ -2143,7 +2250,16 @@ function renderStock() {
   }
   const typeMap   = {vente:'bg-r',reassort:'bg-g',ajustement:'bg-b',perte:'bg-a'};
   const typeLabel = {vente:'Vente',reassort:'Reassort',ajustement:'Ajust.',perte:'Perte'};
-  tb.innerHTML = stockMvts.slice(0,60).map(m=>`<tr>
+  let filteredMvts = stockMvts;
+  if (currentUser.role === 'vendeur') {
+    const monKiosque = currentUser.kiosque;
+    filteredMvts = stockMvts.filter(m => m.kiosque === monKiosque);
+  } else if (currentUser.role === 'serveur') {
+    // Les serveurs voient tous les mouvements (ou on peut filtrer par kiosque source ?)
+    // On garde tout.
+  }
+  const displayMvts = filteredMvts.slice(0,60);
+  tb.innerHTML = displayMvts.map(m=>`<tr>
     <td style="font-size:.75rem">${m.ts}</td>
     <td><strong>${m.prodName}</strong></td>
     <td><span style="font-size:.7rem;color:var(--muted)">${getCatIcon(m.prodCat||'')} ${m.prodCat||'--'}</span></td>
@@ -2151,34 +2267,16 @@ function renderStock() {
     <td><strong style="color:${m.type==='vente'||m.type==='perte'?'var(--red)':'var(--green)'}">${m.type==='vente'||m.type==='perte'?'-':'+'}${m.qty}</strong></td>
     <td>${m.stockAfter}</td>
     <td style="font-size:.75rem">${m.by}</td>
-    <td style="font-size:.75rem">${m.vendeur||'--'}</td>
+    <td style="font-size:.75rem">${m.kiosque||'--'}</td>
   </tr>`).join('');
+  if (!displayMvts.length) {
+    tb.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:1.5rem;color:var(--muted)">Aucun mouvement pour vous</td></tr>';
+  }
 }
 
 function setStockCat(cat) { stockCatFilter=cat; renderStock(); }
 
-async function adjustStock(id, mode) {
-  if (currentUser.role !== 'admin') { toast('Reserve a l\'admin'); return; }
-  const p = products.find(x=>x.id===id);
-  if (!p || isFood(p)) { toast('Ce produit n\'a pas de stock gerable'); return; }
-  const inp = document.getElementById('si-'+id);
-  const val = parseInt(inp.value)||0;
-  if (val<=0&&mode!=='set') { toast('Entrer une quantite valide'); return; }
-  const before = stock[id]||0;
-  let after=before, type='ajustement';
-  if (mode==='set') { after=Math.max(0,val); type='ajustement'; }
-  if (mode==='add') { after=before+val; type='reassort'; }
-  if (mode==='sub') { after=Math.max(0,before-val); type='perte'; }
-  stock[id]=after;
-  await saveFB('cb_stock',stock);
-  await logStockMvt(id,type,val,after,mode==='set'?'Defini a '+after:'');
-  logAction('Ajustement stock', 'Produit ' + p.name + ' - ' + mode + ' ' + val + ' (avant ' + before + ', apres ' + after + ')');
-  renderStock();
-  if (currentPage==='caisse') renderProds();
-  toast('Stock mis a jour');
-}
-
-// ========== ALLOCATION VENDEUR (intégrée dans l'onglet Stock) ==========
+// ========== GESTION DES STOCKS PAR KIOSQUE (admin) ==========
 function renderAllocationVendeur() {
   const container = document.getElementById('allocationVendeurContainer');
   const vendeurs = users.filter(u => u.role === 'vendeur' && u.kiosque);
@@ -2186,14 +2284,14 @@ function renderAllocationVendeur() {
     container.innerHTML = '<div style="color:var(--muted);padding:.5rem 0">Aucun vendeur enregistre.</div>';
     return;
   }
-  // On affiche uniquement les produits non-nourriture (avec stock)
-  const productsAvecStock = products.filter(p => !isFood(p));
+  // Afficher une table avec les produits en lignes et les kiosques en colonnes, avec champs de saisie
+  const productsAStock = products.filter(p => !isFood(p));
   let html = `<div class="tbl-wrap"><table><thead><tr><th>Produit</th>`;
   vendeurs.forEach(v => {
     html += `<th>${v.kiosque}</th>`;
   });
   html += `</tr></thead><tbody>`;
-  productsAvecStock.forEach(p => {
+  productsAStock.forEach(p => {
     html += `<tr><td><strong>${p.name}</strong></td>`;
     vendeurs.forEach(v => {
       const val = (stockVendeur[v.kiosque] && stockVendeur[v.kiosque][p.id]) || 0;
@@ -2201,9 +2299,9 @@ function renderAllocationVendeur() {
         <div style="display:flex;align-items:center;gap:4px;">
           <span style="font-size:.75rem;color:var(--muted);">${val}</span>
           <input type="number" class="form-in alloc-input" style="width:60px;padding:3px;" 
-            data-vendeur="${v.kiosque}" data-prod="${p.id}" value="0" min="0">
+            data-kiosque="${v.kiosque}" data-prod="${p.id}" value="0" min="0">
           <button class="btn btn-green" style="flex:0;padding:2px 6px;font-size:.7rem;" 
-            onclick="addAllocationVendeur('${v.kiosque}',${p.id})">+</button>
+            onclick="addStockKiosque('${v.kiosque}',${p.id})">+</button>
         </div>
       </td>`;
     });
@@ -2213,19 +2311,19 @@ function renderAllocationVendeur() {
   container.innerHTML = html;
 }
 
-function addAllocationVendeur(vendeur, prodId) {
+function addStockKiosque(kiosque, prodId) {
   if (currentUser.role !== 'admin') { toast('Reserve a l\'admin'); return; }
   const p = products.find(x=>x.id===prodId);
   if (!p || isFood(p)) { toast('Ce produit n\'a pas de stock gerable'); return; }
-  const input = document.querySelector(`.alloc-input[data-vendeur="${vendeur}"][data-prod="${prodId}"]`);
+  const input = document.querySelector(`.alloc-input[data-kiosque="${kiosque}"][data-prod="${prodId}"]`);
   if (!input) return;
   const qty = parseInt(input.value) || 0;
   if (qty <= 0) { toast('Entrez une quantite positive'); return; }
-  if (!stockVendeur[vendeur]) stockVendeur[vendeur] = {};
-  stockVendeur[vendeur][prodId] = (stockVendeur[vendeur][prodId] || 0) + qty;
+  if (!stockVendeur[kiosque]) stockVendeur[kiosque] = {};
+  stockVendeur[kiosque][prodId] = (stockVendeur[kiosque][prodId] || 0) + qty;
   saveFB('cb_stock_vendeur', stockVendeur).then(() => {
-    logAction('Allocation vendeur', 'Ajout de ' + qty + ' pour ' + vendeur + ' - produit ' + p.name);
-    toast(`Ajout de ${qty} pour ${vendeur}`);
+    logAction('Ajout stock kiosque', 'Ajout de ' + qty + ' pour ' + kiosque + ' - produit ' + p.name);
+    toast(`Ajout de ${qty} pour ${kiosque}`);
     renderStock();
     if (currentPage==='caisse') renderProds();
   });
@@ -2236,23 +2334,23 @@ async function saveAllocationVendeur(mode) {
   const inputs = document.querySelectorAll('.alloc-input');
   let changes = false;
   inputs.forEach(inp => {
-    const vendeur = inp.dataset.vendeur;
+    const kiosque = inp.dataset.kiosque;
     const prodId = parseInt(inp.dataset.prod);
     const val = parseInt(inp.value)||0;
     if (val === 0) return;
     const p = products.find(x=>x.id===prodId);
     if (!p || isFood(p)) return;
-    if (!stockVendeur[vendeur]) stockVendeur[vendeur] = {};
+    if (!stockVendeur[kiosque]) stockVendeur[kiosque] = {};
     if (mode === 'add') {
-      stockVendeur[vendeur][prodId] = (stockVendeur[vendeur][prodId] || 0) + val;
+      stockVendeur[kiosque][prodId] = (stockVendeur[kiosque][prodId] || 0) + val;
     } else {
-      stockVendeur[vendeur][prodId] = val;
+      stockVendeur[kiosque][prodId] = val;
     }
     changes = true;
   });
   if (!changes) { toast('Aucune valeur saisie'); return; }
   await saveFB('cb_stock_vendeur', stockVendeur);
-  logAction('Allocation vendeur', 'Mode ' + mode + ' applique sur plusieurs produits');
+  logAction('Gestion stock kiosque', 'Mode ' + mode + ' applique sur plusieurs produits');
   toast(mode==='add' ? 'Ajouts effectues' : 'Valeurs definies');
   renderStock();
   if (currentPage==='caisse') renderProds();
@@ -2265,7 +2363,7 @@ function renderAdmin() {
       <div class="user-avatar">${u.name.split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase()}</div>
       <div style="flex:1">
         <div class="user-name">${u.name}</div>
-        <div class="user-role">${{admin:'Admin',comptable:'Caissier',cuisiniere:'Cuisiniere',vendeur:'Vendeur'}[u.role]||u.role} -- @${u.login}${u.kiosque?' -- '+u.kiosque:''}</div>
+        <div class="user-role">${{admin:'Admin',comptable:'Caissier',cuisiniere:'Cuisiniere',vendeur:'Kiosque',serveur:'Serveur'}[u.role]||u.role} -- @${u.login}${u.kiosque?' -- '+u.kiosque:''}</div>
       </div>
       ${u.id!==1?`
         <button class="icon-btn" onclick="editUserModal(${u.id})" title="Modifier">M</button>
@@ -2275,14 +2373,16 @@ function renderAdmin() {
 
   document.getElementById('prodMgmtGrid').innerHTML = products.map(p=>{
     const isFoodCat = isFood(p);
-    const qty   = isFoodCat ? '∞' : (stock[p.id]!==undefined?stock[p.id]:0);
-    const stCls = isFoodCat ? 'inf' : getStockClass(qty);
-    const label = isFoodCat ? 'Illimité' : (qty <=0 ? 'Rupture' : (qty <=5 ? 'Stock bas' : 'En stock'));
+    // Pour l'affichage, on peut montrer le stock total sur tous les kiosques
+    const totalQty = Object.values(stockVendeur).reduce((acc, k) => acc + (k[p.id]||0), 0);
+    const qty   = isFoodCat ? '∞' : totalQty;
+    const stCls = isFoodCat ? 'inf' : getStockClass(totalQty);
+    const label = isFoodCat ? 'Illimité' : (totalQty <=0 ? 'Rupture' : (totalQty <=5 ? 'Stock bas' : 'En stock'));
     return `<div class="pm-card">
       <div class="pm-info">
         <div class="pm-name">${getCatIcon(p.cat)} ${p.name}</div>
         <div class="pm-cat">${p.cat}</div>
-        <div class="pm-price">${fmt(p.price)} -- <span class="sc-stock ${stCls}" style="font-size:.72rem">${qty} ${isFoodCat?'':'(stock)'}</span></div>
+        <div class="pm-price">${fmt(p.price)} -- <span class="sc-stock ${stCls}" style="font-size:.72rem">${qty} ${isFoodCat?'':'(total)'}</span></div>
       </div>
       <button class="icon-btn" onclick="editProdModal(${p.id})" title="Modifier">M</button>
       <button class="icon-btn" onclick="delProd(${p.id})" style="margin-left:4px" title="Supprimer">X</button>
@@ -2382,7 +2482,7 @@ function editUserModal(id) {
 function toggleKiosqueField() {
   const role = document.getElementById('uRole').value;
   const group = document.getElementById('kiosqueGroup');
-  if (role === 'vendeur') {
+  if (role === 'vendeur' || role === 'serveur') {
     group.style.display = 'block';
   } else {
     group.style.display = 'none';
@@ -2409,6 +2509,8 @@ async function saveUser() {
   logAction('Gestion utilisateur', 'Compte ' + login + ' ' + (editUserId?'modifie':'cree') + ' par ' + currentUser.name);
   closeModal('modalUser');
   renderAdmin();
+  // Mettre à jour la liste des kiosques
+  populateKiosqueSource();
   toast('Compte enregistre');
 }
 
@@ -2420,31 +2522,17 @@ async function delUser(id) {
   await saveFB('cb_users',users);
   logAction('Gestion utilisateur', 'Compte ' + user?.login + ' supprime par ' + currentUser.name);
   renderAdmin();
+  populateKiosqueSource();
   toast('Compte supprime');
 }
 
-document.getElementById('pCat').addEventListener('change', function() {
-  const noteEl = document.getElementById('pStockNote');
-  if (noteEl) noteEl.style.display = this.value!=='Nourriture' ? 'block' : 'none';
-  // Afficher ou cacher le champ stock
-  const stockGroup = document.getElementById('stockFieldGroup');
-  if (this.value === 'Nourriture') {
-    stockGroup.style.display = 'none';
-  } else {
-    stockGroup.style.display = 'block';
-  }
-});
-// Initialisation du champ stock lors de l'ouverture de la modale produit
+// ========== PRODUITS ==========
 function openAddProd() {
   editProdId=null;
   document.getElementById('modalProdTitle').textContent='Nouveau produit';
   document.getElementById('pName').value='';
   document.getElementById('pPrice').value='';
   document.getElementById('pCat').value='Nourriture';
-  document.getElementById('pStock').value='20';
-  // Masquer le champ stock pour nourriture
-  document.getElementById('stockFieldGroup').style.display = 'none';
-  document.getElementById('pStockNote').style.display = 'none';
   openModal('modalProd');
 }
 
@@ -2456,10 +2544,6 @@ function editProdModal(id) {
   document.getElementById('pName').value  = p.name;
   document.getElementById('pPrice').value = p.price;
   document.getElementById('pCat').value   = p.cat;
-  const isFoodCat = isFood(p);
-  document.getElementById('pStock').value = isFoodCat ? 0 : (stock[id]!==undefined?stock[id]:0);
-  document.getElementById('stockFieldGroup').style.display = isFoodCat ? 'none' : 'block';
-  document.getElementById('pStockNote').style.display = isFoodCat ? 'none' : 'block';
   openModal('modalProd');
 }
 
@@ -2467,27 +2551,16 @@ async function saveProd() {
   const name  = document.getElementById('pName').value.trim();
   const price = parseFloat(document.getElementById('pPrice').value);
   const cat   = document.getElementById('pCat').value;
-  const qty   = parseInt(document.getElementById('pStock').value)||0;
   if (!name||!price) { toast('Remplir nom et prix'); return; }
   if (editProdId) {
     const p = products.find(x=>x.id===editProdId);
     if (p) { p.name=name; p.price=price; p.cat=cat; }
-    if (!isFood(p)) {
-      const oldQty = stock[editProdId]||0;
-      stock[editProdId]=qty;
-      if (oldQty!==qty) await logStockMvt(editProdId,'ajustement',Math.abs(qty-oldQty),qty,'Modification produit admin');
-    }
   } else {
     const mx    = Math.max(...products.map(p=>p.id),0);
     const newId = mx+1;
-    products.push({id:newId,name,price,cat,stock:qty});
-    if (cat !== 'Nourriture') {
-      stock[newId]=qty;
-      await logStockMvt(newId,'reassort',qty,qty,'Nouveau produit');
-    }
+    products.push({id:newId,name,price,cat});
   }
   await saveFB('cb_prods',products);
-  await saveFB('cb_stock',stock);
   logAction('Gestion produit', 'Produit ' + name + ' ' + (editProdId?'modifie':'cree') + ' par ' + currentUser.name);
   closeModal('modalProd');
   renderAdmin();
@@ -2499,9 +2572,12 @@ async function delProd(id) {
   if (!confirm('Supprimer ce produit definitivement ?')) return;
   const p = products.find(x=>x.id===id);
   products=products.filter(p=>p.id!==id);
-  delete stock[id];
+  // Supprimer le stock dans tous les kiosques
+  Object.keys(stockVendeur).forEach(k => {
+    delete stockVendeur[k][id];
+  });
   await saveFB('cb_prods',products);
-  await saveFB('cb_stock',stock);
+  await saveFB('cb_stock_vendeur',stockVendeur);
   logAction('Gestion produit', 'Produit ' + p?.name + ' supprime par ' + currentUser.name);
   renderAdmin();
   renderProds();
@@ -2543,22 +2619,20 @@ document.querySelectorAll('.overlay').forEach(overlay => {
 
 // ========== INITIALISATION ==========
 function initStock() {
+  // Initialisation des stocks pour les kiosques existants
+  const kiosques = users.filter(u => u.role === 'vendeur' && u.kiosque).map(u => u.kiosque);
   let changed = false;
   products.forEach(p => {
-    if (isFood(p)) {
-      // Ne pas initialiser de stock pour la nourriture
-      if (stock[p.id] !== undefined) {
-        delete stock[p.id];
+    if (isFood(p)) return;
+    kiosques.forEach(k => {
+      if (!stockVendeur[k]) stockVendeur[k] = {};
+      if (stockVendeur[k][p.id] === undefined) {
+        stockVendeur[k][p.id] = 20; // stock initial par défaut
         changed = true;
       }
-    } else {
-      if (stock[p.id] === undefined) {
-        stock[p.id] = p.stock !== undefined ? p.stock : 20;
-        changed = true;
-      }
-    }
+    });
   });
-  if (changed) saveLS('cb_stock', stock);
+  if (changed) saveLS('cb_stock_vendeur', stockVendeur);
 }
 initStock();
 loadFB().then(()=>{ initStock(); });
