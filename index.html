@@ -20,7 +20,7 @@
   --nav-h:56px;--bottom-h:68px;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);font-size:16px;line-height:1.5;-webkit-tap-highlight-color:transparent;}
 input,select,textarea,button{font-family:inherit;}
 
 /* ===== LOGIN ===== */
@@ -217,9 +217,9 @@ input,select,textarea,button{font-family:inherit;}
   border:1.5px solid var(--border);cursor:pointer;background:var(--surface);color:var(--muted);transition:.15s;
 }
 .cat-btn.act{background:linear-gradient(135deg,#0d1b2a,#1a2e4a);color:#fff;border-color:transparent;box-shadow:0 2px 8px rgba(0,0,0,.2);}
-.prod-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px;overflow-y:auto;flex:1;}
+.prod-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:8px;overflow-y:auto;flex:1;}
 .prod-card{
-  border:1.5px solid var(--border);border-radius:var(--r);padding:10px;cursor:pointer;
+  border:1.5px solid var(--border);border-radius:var(--r-lg);padding:12px 10px;cursor:pointer;
   background:var(--surface);transition:.15s;text-align:left;position:relative;width:100%;
   box-shadow:0 1px 4px rgba(0,0,0,.04);
 }
@@ -227,23 +227,23 @@ input,select,textarea,button{font-family:inherit;}
 .prod-card:active{transform:scale(.96);}
 .prod-card.unavail{opacity:.4;cursor:not-allowed;background:var(--surface2);}
 .prod-card.low-stock{border-color:var(--amber);}
-.prod-dispo{position:absolute;top:7px;right:7px;width:7px;height:7px;border-radius:50%;background:var(--green);}
+.prod-dispo{position:absolute;top:7px;right:7px;width:10px;height:10px;border-radius:50%;background:var(--green);}
 .prod-dispo.off{background:#ccc;}
-.prod-name{font-size:.8rem;font-weight:600;margin-bottom:2px;line-height:1.3;padding-right:14px;}
-.prod-cat{font-size:.65rem;color:var(--muted);margin-bottom:4px;}
-.prod-price{font-size:.85rem;font-weight:700;color:var(--accent);}
-.prod-stock{font-size:.65rem;margin-top:3px;padding:2px 6px;border-radius:12px;display:inline-block;background:var(--surface2);}
+.prod-name{font-size:.9rem;font-weight:700;margin-bottom:3px;line-height:1.3;padding-right:16px;}
+.prod-cat{font-size:.7rem;color:var(--muted);margin-bottom:4px;}
+.prod-price{font-size:1rem;font-weight:700;color:var(--accent);}
+.prod-stock{font-size:.75rem;margin-top:4px;padding:3px 10px;border-radius:12px;display:inline-block;background:var(--surface2);font-weight:600;}
 .prod-stock.ok{color:var(--green);background:var(--green-bg);}
 .prod-stock.low{color:var(--amber);background:var(--amber-bg);}
 .prod-stock.out{color:var(--red);background:var(--red-bg);}
 .prod-stock.inf{color:var(--blue);background:var(--blue-bg);}
-.prod-na{font-size:.65rem;color:var(--red);font-weight:600;}
+.prod-na{font-size:.7rem;color:var(--red);font-weight:700;}
 .right-p{display:flex;flex-direction:column;overflow:hidden;}
 .order-top{
   background:var(--surface);border-bottom:1px solid var(--border);
   padding:.8rem 1.2rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
 }
-.tbl-badge{background:linear-gradient(135deg,var(--accent),#d4581f);color:#fff;border-radius:8px;padding:4px 12px;font-size:.78rem;font-weight:700;}
+.tbl-badge{background:linear-gradient(135deg,var(--accent),#d4581f);color:#fff;border-radius:8px;padding:6px 14px;font-size:.85rem;font-weight:700;}
 .order-meta{font-size:.72rem;color:var(--muted);margin-left:auto;}
 .tbl-row{
   padding:7px 1.2rem;background:var(--surface2);border-bottom:1px solid var(--border);
@@ -260,36 +260,36 @@ input,select,textarea,button{font-family:inherit;}
 .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--muted);gap:8px;}
 .empty-icon{font-size:2.5rem;opacity:.15;}
 .order-item{
-  display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid var(--border);
+  display:flex;align-items:center;gap:8px;padding:12px 14px;border:1.5px solid var(--border);
   border-radius:var(--r);margin-bottom:6px;background:var(--surface);box-shadow:0 1px 4px rgba(0,0,0,.04);
 }
-.oi-name{flex:1;font-size:.85rem;font-weight:600;}
-.oi-unit{font-size:.7rem;color:var(--muted);}
-.qty-ctrl{display:flex;align-items:center;gap:4px;}
+.oi-name{flex:1;font-size:.9rem;font-weight:600;}
+.oi-unit{font-size:.75rem;color:var(--muted);}
+.qty-ctrl{display:flex;align-items:center;gap:6px;}
 .qb{
-  width:30px;height:30px;border-radius:50%;border:1.5px solid var(--border);background:var(--bg);
-  cursor:pointer;font-size:1.1rem;font-weight:700;display:flex;align-items:center;
+  width:34px;height:34px;border-radius:50%;border:1.5px solid var(--border);background:var(--bg);
+  cursor:pointer;font-size:1.2rem;font-weight:700;display:flex;align-items:center;
   justify-content:center;transition:.12s;
 }
 .qb:active{background:var(--accent);color:#fff;border-color:var(--accent);}
-.qn{width:26px;text-align:center;font-weight:700;font-size:.9rem;}
-.oi-total{font-weight:700;min-width:80px;text-align:right;font-size:.85rem;color:var(--accent);}
+.qn{width:30px;text-align:center;font-weight:700;font-size:1rem;}
+.oi-total{font-weight:700;min-width:90px;text-align:right;font-size:.9rem;color:var(--accent);}
 .del-btn{
-  width:26px;height:26px;border:none;background:var(--red-bg);color:var(--red);
-  border-radius:50%;cursor:pointer;font-size:.78rem;display:flex;align-items:center;
+  width:30px;height:30px;border:none;background:var(--red-bg);color:var(--red);
+  border-radius:50%;cursor:pointer;font-size:.9rem;display:flex;align-items:center;
   justify-content:center;flex-shrink:0;transition:.15s;
 }
 .del-btn:active{background:var(--red);color:#fff;}
 .order-foot{background:var(--surface);border-top:1px solid var(--border);padding:.9rem 1.2rem;}
-.tot-row{display:flex;justify-content:space-between;font-size:.84rem;margin-bottom:4px;}
-.tot-main{font-size:1.08rem;font-weight:700;border-top:1px solid var(--border);padding-top:8px;margin:4px 0 10px;}
+.tot-row{display:flex;justify-content:space-between;font-size:.9rem;margin-bottom:4px;}
+.tot-main{font-size:1.2rem;font-weight:700;border-top:1px solid var(--border);padding-top:8px;margin:4px 0 10px;}
 .note-in{
   width:100%;border:1.5px solid var(--border);border-radius:10px;padding:9px 12px;
   font-size:.82rem;resize:none;background:var(--bg);outline:none;margin-bottom:8px;transition:.15s;
 }
 .note-in:focus{border-color:var(--accent);}
 .act-row{display:flex;gap:8px;}
-.btn{padding:12px;border-radius:var(--r);border:none;cursor:pointer;font-size:.83rem;font-weight:600;transition:.15s;flex:1;}
+.btn{padding:14px;border-radius:var(--r);border:none;cursor:pointer;font-size:.9rem;font-weight:700;transition:.15s;flex:1;}
 .btn:disabled{opacity:.4;cursor:not-allowed;}
 .btn:active{transform:scale(.97);}
 .btn-ghost{background:var(--bg);color:var(--muted);border:1.5px solid var(--border);}
@@ -298,8 +298,8 @@ input,select,textarea,button{font-family:inherit;}
 .btn-blue{background:linear-gradient(135deg,var(--blue),#2563eb);color:#fff;}
 .caisse-mobile-tabs{display:none;background:var(--surface);border-bottom:1px solid var(--border);}
 .cmt-btn{
-  flex:1;padding:13px;border:none;background:none;font-size:.82rem;font-weight:700;
-  color:var(--muted);cursor:pointer;border-bottom:2.5px solid transparent;
+  flex:1;padding:15px;border:none;background:none;font-size:.9rem;font-weight:700;
+  color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;
 }
 .cmt-btn.act{color:var(--accent);border-bottom-color:var(--accent);}
 
@@ -346,8 +346,8 @@ tbody td{padding:9px 10px;}
 .bg-b{background:var(--blue-bg);color:var(--blue);}
 .bg-o{background:var(--orange-bg);color:var(--orange);}
 .icon-btn{
-  width:30px;height:30px;border:1.5px solid var(--border);background:var(--bg);
-  border-radius:8px;cursor:pointer;font-size:.82rem;display:inline-flex;
+  width:34px;height:34px;border:1.5px solid var(--border);background:var(--bg);
+  border-radius:8px;cursor:pointer;font-size:.9rem;display:inline-flex;
   align-items:center;justify-content:center;transition:.15s;
 }
 .icon-btn:hover{background:var(--accent2);border-color:var(--accent);}
@@ -399,7 +399,6 @@ tbody td{padding:9px 10px;}
 .qc-note{font-size:.75rem;background:rgba(0,0,0,.06);border-radius:6px;padding:6px 8px;margin-bottom:.8rem;color:var(--amber);border-left:3px solid var(--amber);}
 .qc-actions{display:flex;gap:6px;flex-wrap:wrap;}
 .qc-btn{flex:1;padding:9px;border-radius:8px;border:none;cursor:pointer;font-size:.75rem;font-weight:700;transition:.15s;min-width:70px;}
-.qc-btn-validate{background:linear-gradient(135deg,var(--green),#2d9b5a);color:#fff;}
 .qc-btn-start{background:linear-gradient(135deg,var(--blue),#2563eb);color:#fff;}
 .qc-btn-done{background:linear-gradient(135deg,var(--green),#2d9b5a);color:#fff;}
 .qc-filter-bar{display:flex;gap:8px;margin-bottom:1.2rem;flex-wrap:wrap;}
@@ -410,7 +409,7 @@ tbody td{padding:9px 10px;}
 .qc-filter-btn.act{background:linear-gradient(135deg,#0d1b2a,#1a2e4a);color:#fff;border-color:transparent;box-shadow:0 2px 8px rgba(0,0,0,.2);}
 .queue-empty{text-align:center;padding:3rem;color:var(--muted);}
 
-/* ===== STATUT CAISSIER (vue simplifiée) ===== */
+/* ===== STATUT CAISSIER ===== */
 .caissier-status-card{
   background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-lg);
   padding:1rem 1.2rem;margin-bottom:8px;display:flex;align-items:center;gap:12px;
@@ -519,7 +518,7 @@ tbody td{padding:9px 10px;}
   .caisse-wrap{display:flex;flex-direction:column;height:auto;min-height:calc(100vh - var(--nav-h) - var(--bottom-h));overflow-y:auto;}
   .left-p,.right-p{height:auto;min-height:calc(100vh - var(--nav-h) - var(--bottom-h));overflow-y:auto;}
   .right-p{display:flex;flex-direction:column;}
-  .order-items{max-height:38vh;overflow-y:auto;}
+  .order-items{max-height:40vh;overflow-y:auto;}
   .order-foot{position:sticky;bottom:0;background:var(--surface);padding:1rem 1rem;border-top:1px solid var(--border);margin-top:auto;}
   .act-row{display:flex;gap:8px;flex-wrap:wrap;}
   .act-row .btn{flex:1;min-width:90px;padding:14px;}
@@ -543,11 +542,12 @@ tbody td{padding:9px 10px;}
   .oi-name{width:100%;margin-bottom:2px;}
   .qty-ctrl{margin-left:auto;}
   .kpi-val{font-size:1.1rem;}
+  .prod-grid{grid-template-columns:1fr 1fr;}
 }
 @media(max-width:380px){
   .prod-card{padding:8px;}
-  .prod-name{font-size:.75rem;}
-  .prod-price{font-size:.8rem;}
+  .prod-name{font-size:.82rem;}
+  .prod-price{font-size:.9rem;}
   .bn-item{font-size:.55rem;}
   .bn-icon{font-size:1.15rem;}
 }
@@ -645,12 +645,8 @@ tbody td{padding:9px 10px;}
     <div class="right-p" id="commandePanel">
       <div class="order-top">
         <div style="font-weight:700;font-size:.9rem;">Nouvelle commande</div>
-        <div class="tbl-badge" id="tblBadge">Client --</div>
+        <div class="tbl-badge" id="tblBadge">Commande #</div>
         <div class="order-meta" id="orderMeta"></div>
-      </div>
-      <div class="tbl-row">
-        <label>Nom du client</label>
-        <input type="text" id="clientIn" placeholder="Nom (obligatoire)" required>
       </div>
       <div class="tbl-row" id="kiosqueSourceRow">
         <label>Kiosque source</label>
@@ -686,7 +682,7 @@ tbody td{padding:9px 10px;}
     <div class="stats-grid" id="statsGrid"></div>
     <div class="tbl-wrap">
       <table>
-        <thead><tr><th>N°</th><th>Heure</th><th>Client</th><th>Caissier</th><th>Vendeur</th><th>Kiosque</th><th>Total</th><th>Statut</th><th>Actions</th></tr></thead>
+        <thead><tr><th>N°</th><th>Heure</th><th>Caissier</th><th>Vendeur</th><th>Kiosque</th><th>Articles</th><th>Total</th><th>Statut</th><th>Actions</th></tr></thead>
         <tbody id="jTable"></tbody>
       </table>
     </div>
@@ -713,8 +709,7 @@ tbody td{padding:9px 10px;}
     </div>
     <div class="qc-filter-bar" id="queueFilterBar">
       <button class="qc-filter-btn act" id="qf-tous" onclick="setQueueFilter('tous')">Toutes</button>
-      <button class="qc-filter-btn" id="qf-en_attente" onclick="setQueueFilter('en_attente')">À valider</button>
-      <button class="qc-filter-btn" id="qf-attente" onclick="setQueueFilter('attente')">En cuisine</button>
+      <button class="qc-filter-btn" id="qf-attente" onclick="setQueueFilter('attente')">En attente</button>
       <button class="qc-filter-btn" id="qf-preparation" onclick="setQueueFilter('preparation')">En prep.</button>
       <button class="qc-filter-btn" id="qf-servie" onclick="setQueueFilter('servie')">Servies</button>
     </div>
@@ -1214,7 +1209,6 @@ function updateKiosqueSourceVisibility() {
   if (currentUser.role === 'vendeur') {
     row.style.display = 'none';
     currentKiosqueSource = currentUser.kiosque || '';
-    document.getElementById('tblBadge').textContent = 'Kiosque: ' + currentKiosqueSource;
   } else if (currentUser.role === 'serveur' || currentUser.role === 'admin' || currentUser.role === 'comptable') {
     row.style.display = 'flex';
     if (!currentKiosqueSource || !sel.querySelector(`option[value="${currentKiosqueSource}"]`)) {
@@ -1229,7 +1223,6 @@ function updateKiosqueSourceVisibility() {
     } else {
       sel.value = currentKiosqueSource;
     }
-    document.getElementById('tblBadge').textContent = currentKiosqueSource ? 'Kiosque: ' + currentKiosqueSource : 'Choisir un kiosque';
   } else {
     row.style.display = 'none';
     currentKiosqueSource = '';
@@ -1238,7 +1231,6 @@ function updateKiosqueSourceVisibility() {
 
 document.getElementById('kiosqueSourceSel').addEventListener('change', function() {
   currentKiosqueSource = this.value;
-  document.getElementById('tblBadge').textContent = currentKiosqueSource ? 'Kiosque: ' + currentKiosqueSource : 'Choisir un kiosque';
   renderProds();
 });
 
@@ -1288,13 +1280,13 @@ window.addEventListener('resize', () => {
 
 // ========== BADGE ==========
 function updateQueueBadge() {
-  const pending = orders.filter(o => o.date===today() && (o.status==='en_attente' || o.status==='attente' || o.status==='preparation')).length;
+  const pending = orders.filter(o => o.date===today() && (o.status==='attente' || o.status==='preparation')).length;
   ['hn-queue','bn-queue'].forEach(id => {
     const btn = document.getElementById(id);
     if (!btn) return;
     const old = btn.querySelector('.notif-dot, .bn-notif');
     if (old) old.remove();
-    if (pending > 0 && (currentUser.role === 'admin' || currentUser.role === 'cuisiniere' || currentUser.role === 'serveur' || currentUser.role === 'vendeur')) {
+    if (pending > 0 && (currentUser.role === 'admin' || currentUser.role === 'cuisiniere' || currentUser.role === 'serveur')) {
       const dot = document.createElement('span');
       dot.className = btn.id.startsWith('hn') ? 'notif-dot' : 'bn-notif';
       btn.appendChild(dot);
@@ -1314,12 +1306,12 @@ function renderDashboard() {
   if (currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
     totalJour = myOrders.reduce((s,o) => s+(o.total||0), 0);
     nbCommandes = myOrders.length;
-    enAttente = myOrders.filter(o => o.status==='en_attente' || o.status==='attente').length;
+    enAttente = myOrders.filter(o => o.status==='attente').length;
     enPrep = myOrders.filter(o => o.status==='preparation').length;
   } else {
     totalJour = todayOrders.reduce((s,o) => s+(o.total||0), 0);
     nbCommandes = todayOrders.length;
-    enAttente = todayOrders.filter(o => o.status==='en_attente' || o.status==='attente').length;
+    enAttente = todayOrders.filter(o => o.status==='attente').length;
     enPrep = todayOrders.filter(o => o.status==='preparation').length;
   }
 
@@ -1385,7 +1377,7 @@ function renderDashboard() {
   const alerts = [];
   if (rupture>0) alerts.push({cls:'warn',msg:`Alerte: ${rupture} produit(s) en rupture dans certains kiosques`});
   if (stockBas>0) alerts.push({cls:'warn',msg:`Alerte: ${stockBas} produit(s) avec stock bas (<=5) dans certains kiosques`});
-  if (enAttente>0 && currentUser.role !== 'vendeur' && currentUser.role !== 'serveur') alerts.push({cls:'info',msg:`Info: ${enAttente} commande(s) en attente`});
+  if (enAttente>0 && currentUser.role !== 'vendeur' && currentUser.role !== 'serveur') alerts.push({cls:'info',msg:`Info: ${enAttente} commande(s) en attente en cuisine`});
   if (enPrep>0 && currentUser.role !== 'vendeur' && currentUser.role !== 'serveur')    alerts.push({cls:'info',msg:`Info: ${enPrep} commande(s) en preparation`});
   if (!alerts.length) alerts.push({cls:'ok',msg:'Tout est en ordre'});
 
@@ -1398,13 +1390,13 @@ function renderDashboard() {
   if (!recent.length) {
     document.getElementById('dashOrders').innerHTML = '<div class="dash-empty">Aucune commande aujourd\'hui</div>';
   } else {
-    const stMap   = {en_attente:'bg-o',attente:'bg-a',preparation:'bg-b',servie:'bg-g'};
-    const stLabel = {en_attente:'À valider',attente:'En cuisine',preparation:'En prep.',servie:'Servie'};
+    const stMap   = {attente:'bg-a',preparation:'bg-b',servie:'bg-g'};
+    const stLabel = {attente:'En cuisine',preparation:'En prep.',servie:'Servie'};
     document.getElementById('dashOrders').innerHTML = recent.map(o => {
       const st = o.status||'attente';
       return `<div class="dash-order-row">
         <span class="dash-order-id">${o.id}</span>
-        <span style="flex:1;color:var(--muted);font-size:.78rem">${o.client} -- ${o.time}</span>
+        <span style="flex:1;color:var(--muted);font-size:.78rem">${o.time}</span>
         <span class="badge ${stMap[st]||'bg-a'}">${stLabel[st]||'Attente'}</span>
         <span style="font-weight:700;margin-left:auto;font-size:.85rem">${fmt(o.total)}</span>
       </div>`;
@@ -1502,7 +1494,7 @@ function renderProds() {
       <div class="prod-price">${fmt(p.price)}</div>
       <div class="prod-stock ${stockCls}">${stockMsg}</div>
       ${!avail ? '<div class="prod-na">Indisponible</div>' : ''}
-      ${hasStock && kiosqueAffiche ? `<div style="font-size:.55rem;color:var(--muted);margin-top:2px;">${kiosqueAffiche}</div>` : ''}
+      ${hasStock && kiosqueAffiche ? `<div style="font-size:.6rem;color:var(--muted);margin-top:2px;">${kiosqueAffiche}</div>` : ''}
     </button>`;
   }).join('');
 }
@@ -1584,8 +1576,8 @@ function renderCart() {
     return `<div class="order-item">
       <div style="flex:1">
         <div class="oi-name">${c.name}</div>
-        <div class="oi-unit">${fmt(c.price)} / unite</div>
-        ${hasStock ? `<div style="font-size:.65rem;color:var(--muted);">Reste: ${Math.max(0, stockRestant)}</div>` : ''}
+        <div class="oi-unit">${fmt(c.price)}</div>
+        ${hasStock ? `<div style="font-size:.7rem;color:var(--muted);">Reste: ${Math.max(0, stockRestant)}</div>` : ''}
       </div>
       <div class="qty-ctrl">
         <button class="qb" onclick="chgQty(${c.id},-1)">-</button>
@@ -1593,7 +1585,7 @@ function renderCart() {
         <button class="qb" onclick="chgQty(${c.id},+1)">+</button>
       </div>
       <div class="oi-total">${fmt(c.price*c.qty)}</div>
-      <button class="del-btn" onclick="delItem(${c.id})">X</button>
+      <button class="del-btn" onclick="delItem(${c.id})">✕</button>
     </div>`;
   }).join('');
   document.getElementById('subT').textContent  = fmt(tot);
@@ -1602,7 +1594,6 @@ function renderCart() {
 
 function clearCart() {
   cart=[];
-  document.getElementById('clientIn').value='';
   document.getElementById('noteIn').value='';
   renderCart(); renderProds();
   updateKiosqueSourceVisibility();
@@ -1610,8 +1601,6 @@ function clearCart() {
 
 async function confirmOrder() {
   if (!cart.length) { toast('La commande est vide'); return; }
-  const client = document.getElementById('clientIn').value.trim();
-  if (!client) { toast('Veuillez entrer un nom de client'); return; }
   let kiosqueSource = '';
   if (currentUser.role === 'vendeur') {
     kiosqueSource = currentUser.kiosque || '';
@@ -1620,6 +1609,7 @@ async function confirmOrder() {
   }
   if (!kiosqueSource) { toast('Sélectionner un kiosque source'); return; }
 
+  // Vérifier le stock pour les non-nourriture
   for (const item of cart) {
     const p = products.find(x=>x.id===item.id);
     if (!p || isFood(p)) continue;
@@ -1627,24 +1617,33 @@ async function confirmOrder() {
     if (qtyStock < item.qty) { toast('Stock insuffisant pour : '+item.name+' dans le kiosque '+kiosqueSource); return; }
   }
 
+  // Décrémenter le stock immédiatement
+  for (const item of cart) {
+    const p = products.find(x=>x.id===item.id);
+    if (!p || isFood(p)) continue;
+    if (!stockVendeur[kiosqueSource]) stockVendeur[kiosqueSource] = {};
+    stockVendeur[kiosqueSource][item.id] = Math.max(0, (stockVendeur[kiosqueSource][item.id]||0) - item.qty);
+    await logStockMvt(item.id, 'vente', item.qty, stockVendeur[kiosqueSource][item.id], kiosqueSource, `Commande`);
+  }
+
   const order = {
     id:       genId(),
     date:     today(),
     time:     nowTime(),
-    client:   client,
     caissier: currentUser.name,
     vendeur:  currentUser.kiosque || currentUser.name,
     kiosqueSource: kiosqueSource,
     note:     document.getElementById('noteIn').value,
     items:    cart.map(c=>({...c})),
     total:    cart.reduce((s,c)=>s+c.price*c.qty,0),
-    status:   'en_attente'
+    status:   'attente'
   };
 
   orders.push(order);
   await saveFB('cb_orders', orders);
-  logAction('Commande prise', 'Commande ' + order.id + ' - Client: ' + client + ' - Kiosque source: ' + kiosqueSource + ' - Total ' + fmt(order.total));
-  toast('Commande '+order.id+' en attente de validation par le kiosque');
+  await saveFB('cb_stock_vendeur', stockVendeur);
+  logAction('Vente', 'Commande ' + order.id + ' - Kiosque source: ' + kiosqueSource + ' - Total ' + fmt(order.total));
+  toast('Commande '+order.id+' envoyee en cuisine');
   clearCart();
   updateQueueBadge();
 }
@@ -1691,17 +1690,21 @@ function renderJournal() {
     tb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--muted)">Aucune commande ce jour</td></tr>';
     return;
   }
-  const stMap   = {en_attente:'bg-o',attente:'bg-a',preparation:'bg-b',servie:'bg-g'};
-  const stLabel = {en_attente:'À valider',attente:'En cuisine',preparation:'En prep.',servie:'Servie'};
+  const stMap   = {attente:'bg-a',preparation:'bg-b',servie:'bg-g'};
+  const stLabel = {attente:'En cuisine',preparation:'En prep.',servie:'Servie'};
   tb.innerHTML = [...day].reverse().map(o => {
     const st = o.status||'attente';
+    const articles = o.items.map(i => {
+      const p = products.find(p => p.id === i.id);
+      return p ? `${p.name} x${i.qty}` : `${i.name} x${i.qty}`;
+    }).join(', ');
     return `<tr>
       <td><strong style="color:var(--accent)">${o.id}</strong></td>
       <td>${o.time}</td>
-      <td>${o.client}</td>
       <td>${o.caissier||'--'}</td>
       <td>${o.vendeur||'--'}</td>
       <td>${o.kiosqueSource||'--'}</td>
+      <td style="font-size:.75rem;max-width:200px;white-space:normal;word-break:break-word;">${articles}</td>
       <td><strong>${fmt(o.total)}</strong></td>
       <td><span class="badge ${stMap[st]||'bg-a'}">${stLabel[st]||'Attente'}</span></td>
       <td style="white-space:nowrap">
@@ -1716,24 +1719,25 @@ function viewOrder(id) {
   const o = orders.find(x=>x.id===id);
   if (!o) return;
   viewOrderId = id;
-  const stLabel = {en_attente:'En attente de validation',attente:'En cuisine',preparation:'En preparation',servie:'Servie'};
-  const stCls   = {en_attente:'bg-o',attente:'bg-a',preparation:'bg-b',servie:'bg-g'};
+  const stLabel = {attente:'En cuisine',preparation:'En preparation',servie:'Servie'};
+  const stCls   = {attente:'bg-a',preparation:'bg-b',servie:'bg-g'};
   const st = o.status||'attente';
   document.getElementById('modalOrderContent').innerHTML = `
     <div style="font-size:.85rem;line-height:2;">
       <div><strong>N° :</strong> ${o.id}</div>
       <div><strong>Date :</strong> ${o.date} a ${o.time}</div>
-      <div><strong>Client :</strong> ${o.client}</div>
       <div><strong>Caissier :</strong> ${o.caissier||'--'}</div>
       <div><strong>Vendeur :</strong> ${o.vendeur||'--'}</div>
       <div><strong>Kiosque source :</strong> ${o.kiosqueSource||'--'}</div>
       <div><strong>Statut :</strong> <span class="badge ${stCls[st]||'bg-a'}">${stLabel[st]||'Attente'}</span></div>
       <hr style="margin:.6rem 0;border-color:var(--border);">
-      ${o.items.map(i=>`
-        <div style="display:flex;justify-content:space-between;padding:3px 0;">
-          <span>${getCatIcon(products.find(p=>p.id===i.id)?.cat||'')} ${i.name} x${i.qty}</span>
+      ${o.items.map(i=>{
+        const p = products.find(p => p.id === i.id);
+        return `<div style="display:flex;justify-content:space-between;padding:3px 0;">
+          <span>${p ? getCatIcon(p.cat) : ''} ${i.name} x${i.qty}</span>
           <span style="font-weight:600">${fmt(i.price*i.qty)}</span>
-        </div>`).join('')}
+        </div>`;
+      }).join('')}
       <hr style="margin:.6rem 0;border-color:var(--border);">
       <div style="display:flex;justify-content:space-between;font-size:1rem">
         <strong>TOTAL</strong><strong style="color:var(--accent)">${fmt(o.total)}</strong>
@@ -1763,27 +1767,27 @@ async function confirmCancelOrder() {
   const reason = document.getElementById('cancelReason').value.trim();
   const o = orders.find(x => x.id === cancelOrderId);
   if (!o) { closeModal('modalCancelOrder'); return; }
-  // Restaurer le stock si la commande était déjà validée (status !== en_attente)
-  if (o.status !== 'en_attente') {
-    const kiosque = o.kiosqueSource;
-    if (kiosque) {
-      for (const item of o.items) {
-        const p = products.find(x=>x.id===item.id);
-        if (!p || isFood(p)) continue;
-        if (!stockVendeur[kiosque]) stockVendeur[kiosque] = {};
-        stockVendeur[kiosque][item.id] = (stockVendeur[kiosque][item.id]||0) + item.qty;
-        await logStockMvt(item.id, 'ajustement', item.qty, stockVendeur[kiosque][item.id], kiosque,
-          `Annulation commande ${o.id}${reason?' -- '+reason:''} (restauration)`);
-      }
+  
+  // Restaurer le stock
+  const kiosque = o.kiosqueSource;
+  if (kiosque) {
+    for (const item of o.items) {
+      const p = products.find(x=>x.id===item.id);
+      if (!p || isFood(p)) continue;
+      if (!stockVendeur[kiosque]) stockVendeur[kiosque] = {};
+      stockVendeur[kiosque][item.id] = (stockVendeur[kiosque][item.id]||0) + item.qty;
+      await logStockMvt(item.id, 'ajustement', item.qty, stockVendeur[kiosque][item.id], kiosque,
+        `Annulation commande ${o.id}${reason?' -- '+reason:''} (restauration)`);
     }
   }
+  
   orders = orders.filter(x => x.id !== cancelOrderId);
   await saveFB('cb_orders', orders);
   await saveFB('cb_stock_vendeur', stockVendeur);
   logAction('Annulation commande', 'Commande ' + o.id + ' annulee par ' + currentUser.name + (reason?' - raison: '+reason:''));
   closeModal('modalCancelOrder');
   cancelOrderId = null;
-  toast('Commande annulee' + (o.status !== 'en_attente' ? ', stock restaure' : ''));
+  toast('Commande annulee, stock restaure');
   if (currentPage==='journal') renderJournal();
   if (currentPage==='queue')   renderQueue();
 }
@@ -1800,7 +1804,6 @@ function printBon(id) {
     <div style="font-size:10px;border-bottom:1px dashed #000;padding-bottom:6px;margin-bottom:8px;">
       <div><b>N° :</b> ${order.id}</div>
       <div><b>Date :</b> ${order.date} ${order.time}</div>
-      <div><b>Client :</b> ${order.client}</div>
       ${order.vendeur?`<div><b>Vendeur :</b> ${order.vendeur}</div>`:''}
       ${order.kiosqueSource?`<div><b>Kiosque :</b> ${order.kiosqueSource}</div>`:''}
     </div>
@@ -1837,17 +1840,23 @@ function exportExcel() {
   const wb = XLSX.utils.book_new();
   const rows = [
     ['COMPLEXE BEYLA -- JOURNAL DU ' + date],[],
-    ['N° Commande','Date','Heure','Client','Caissier','Vendeur','Kiosque source','Statut','Articles','Total (GNF)']
+    ['N° Commande','Date','Heure','Caissier','Vendeur','Kiosque source','Articles','Statut','Total (GNF)']
   ];
-  day.forEach(o => rows.push([
-    o.id, o.date, o.time, o.client, o.caissier||'--', o.vendeur||'--', o.kiosqueSource||'--',
-    o.status||'attente',
-    o.items.map(i=>i.name+' x'+i.qty).join(' | '),
-    o.total
-  ]));
-  rows.push([],['','','','','','','','','TOTAL JOUR',day.reduce((s,o)=>s+(o.total||0),0)]);
+  day.forEach(o => {
+    const articles = o.items.map(i => {
+      const p = products.find(p => p.id === i.id);
+      return p ? `${p.name} x${i.qty}` : `${i.name} x${i.qty}`;
+    }).join('; ');
+    rows.push([
+      o.id, o.date, o.time, o.caissier||'--', o.vendeur||'--', o.kiosqueSource||'--',
+      articles,
+      o.status||'attente',
+      o.total
+    ]);
+  });
+  rows.push([],['','','','','','','TOTAL JOUR',day.reduce((s,o)=>s+(o.total||0),0)]);
   const ws = XLSX.utils.aoa_to_sheet(rows);
-  ws['!cols'] = [{wch:16},{wch:12},{wch:8},{wch:20},{wch:18},{wch:18},{wch:16},{wch:14},{wch:50},{wch:16}];
+  ws['!cols'] = [{wch:16},{wch:12},{wch:8},{wch:18},{wch:18},{wch:16},{wch:40},{wch:14},{wch:16}];
   XLSX.utils.book_append_sheet(wb,ws,'Journal');
   XLSX.writeFile(wb,'Beyla_Journal_'+date+'.xlsx');
   toast('Fichier Excel exporte');
@@ -1874,7 +1883,7 @@ function renderVerif() {
     if (!byCaissier[c]) byCaissier[c]={n:0,total:0};
     byCaissier[c].n++; byCaissier[c].total+=(o.total||0);
   });
-  const byStatus = {en_attente:0,attente:0,preparation:0,servie:0};
+  const byStatus = {attente:0,preparation:0,servie:0};
   day.forEach(o=>{ byStatus[o.status||'attente']++; });
   const saved = verifs[date]||{};
 
@@ -1884,7 +1893,7 @@ function renderVerif() {
         <div class="verif-title">Recapitulatif systeme</div>
         <div class="verif-row"><span>Commandes enregistrees</span><strong>${day.length}</strong></div>
         <div class="verif-row"><span>Servies</span><strong style="color:var(--green)">${byStatus.servie}</strong></div>
-        <div class="verif-row"><span>En attente</span><strong style="color:var(--amber)">${byStatus.en_attente+byStatus.attente+byStatus.preparation}</strong></div>
+        <div class="verif-row"><span>En attente/prep.</span><strong style="color:var(--amber)">${byStatus.attente+byStatus.preparation}</strong></div>
         ${ALL_STOCK_CATS.map(cat=>`
           <div class="verif-row"><span>${getCatIcon(cat)}</span><strong>${fmt(bycat[cat]||0)}</strong></div>`
         ).join('')}
@@ -2022,13 +2031,12 @@ function renderQueue() {
     todayAll = todayAll.filter(o => o.vendeur === vend);
   }
   let filtered = todayAll;
-  if (queueFilter==='en_attente')  filtered = todayAll.filter(o=>o.status==='en_attente');
   if (queueFilter==='attente')     filtered = todayAll.filter(o=>o.status==='attente');
   if (queueFilter==='preparation') filtered = todayAll.filter(o=>o.status==='preparation');
   if (queueFilter==='servie')      filtered = todayAll.filter(o=>o.status==='servie');
 
   filtered.sort((a,b)=>{
-    const ord={en_attente:0,attente:1,preparation:2,servie:3};
+    const ord={attente:0,preparation:1,servie:2};
     const sa=ord[a.status||'attente']||0, sb=ord[b.status||'attente']||0;
     if (sa!==sb) return sa-sb;
     return a.time.localeCompare(b.time);
@@ -2040,8 +2048,8 @@ function renderQueue() {
     return;
   }
 
-  const stLabel = {en_attente:'À valider',attente:'En cuisine',preparation:'En prep.',servie:'Servie'};
-  const stMap   = {en_attente:'bg-o',attente:'bg-a',preparation:'bg-b',servie:'bg-g'};
+  const stLabel = {attente:'En cuisine',preparation:'En prep.',servie:'Servie'};
+  const stMap   = {attente:'bg-a',preparation:'bg-b',servie:'bg-g'};
 
   if (currentUser.role === 'comptable' || currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
     grid.innerHTML = filtered.map(o => {
@@ -2052,12 +2060,9 @@ function renderQueue() {
           <div style="font-size:.7rem;color:var(--muted);margin-top:2px">${o.time}</div>
         </div>
         <div class="csc-info">
-          <div class="csc-client">${o.client}</div>
-          <div style="font-size:.75rem;margin-top:2px">${o.items.length} article(s) -- ${o.kiosqueSource||''}</div>
+          <div style="font-size:.75rem;">${o.items.length} article(s) -- ${o.kiosqueSource||''}</div>
         </div>
         <span class="badge ${stMap[st]||'bg-a'}">${stLabel[st]||'Attente'}</span>
-        ${st==='en_attente' && (currentUser.role==='vendeur'||currentUser.role==='admin'||currentUser.role==='comptable') ? 
-          `<button class="qc-btn qc-btn-validate" onclick="validatePayment('${o.id}')">Valider paiement</button>` : ''}
       </div>`;
     }).join('');
     updateQueueBadge();
@@ -2075,7 +2080,6 @@ function renderQueue() {
         <span><span class="badge ${stMap[st]||'bg-a'}">${stLabel[st]||'Attente'}</span></span>
         <span class="qc-time">${o.time}</span>
       </div>
-      <div class="qc-client">Client : <strong>${o.client}</strong></div>
       <div style="font-size:.78rem;color:var(--muted);margin-bottom:.5rem;">Kiosque : ${o.kiosqueSource||'--'}</div>
       <div class="qc-items">
         ${o.items.map(i=>`<div class="qc-item-line"><span>${i.name}</span><strong style="background:var(--text);color:#fff;padding:1px 7px;border-radius:4px;font-size:.78rem">x${i.qty}</strong></div>`).join('')}
@@ -2092,46 +2096,9 @@ function renderQueue() {
   updateQueueBadge();
 }
 
-async function validatePayment(id) {
-  const o = orders.find(x=>x.id===id);
-  if (!o) return;
-  if (o.status !== 'en_attente') { toast('Cette commande ne peut pas être validée'); return; }
-  const kiosque = o.kiosqueSource;
-  if (!kiosque) { toast('Kiosque source manquant'); return; }
-  // Vérifier le stock
-  for (const item of o.items) {
-    const p = products.find(x=>x.id===item.id);
-    if (!p || isFood(p)) continue;
-    const qtyStock = (stockVendeur[kiosque] && stockVendeur[kiosque][item.id]) || 0;
-    if (qtyStock < item.qty) {
-      toast('Stock insuffisant pour : '+item.name+' dans le kiosque '+kiosque);
-      return;
-    }
-  }
-  // Déduire le stock
-  for (const item of o.items) {
-    const p = products.find(x=>x.id===item.id);
-    if (!p || isFood(p)) continue;
-    if (!stockVendeur[kiosque]) stockVendeur[kiosque] = {};
-    stockVendeur[kiosque][item.id] = Math.max(0, (stockVendeur[kiosque][item.id]||0) - item.qty);
-    await logStockMvt(item.id, 'vente', item.qty, stockVendeur[kiosque][item.id], kiosque, `Commande ${o.id} - validée`);
-  }
-  o.status = 'attente';
-  await saveFB('cb_orders', orders);
-  await saveFB('cb_stock_vendeur', stockVendeur);
-  logAction('Validation paiement', 'Commande ' + o.id + ' validée par ' + currentUser.name + ' - Kiosque: ' + kiosque);
-  toast('Paiement validé, commande envoyée en cuisine');
-  renderQueue();
-  updateQueueBadge();
-}
-
 async function setOrderStatus(id, status) {
   const o = orders.find(x=>x.id===id);
   if (!o) return;
-  if (o.status === 'en_attente' && status !== 'annulee') {
-    toast('Cette commande doit d\'abord être validée par le kiosque');
-    return;
-  }
   o.status = status;
   await saveFB('cb_orders', orders);
   logAction('Changement statut', 'Commande ' + id + ' passe a ' + status);
