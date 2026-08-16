@@ -224,7 +224,7 @@ input,select,textarea,button{font-family:inherit;}
   box-shadow:0 1px 4px rgba(0,0,0,.04);
 }
 .prod-card:hover{border-color:var(--accent);box-shadow:0 2px 12px rgba(184,74,26,.12);}
-.prod-card:active{border-color:var(--accent);transform:scale(.96);}
+.prod-card:active{transform:scale(.96);}
 .prod-card.unavail{opacity:.4;cursor:not-allowed;background:var(--surface2);}
 .prod-card.low-stock{border-color:var(--amber);}
 .prod-dispo{position:absolute;top:7px;right:7px;width:7px;height:7px;border-radius:50%;background:var(--green);}
@@ -884,7 +884,7 @@ tbody td{padding:9px 10px;}
       <input class="form-in" id="pStock" type="number" placeholder="ex: 20" min="0">
     </div>
     <div id="pStockNote" style="font-size:.75rem;color:var(--blue);background:var(--blue-bg);border-radius:8px;padding:8px 10px;margin-top:-6px;margin-bottom:10px;display:none;">
-      Note: Les boissons, chichas et snacks utilisent la gestion par stock (unites).
+      Note: Les boissons, chichas, snacks et desserts gerent un stock. La nourriture est illimitee.
     </div>
     <div class="modal-acts">
       <button class="btn btn-ghost" onclick="closeModal('modalProd')">Annuler</button>
@@ -1096,6 +1096,7 @@ function getCatIcon(cat) {
   const icons = {Nourriture:'Nourriture',Boissons:'Boissons',Chicha:'Chicha',Snacks:'Snacks',Desserts:'Desserts'};
   return icons[cat] || cat;
 }
+function isFood(product) { return product.cat === 'Nourriture'; }
 
 async function logStockMvt(prodId, type, qty, stockAfter, note) {
   const p = products.find(x => x.id === prodId);
@@ -1302,8 +1303,10 @@ function renderDashboard() {
     enAttente = todayOrders.filter(o => !o.status||o.status==='attente').length;
     enPrep = todayOrders.filter(o => o.status==='preparation').length;
   }
-  const stockBas    = products.filter(p => { const q=stock[p.id]||0; return q>0&&q<=5; }).length;
-  const rupture     = products.filter(p => (stock[p.id]||0)<=0).length;
+  // Alertes stock : exclure la nourriture
+  const stockItems = products.filter(p => !isFood(p));
+  const stockBas    = stockItems.filter(p => { const q=stock[p.id]||0; return q>0&&q<=5; }).length;
+  const rupture     = stockItems.filter(p => (stock[p.id]||0)<=0).length;
 
   let kpiHtml = '';
   if (currentUser.role === 'vendeur') {
@@ -1422,19 +1425,29 @@ function renderProds() {
   g.innerHTML = filtered.map(p => {
     const avail    = dispo[todayKey]===undefined || dispo[todayKey][p.id]!==false;
     let qty = 0;
-    if (currentUser.role === 'vendeur') {
-      const vend = currentUser.kiosque || currentUser.name;
-      qty = (stockVendeur[vend] && stockVendeur[vend][p.id]) || 0;
+    let hasStock = !isFood(p); // Seuls les non-nourriture ont un stock
+    if (hasStock) {
+      if (currentUser.role === 'vendeur') {
+        const vend = currentUser.kiosque || currentUser.name;
+        qty = (stockVendeur[vend] && stockVendeur[vend][p.id]) || 0;
+      } else {
+        qty = stock[p.id]!==undefined ? stock[p.id] : 0;
+      }
     } else {
-      qty = stock[p.id]!==undefined ? stock[p.id] : 0;
+      qty = Infinity; // Nourriture illimitée
     }
     const inCart   = (cart.find(c=>c.id===p.id)||{qty:0}).qty;
-    const stockDispo = qty - inCart;
-    const noStock  = qty <= 0;
-    const lowStock = qty > 0 && qty <= 5;
+    const stockDispo = hasStock ? (qty - inCart) : Infinity;
+    const noStock  = hasStock && qty <= 0;
+    const lowStock = hasStock && qty > 0 && qty <= 5;
     const disabled = !avail || noStock;
-    const stockCls = noStock ? 'out' : lowStock ? 'low' : 'ok';
-    const stockTxt = noStock ? 'Rupture' : (lowStock ? `Reste: ${qty}` : `${qty} dispo`);
+    const stockCls = noStock ? 'out' : (lowStock ? 'low' : 'ok');
+    let stockTxt = '';
+    if (hasStock) {
+      stockTxt = noStock ? 'Rupture' : (lowStock ? `Reste: ${qty}` : `${qty} dispo`);
+    } else {
+      stockTxt = 'Disponible';
+    }
     return `<button class="prod-card ${disabled?'unavail':''} ${lowStock&&!noStock?'low-stock':''}"
         onclick="${disabled ? `toast('${noStock?'Rupture de stock':'Indisponible aujourd\'hui'}')` : `addToCart(${p.id})`}">
       <div class="prod-dispo ${avail&&!noStock?'':'off'}"></div>
@@ -1451,14 +1464,17 @@ function addToCart(id) {
   const p = products.find(x => x.id===id);
   if (!p) return;
   let qtyStock = 0;
-  if (currentUser.role === 'vendeur') {
-    const vend = currentUser.kiosque || currentUser.name;
-    qtyStock = (stockVendeur[vend] && stockVendeur[vend][id]) || 0;
-  } else {
-    qtyStock = stock[id]!==undefined ? stock[id] : 0;
+  let hasStock = !isFood(p);
+  if (hasStock) {
+    if (currentUser.role === 'vendeur') {
+      const vend = currentUser.kiosque || currentUser.name;
+      qtyStock = (stockVendeur[vend] && stockVendeur[vend][id]) || 0;
+    } else {
+      qtyStock = stock[id]!==undefined ? stock[id] : 0;
+    }
+    const inCart = (cart.find(c=>c.id===id)||{qty:0}).qty;
+    if (qtyStock - inCart <= 0) { toast('Stock insuffisant'); return; }
   }
-  const inCart = (cart.find(c=>c.id===id)||{qty:0}).qty;
-  if (qtyStock-inCart <= 0) { toast('Stock insuffisant'); return; }
   const ex = cart.find(c => c.id===id);
   if (ex) ex.qty++;
   else cart.push({id, name:p.name, price:p.price, qty:1});
@@ -1469,7 +1485,9 @@ function addToCart(id) {
 function chgQty(id, d) {
   const item = cart.find(c=>c.id===id);
   if (!item) return;
-  if (d > 0) {
+  const p = products.find(x=>x.id===id);
+  if (!p) return;
+  if (d > 0 && !isFood(p)) {
     let qtyStock = 0;
     if (currentUser.role === 'vendeur') {
       const vend = currentUser.kiosque || currentUser.name;
@@ -1477,7 +1495,7 @@ function chgQty(id, d) {
     } else {
       qtyStock = stock[id]!==undefined ? stock[id] : 0;
     }
-    if (item.qty>=qtyStock) { toast('Stock insuffisant'); return; }
+    if (item.qty >= qtyStock) { toast('Stock insuffisant'); return; }
   }
   item.qty += d;
   if (item.qty <= 0) cart = cart.filter(c=>c.id!==id);
@@ -1498,8 +1516,10 @@ function renderCart() {
     document.getElementById('totalT').textContent = '0 GNF';
     return;
   }
-  el.innerHTML = cart.map(c => `
-    <div class="order-item">
+  el.innerHTML = cart.map(c => {
+    const p = products.find(x=>x.id===c.id);
+    const hasStock = p && !isFood(p);
+    return `<div class="order-item">
       <div style="flex:1">
         <div class="oi-name">${c.name}</div>
         <div class="oi-unit">${fmt(c.price)} / unite</div>
@@ -1511,7 +1531,8 @@ function renderCart() {
       </div>
       <div class="oi-total">${fmt(c.price*c.qty)}</div>
       <button class="del-btn" onclick="delItem(${c.id})">X</button>
-    </div>`).join('');
+    </div>`;
+  }).join('');
   document.getElementById('subT').textContent  = fmt(tot);
   document.getElementById('totalT').textContent = fmt(tot);
 }
@@ -1532,7 +1553,11 @@ function clearCart() {
 async function confirmOrder() {
   if (!cart.length) { toast('La commande est vide'); return; }
   if (!document.getElementById('tblSel').value) { toast('Choisir une table d\'abord'); return; }
+  // Vérifier le stock pour les non-nourriture
   for (const item of cart) {
+    const p = products.find(x=>x.id===item.id);
+    if (!p) continue;
+    if (isFood(p)) continue;
     let stockQty = 0;
     if (currentUser.role === 'vendeur') {
       const vend = currentUser.kiosque || currentUser.name;
@@ -1555,7 +1580,10 @@ async function confirmOrder() {
     total:    cart.reduce((s,c)=>s+c.price*c.qty,0),
     status:   'attente'
   };
+  // Décrémenter le stock seulement pour les non-nourriture
   for (const item of cart) {
+    const p = products.find(x=>x.id===item.id);
+    if (!p || isFood(p)) continue;
     if (currentUser.role === 'vendeur') {
       const vend = currentUser.kiosque || currentUser.name;
       if (!stockVendeur[vend]) stockVendeur[vend] = {};
@@ -1690,6 +1718,8 @@ async function confirmCancelOrder() {
   const o = orders.find(x => x.id === cancelOrderId);
   if (!o) { closeModal('modalCancelOrder'); return; }
   for (const item of o.items) {
+    const p = products.find(x=>x.id===item.id);
+    if (!p || isFood(p)) continue; // Ne pas restaurer le stock pour la nourriture
     if (o.vendeur && o.vendeur !== '--') {
       if (!stockVendeur[o.vendeur]) stockVendeur[o.vendeur] = {};
       stockVendeur[o.vendeur][item.id] = (stockVendeur[o.vendeur][item.id]||0) + item.qty;
@@ -2025,15 +2055,16 @@ async function setOrderStatus(id, status) {
 
 // ========== STOCK ==========
 function renderStock() {
-  // Alertes stock global
-  const bas     = products.filter(p=>{const q=stock[p.id]||0;return q>0&&q<=5;});
-  const rupture = products.filter(p=>(stock[p.id]||0)<=0);
+  // Alertes stock global (exclure nourriture)
+  const stockItems = products.filter(p => !isFood(p));
+  const bas     = stockItems.filter(p=>{const q=stock[p.id]||0;return q>0&&q<=5;});
+  const rupture = stockItems.filter(p=>(stock[p.id]||0)<=0);
   let alertHtml = '';
   if (rupture.length>0) alertHtml+=`<div class="alert-item warn">Rupture : ${rupture.map(p=>p.name).join(', ')}</div>`;
   if (bas.length>0)     alertHtml+=`<div class="alert-item warn">Stock bas (<=5) : ${bas.map(p=>p.name+' ('+stock[p.id]+')').join(', ')}</div>`;
   document.getElementById('stockAlertBar').innerHTML = alertHtml;
 
-  // Filtres catégorie
+  // Filtres catégorie (incluant Nourriture pour affichage)
   const allCats = ['Tout', ...ALL_STOCK_CATS];
   document.getElementById('stockCatBar').innerHTML = allCats.map(c =>
     `<button class="stock-cat-btn ${c===stockCatFilter?'act':''}" onclick="setStockCat('${c}')">${c==='Tout'?'Tout':getCatIcon(c)}</button>`
@@ -2043,11 +2074,12 @@ function renderStock() {
   if (stockCatFilter !== 'Tout') filtered = products.filter(p=>p.cat===stockCatFilter);
   const sorted = [...filtered].sort((a,b)=>(stock[a.id]||0)-(stock[b.id]||0));
 
-  // Vue du stock global (admin et comptable) : pour les vendeurs, on affiche uniquement leur allocation
   let stockHtml = '';
   if (currentUser.role === 'vendeur') {
+    // Pour les vendeurs : afficher uniquement les produits non-nourriture avec leur stock alloué
     const vend = currentUser.kiosque || currentUser.name;
-    stockHtml = sorted.map(p => {
+    const vendProducts = sorted.filter(p => !isFood(p));
+    stockHtml = vendProducts.map(p => {
       const qty = (stockVendeur[vend] && stockVendeur[vend][p.id]) || 0;
       const cls = getStockClass(qty);
       return `<div class="stock-card ${qty<=0?'out':qty<=5?'low':''}">
@@ -2059,23 +2091,28 @@ function renderStock() {
         <div style="font-size:.75rem;color:var(--muted);">Mon stock</div>
       </div>`;
     }).join('');
+    if (!stockHtml) stockHtml = '<div style="color:var(--muted);padding:.5rem;">Aucun produit avec stock</div>';
   } else {
-    // Admin ou comptable : affichage du stock global avec boutons de gestion
+    // Admin ou comptable : afficher tous les produits, mais avec "Illimité" pour la nourriture
     stockHtml = sorted.map(p => {
-      const qty = stock[p.id]!==undefined?stock[p.id]:0;
-      const cls = getStockClass(qty);
-      return `<div class="stock-card ${qty<=0?'out':qty<=5?'low':''}">
+      const isFoodCat = isFood(p);
+      const qty = isFoodCat ? Infinity : (stock[p.id]!==undefined?stock[p.id]:0);
+      const cls = isFoodCat ? 'ok' : getStockClass(qty);
+      const label = isFoodCat ? 'Illimité' : (qty <= 0 ? 'Rupture' : (qty <= 5 ? 'Stock bas' : 'En stock'));
+      const displayQty = isFoodCat ? '∞' : qty;
+      return `<div class="stock-card ${!isFoodCat && qty<=0?'out':!isFoodCat && qty<=5?'low':''}">
         <div class="sc-info">
           <div class="sc-name">${getCatIcon(p.cat)} ${p.name}</div>
           <div class="sc-cat">${p.cat} -- ${fmt(p.price)}</div>
-          <div class="sc-stock ${cls}">${qty} unite(s) -- ${getStockLabel(qty)}</div>
+          <div class="sc-stock ${cls}">${displayQty} unite(s) -- ${label}</div>
         </div>
+        ${!isFoodCat ? `
         <div class="sc-controls">
           <input type="number" class="stock-adj-input" id="si-${p.id}" value="1" min="0">
           <button class="stock-adj-btn stock-set-btn" onclick="adjustStock(${p.id},'set')" title="Definir ce stock">Definir</button>
           <button class="stock-adj-btn stock-add-btn" onclick="adjustStock(${p.id},'add')" title="Ajouter au stock">+ Reassort</button>
           <button class="stock-adj-btn stock-sub-btn" onclick="adjustStock(${p.id},'sub')" title="Retirer du stock">- Perte</button>
-        </div>
+        </div>` : '<div style="font-size:.8rem;color:var(--green);">⚠️ Pas de gestion de stock</div>'}
       </div>`;
     }).join('');
   }
@@ -2114,6 +2151,8 @@ function setStockCat(cat) { stockCatFilter=cat; renderStock(); }
 
 async function adjustStock(id, mode) {
   if (currentUser.role !== 'admin') { toast('Reserve a l\'admin'); return; }
+  const p = products.find(x=>x.id===id);
+  if (!p || isFood(p)) { toast('Ce produit n\'a pas de stock gerable'); return; }
   const inp = document.getElementById('si-'+id);
   const val = parseInt(inp.value)||0;
   if (val<=0&&mode!=='set') { toast('Entrer une quantite valide'); return; }
@@ -2125,7 +2164,7 @@ async function adjustStock(id, mode) {
   stock[id]=after;
   await saveFB('cb_stock',stock);
   await logStockMvt(id,type,val,after,mode==='set'?'Defini a '+after:'');
-  logAction('Ajustement stock', 'Produit ' + products.find(p=>p.id===id)?.name + ' - ' + mode + ' ' + val + ' (avant ' + before + ', apres ' + after + ')');
+  logAction('Ajustement stock', 'Produit ' + p.name + ' - ' + mode + ' ' + val + ' (avant ' + before + ', apres ' + after + ')');
   renderStock();
   if (currentPage==='caisse') renderProds();
   toast('Stock mis a jour');
@@ -2139,12 +2178,14 @@ function renderAllocationVendeur() {
     container.innerHTML = '<div style="color:var(--muted);padding:.5rem 0">Aucun vendeur enregistre.</div>';
     return;
   }
+  // On affiche uniquement les produits non-nourriture (avec stock)
+  const productsAvecStock = products.filter(p => !isFood(p));
   let html = `<div class="tbl-wrap"><table><thead><tr><th>Produit</th>`;
   vendeurs.forEach(v => {
     html += `<th>${v.kiosque}</th>`;
   });
   html += `</tr></thead><tbody>`;
-  products.forEach(p => {
+  productsAvecStock.forEach(p => {
     html += `<tr><td><strong>${p.name}</strong></td>`;
     vendeurs.forEach(v => {
       const val = (stockVendeur[v.kiosque] && stockVendeur[v.kiosque][p.id]) || 0;
@@ -2166,6 +2207,8 @@ function renderAllocationVendeur() {
 
 function addAllocationVendeur(vendeur, prodId) {
   if (currentUser.role !== 'admin') { toast('Reserve a l\'admin'); return; }
+  const p = products.find(x=>x.id===prodId);
+  if (!p || isFood(p)) { toast('Ce produit n\'a pas de stock gerable'); return; }
   const input = document.querySelector(`.alloc-input[data-vendeur="${vendeur}"][data-prod="${prodId}"]`);
   if (!input) return;
   const qty = parseInt(input.value) || 0;
@@ -2173,7 +2216,7 @@ function addAllocationVendeur(vendeur, prodId) {
   if (!stockVendeur[vendeur]) stockVendeur[vendeur] = {};
   stockVendeur[vendeur][prodId] = (stockVendeur[vendeur][prodId] || 0) + qty;
   saveFB('cb_stock_vendeur', stockVendeur).then(() => {
-    logAction('Allocation vendeur', 'Ajout de ' + qty + ' pour ' + vendeur + ' - produit ' + products.find(p=>p.id===prodId)?.name);
+    logAction('Allocation vendeur', 'Ajout de ' + qty + ' pour ' + vendeur + ' - produit ' + p.name);
     toast(`Ajout de ${qty} pour ${vendeur}`);
     renderStock();
     if (currentPage==='caisse') renderProds();
@@ -2189,6 +2232,8 @@ async function saveAllocationVendeur(mode) {
     const prodId = parseInt(inp.dataset.prod);
     const val = parseInt(inp.value)||0;
     if (val === 0) return;
+    const p = products.find(x=>x.id===prodId);
+    if (!p || isFood(p)) return;
     if (!stockVendeur[vendeur]) stockVendeur[vendeur] = {};
     if (mode === 'add') {
       stockVendeur[vendeur][prodId] = (stockVendeur[vendeur][prodId] || 0) + val;
@@ -2221,13 +2266,15 @@ function renderAdmin() {
     </div>`).join('');
 
   document.getElementById('prodMgmtGrid').innerHTML = products.map(p=>{
-    const qty   = stock[p.id]!==undefined?stock[p.id]:0;
-    const stCls = getStockClass(qty);
+    const isFoodCat = isFood(p);
+    const qty   = isFoodCat ? '∞' : (stock[p.id]!==undefined?stock[p.id]:0);
+    const stCls = isFoodCat ? 'ok' : getStockClass(qty);
+    const label = isFoodCat ? 'Illimité' : (qty <=0 ? 'Rupture' : (qty <=5 ? 'Stock bas' : 'En stock'));
     return `<div class="pm-card">
       <div class="pm-info">
         <div class="pm-name">${getCatIcon(p.cat)} ${p.name}</div>
         <div class="pm-cat">${p.cat}</div>
-        <div class="pm-price">${fmt(p.price)} -- <span class="sc-stock ${stCls}" style="font-size:.72rem">${qty} en stock</span></div>
+        <div class="pm-price">${fmt(p.price)} -- <span class="sc-stock ${stCls}" style="font-size:.72rem">${qty} ${isFoodCat?'':'(stock)'}</span></div>
       </div>
       <button class="icon-btn" onclick="editProdModal(${p.id})" title="Modifier">M</button>
       <button class="icon-btn" onclick="delProd(${p.id})" style="margin-left:4px" title="Supprimer">X</button>
@@ -2371,8 +2418,15 @@ async function delUser(id) {
 document.getElementById('pCat').addEventListener('change', function() {
   const noteEl = document.getElementById('pStockNote');
   if (noteEl) noteEl.style.display = this.value!=='Nourriture' ? 'block' : 'none';
+  // Afficher ou cacher le champ stock
+  const stockGroup = document.getElementById('stockFieldGroup');
+  if (this.value === 'Nourriture') {
+    stockGroup.style.display = 'none';
+  } else {
+    stockGroup.style.display = 'block';
+  }
 });
-
+// Initialisation du champ stock lors de l'ouverture de la modale produit
 function openAddProd() {
   editProdId=null;
   document.getElementById('modalProdTitle').textContent='Nouveau produit';
@@ -2380,7 +2434,9 @@ function openAddProd() {
   document.getElementById('pPrice').value='';
   document.getElementById('pCat').value='Nourriture';
   document.getElementById('pStock').value='20';
-  document.getElementById('pStockNote').style.display='none';
+  // Masquer le champ stock pour nourriture
+  document.getElementById('stockFieldGroup').style.display = 'none';
+  document.getElementById('pStockNote').style.display = 'none';
   openModal('modalProd');
 }
 
@@ -2392,8 +2448,10 @@ function editProdModal(id) {
   document.getElementById('pName').value  = p.name;
   document.getElementById('pPrice').value = p.price;
   document.getElementById('pCat').value   = p.cat;
-  document.getElementById('pStock').value = stock[id]!==undefined?stock[id]:0;
-  document.getElementById('pStockNote').style.display = p.cat!=='Nourriture'?'block':'none';
+  const isFoodCat = isFood(p);
+  document.getElementById('pStock').value = isFoodCat ? 0 : (stock[id]!==undefined?stock[id]:0);
+  document.getElementById('stockFieldGroup').style.display = isFoodCat ? 'none' : 'block';
+  document.getElementById('pStockNote').style.display = isFoodCat ? 'none' : 'block';
   openModal('modalProd');
 }
 
@@ -2406,15 +2464,19 @@ async function saveProd() {
   if (editProdId) {
     const p = products.find(x=>x.id===editProdId);
     if (p) { p.name=name; p.price=price; p.cat=cat; }
-    const oldQty = stock[editProdId]||0;
-    stock[editProdId]=qty;
-    if (oldQty!==qty) await logStockMvt(editProdId,'ajustement',Math.abs(qty-oldQty),qty,'Modification produit admin');
+    if (!isFood(p)) {
+      const oldQty = stock[editProdId]||0;
+      stock[editProdId]=qty;
+      if (oldQty!==qty) await logStockMvt(editProdId,'ajustement',Math.abs(qty-oldQty),qty,'Modification produit admin');
+    }
   } else {
     const mx    = Math.max(...products.map(p=>p.id),0);
     const newId = mx+1;
     products.push({id:newId,name,price,cat,stock:qty});
-    stock[newId]=qty;
-    await logStockMvt(newId,'reassort',qty,qty,'Nouveau produit');
+    if (cat !== 'Nourriture') {
+      stock[newId]=qty;
+      await logStockMvt(newId,'reassort',qty,qty,'Nouveau produit');
+    }
   }
   await saveFB('cb_prods',products);
   await saveFB('cb_stock',stock);
@@ -2475,9 +2537,17 @@ document.querySelectorAll('.overlay').forEach(overlay => {
 function initStock() {
   let changed = false;
   products.forEach(p => {
-    if (stock[p.id] === undefined) {
-      stock[p.id] = p.stock !== undefined ? p.stock : 20;
-      changed = true;
+    if (isFood(p)) {
+      // Ne pas initialiser de stock pour la nourriture
+      if (stock[p.id] !== undefined) {
+        delete stock[p.id];
+        changed = true;
+      }
+    } else {
+      if (stock[p.id] === undefined) {
+        stock[p.id] = p.stock !== undefined ? p.stock : 20;
+        changed = true;
+      }
     }
   });
   if (changed) saveLS('cb_stock', stock);
