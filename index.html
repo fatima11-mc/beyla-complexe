@@ -617,7 +617,7 @@ tbody td{padding:9px 10px;}
     <div class="kpi-grid" id="dashKpi"></div>
     <div class="dash-section-title">Alertes</div>
     <div id="dashAlerts" style="margin-bottom:.5rem;"></div>
-    <div class="dash-section-title">Dernieres commandes</div>
+    <div class="dash-section-title">Mes dernieres commandes</div>
     <div class="dash-orders-preview" id="dashOrders"></div>
   </div>
 </div>
@@ -675,6 +675,7 @@ tbody td{padding:9px 10px;}
     <div class="pg-header">
       <div><div class="pg-title">Journal</div><div class="pg-sub">Historique par journee</div></div>
       <input type="date" class="date-in" id="jDate" onchange="renderJournal()">
+      <!-- Le filtre vendeur est géré automatiquement selon le rôle, on ne l'affiche que pour admin -->
       <select class="filter-select" id="jVendeurFilter" onchange="renderJournal()" style="display:none;">
         <option value="tous">Tous les vendeurs</option>
       </select>
@@ -690,7 +691,7 @@ tbody td{padding:9px 10px;}
   </div>
 </div>
 
-<!-- VERIFICATION -->
+<!-- VERIFICATION (uniquement pour admin et comptable) -->
 <div id="pg-verif" class="page">
   <div class="inner-page">
     <div class="pg-header">
@@ -1159,6 +1160,7 @@ function doLogout() {
 document.getElementById('loginPass').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
 
 // ========== APP INIT ==========
+// Navigation autorisée selon le rôle
 const NAV_MAP = {
   admin: [
     {id:'accueil', label:'Accueil'},
@@ -1184,7 +1186,7 @@ const NAV_MAP = {
     {id:'accueil', label:'Accueil'},
     {id:'caisse',  label:'Caisse'},
     {id:'journal', label:'Journal'},
-    {id:'verif',   label:'Verif.'},
+    // pas de verif ni d'autres pages
   ],
 };
 
@@ -1223,6 +1225,17 @@ function initApp() {
 
 let currentPage = '';
 function showPage(id) {
+  // Vérifier si l'utilisateur a le droit d'accéder à cette page
+  const allowed = NAV_MAP[currentUser.role] || [];
+  if (!allowed.some(p => p.id === id)) {
+    toast('Accès non autorisé');
+    // Rediriger vers la première page autorisée
+    if (allowed.length > 0) {
+      id = allowed[0].id;
+    } else {
+      return;
+    }
+  }
   currentPage = id;
   document.querySelectorAll('.page').forEach(p => p.classList.remove('act'));
   document.querySelectorAll('.hn, .bn-item').forEach(b => b.classList.remove('act'));
@@ -1267,7 +1280,7 @@ function updateQueueBadge() {
     if (!btn) return;
     const old = btn.querySelector('.notif-dot, .bn-notif');
     if (old) old.remove();
-    if (pending > 0 && currentUser.role !== 'vendeur') {
+    if (pending > 0 && (currentUser.role === 'admin' || currentUser.role === 'cuisiniere')) {
       const dot = document.createElement('span');
       dot.className = btn.id.startsWith('hn') ? 'notif-dot' : 'bn-notif';
       btn.appendChild(dot);
@@ -1278,50 +1291,95 @@ function updateQueueBadge() {
 // ========== DASHBOARD ==========
 function renderDashboard() {
   let todayOrders = orders.filter(o => o.date===today());
+  let myOrders = todayOrders;
+  let vend = null;
   if (currentUser.role === 'vendeur') {
-    const vend = currentUser.kiosque || currentUser.name;
-    todayOrders = todayOrders.filter(o => o.vendeur === vend);
+    vend = currentUser.kiosque || currentUser.name;
+    myOrders = todayOrders.filter(o => o.vendeur === vend);
+  } else if (currentUser.role === 'comptable') {
+    // pour les caissiers, on peut tout voir ou seulement ses commandes ? On garde tout pour eux.
+    // mais on peut afficher seulement ses commandes s'il le souhaite, mais on va tout afficher car c'est un superviseur.
+    // ne change rien.
   }
-  const totalJour   = todayOrders.reduce((s,o) => s+(o.total||0), 0);
-  const enAttente   = todayOrders.filter(o => !o.status||o.status==='attente').length;
-  const enPrep      = todayOrders.filter(o => o.status==='preparation').length;
+  // Pour le dashboard, on affiche les statistiques selon le rôle :
+  let totalJour, nbCommandes, enAttente, enPrep;
+  if (currentUser.role === 'vendeur') {
+    totalJour = myOrders.reduce((s,o) => s+(o.total||0), 0);
+    nbCommandes = myOrders.length;
+    enAttente = myOrders.filter(o => !o.status||o.status==='attente').length;
+    enPrep = myOrders.filter(o => o.status==='preparation').length;
+  } else {
+    totalJour = todayOrders.reduce((s,o) => s+(o.total||0), 0);
+    nbCommandes = todayOrders.length;
+    enAttente = todayOrders.filter(o => !o.status||o.status==='attente').length;
+    enPrep = todayOrders.filter(o => o.status==='preparation').length;
+  }
   const stockBas    = products.filter(p => { const q=stock[p.id]||0; return q>0&&q<=5; }).length;
   const rupture     = products.filter(p => (stock[p.id]||0)<=0).length;
 
-  document.getElementById('dashKpi').innerHTML = `
-    <div class="kpi-card green">
-      <div class="kpi-icon">$</div>
-      <div class="kpi-val">${fmt(totalJour)}</div>
-      <div class="kpi-label">Recettes du jour</div>
-    </div>
-    <div class="kpi-card blue">
-      <div class="kpi-icon">#</div>
-      <div class="kpi-val">${todayOrders.length}</div>
-      <div class="kpi-label">Commandes aujourd'hui</div>
-    </div>
-    <div class="kpi-card amber">
-      <div class="kpi-icon">!</div>
-      <div class="kpi-val">${enAttente+enPrep}</div>
-      <div class="kpi-label">En cuisine</div>
-    </div>
-    <div class="kpi-card ${rupture>0?'red':stockBas>0?'amber':'green'}">
-      <div class="kpi-icon">*</div>
-      <div class="kpi-val">${rupture>0?rupture:stockBas}</div>
-      <div class="kpi-label">${rupture>0?'Ruptures de stock':stockBas>0?'Stock bas':'Stock OK'}</div>
-    </div>`;
+  let kpiHtml = '';
+  if (currentUser.role === 'vendeur') {
+    kpiHtml = `
+      <div class="kpi-card green">
+        <div class="kpi-icon">$</div>
+        <div class="kpi-val">${fmt(totalJour)}</div>
+        <div class="kpi-label">Mes recettes du jour</div>
+      </div>
+      <div class="kpi-card blue">
+        <div class="kpi-icon">#</div>
+        <div class="kpi-val">${nbCommandes}</div>
+        <div class="kpi-label">Mes commandes</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-icon">!</div>
+        <div class="kpi-val">${enAttente+enPrep}</div>
+        <div class="kpi-label">Mes commandes en cuisine</div>
+      </div>
+      <div class="kpi-card ${rupture>0?'red':stockBas>0?'amber':'green'}">
+        <div class="kpi-icon">*</div>
+        <div class="kpi-val">${rupture>0?rupture:stockBas}</div>
+        <div class="kpi-label">${rupture>0?'Ruptures de stock':stockBas>0?'Stock bas':'Stock OK'}</div>
+      </div>`;
+  } else {
+    kpiHtml = `
+      <div class="kpi-card green">
+        <div class="kpi-icon">$</div>
+        <div class="kpi-val">${fmt(totalJour)}</div>
+        <div class="kpi-label">Recettes du jour</div>
+      </div>
+      <div class="kpi-card blue">
+        <div class="kpi-icon">#</div>
+        <div class="kpi-val">${nbCommandes}</div>
+        <div class="kpi-label">Commandes aujourd'hui</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-icon">!</div>
+        <div class="kpi-val">${enAttente+enPrep}</div>
+        <div class="kpi-label">En cuisine</div>
+      </div>
+      <div class="kpi-card ${rupture>0?'red':stockBas>0?'amber':'green'}">
+        <div class="kpi-icon">*</div>
+        <div class="kpi-val">${rupture>0?rupture:stockBas}</div>
+        <div class="kpi-label">${rupture>0?'Ruptures de stock':stockBas>0?'Stock bas':'Stock OK'}</div>
+      </div>`;
+  }
+  document.getElementById('dashKpi').innerHTML = kpiHtml;
 
+  // Alertes (toujours globales)
   const alerts = [];
   if (rupture>0) alerts.push({cls:'warn',msg:`Alerte: ${rupture} article(s) en rupture de stock`});
   if (stockBas>0) alerts.push({cls:'warn',msg:`Alerte: ${stockBas} article(s) avec stock bas (<= 5 unites)`});
-  if (enAttente>0) alerts.push({cls:'info',msg:`Info: ${enAttente} commande(s) en attente en cuisine`});
-  if (enPrep>0)    alerts.push({cls:'info',msg:`Info: ${enPrep} commande(s) en cours de preparation`});
+  if (enAttente>0 && currentUser.role !== 'vendeur') alerts.push({cls:'info',msg:`Info: ${enAttente} commande(s) en attente en cuisine`});
+  if (enPrep>0 && currentUser.role !== 'vendeur')    alerts.push({cls:'info',msg:`Info: ${enPrep} commande(s) en cours de preparation`});
   if (!alerts.length) alerts.push({cls:'ok',msg:'Tout est en ordre'});
 
   document.getElementById('dashAlerts').innerHTML = alerts.map(a =>
     `<div class="alert-item ${a.cls}">${a.msg}</div>`
   ).join('');
 
-  const recent = [...todayOrders].reverse().slice(0,6);
+  // Dernières commandes : selon le rôle
+  const ordersToShow = (currentUser.role === 'vendeur') ? myOrders : todayOrders;
+  const recent = [...ordersToShow].reverse().slice(0,6);
   if (!recent.length) {
     document.getElementById('dashOrders').innerHTML = '<div class="dash-empty">Aucune commande aujourd\'hui</div>';
   } else {
@@ -1554,13 +1612,15 @@ function populateVendeurFilter() {
 function renderJournal() {
   const date = document.getElementById('jDate').value;
   let day = orders.filter(o => o.date===date);
-  if (currentUser.role === 'admin') {
-    const filter = document.getElementById('jVendeurFilter').value;
-    if (filter !== 'tous') day = day.filter(o => o.vendeur === filter);
-  } else if (currentUser.role === 'vendeur') {
+  // Filtrer selon le rôle
+  if (currentUser.role === 'vendeur') {
     const vend = currentUser.kiosque || currentUser.name;
     day = day.filter(o => o.vendeur === vend);
+  } else if (currentUser.role === 'admin') {
+    const filter = document.getElementById('jVendeurFilter').value;
+    if (filter && filter !== 'tous') day = day.filter(o => o.vendeur === filter);
   }
+  // pour comptable, on affiche tout
   const total   = day.reduce((s,o)=>s+(o.total||0),0);
   const nbItems = day.reduce((s,o)=>s+o.items.reduce((ss,i)=>ss+i.qty,0),0);
   document.getElementById('statsGrid').innerHTML = `
@@ -1739,6 +1799,7 @@ function renderVerif() {
   const date = document.getElementById('vDate').value;
   let day = orders.filter(o=>o.date===date);
   if (currentUser.role === 'vendeur') {
+    // Les vendeurs n'ont pas accès à cette page, mais par sécurité on filtre
     const vend = currentUser.kiosque || currentUser.name;
     day = day.filter(o => o.vendeur === vend);
   }
