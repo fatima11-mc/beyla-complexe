@@ -675,7 +675,6 @@ tbody td{padding:9px 10px;}
     <div class="pg-header">
       <div><div class="pg-title">Journal</div><div class="pg-sub">Historique par journee</div></div>
       <input type="date" class="date-in" id="jDate" onchange="renderJournal()">
-      <!-- Le filtre vendeur est géré automatiquement selon le rôle, on ne l'affiche que pour admin -->
       <select class="filter-select" id="jVendeurFilter" onchange="renderJournal()" style="display:none;">
         <option value="tous">Tous les vendeurs</option>
       </select>
@@ -691,7 +690,7 @@ tbody td{padding:9px 10px;}
   </div>
 </div>
 
-<!-- VERIFICATION (uniquement pour admin et comptable) -->
+<!-- VERIFICATION (admin et comptable uniquement) -->
 <div id="pg-verif" class="page">
   <div class="inner-page">
     <div class="pg-header">
@@ -733,11 +732,21 @@ tbody td{padding:9px 10px;}
 <div id="pg-stock" class="page">
   <div class="inner-page">
     <div class="pg-header">
-      <div><div class="pg-title">Stock</div><div class="pg-sub">Gestion des stocks produits</div></div>
+      <div><div class="pg-title">Stock</div><div class="pg-sub">Gestion des stocks produits et allocations vendeurs</div></div>
     </div>
     <div id="stockAlertBar" style="margin-bottom:1rem;"></div>
     <div class="stock-cats" id="stockCatBar"></div>
     <div class="stock-grid" id="stockGrid"></div>
+    <!-- Gestion des allocations par vendeur (visible uniquement pour admin) -->
+    <div id="allocationVendeurSection" style="margin-top:2rem;display:none;">
+      <div class="mvt-title">Allocation de stock par vendeur</div>
+      <div id="allocationVendeurContainer"></div>
+      <p style="font-size:.8rem;color:var(--muted);margin-top:.5rem;">Saisissez une quantite dans le champ, puis cliquez sur le bouton <strong>+</strong> pour l'ajouter au stock existant du vendeur, ou sur <strong>Definir</strong> pour remplacer la valeur.</p>
+      <div style="margin-top:.5rem;">
+        <button class="btn btn-green" style="flex:0;padding:8px 20px;margin-right:8px;" onclick="saveAllocationVendeur('set')">Definir tout</button>
+        <button class="btn btn-blue" style="flex:0;padding:8px 20px;" onclick="saveAllocationVendeur('add')">Ajouter tout</button>
+      </div>
+    </div>
     <div class="mvt-grid">
       <div class="mvt-title">Historique des mouvements recents</div>
       <div class="tbl-wrap">
@@ -768,18 +777,6 @@ tbody td{padding:9px 10px;}
           <button class="add-btn" onclick="openAddProd()">+ Ajouter</button>
         </div>
         <div class="prod-mgmt-grid" id="prodMgmtGrid"></div>
-      </div>
-      <!-- Gestion des stocks par vendeur -->
-      <div class="admin-card" style="grid-column:1/-1;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem;">
-          <div class="admin-card-title" style="margin:0">Allocation de stock par vendeur</div>
-          <div>
-            <button class="btn btn-green" style="flex:0;padding:8px 20px;margin-right:8px;" onclick="saveAllocationVendeur('set')">Definir tout</button>
-            <button class="btn btn-blue" style="flex:0;padding:8px 20px;" onclick="saveAllocationVendeur('add')">Ajouter tout</button>
-          </div>
-        </div>
-        <div id="allocationVendeurContainer"></div>
-        <p style="font-size:.8rem;color:var(--muted);margin-top:.5rem;">Saisissez une quantite dans le champ, puis cliquez sur le bouton <strong>+</strong> pour l'ajouter au stock existant, ou sur <strong>Definir</strong> pour remplacer la valeur.</p>
       </div>
       <!-- Tableau de bord anti-vol -->
       <div class="admin-card" style="grid-column:1/-1;">
@@ -922,8 +919,8 @@ const DEFAULT_USERS = [
   {id:2, name:'Caissier Moussa',    login:'moussa',  pass:'caisse1',  role:'comptable', kiosque:null},
   {id:3, name:'Caissiere Fatoumata',login:'fato',    pass:'caisse2',  role:'comptable', kiosque:null},
   {id:4, name:'Cuisiniere Aminata', login:'aminata', pass:'cuisine1', role:'cuisiniere', kiosque:null},
-  {id:5, name:'Kiosque Sud - Mariama', login:'mariama', pass:'vendeur1', role:'vendeur', kiosque:'Kiosque Sud'},
-  {id:6, name:'Kiosque Nord - Aissatou', login:'aissatou', pass:'vendeur2', role:'vendeur', kiosque:'Kiosque Nord'},
+  {id:5, name:'Kiosque Sud - Zenab', login:'zenab', pass:'vendeur1', role:'vendeur', kiosque:'Kiosque Sud'},
+  {id:6, name:'Kiosque Nord - Mariame', login:'mariame', pass:'vendeur2', role:'vendeur', kiosque:'Kiosque Nord'},
 ];
 const DEFAULT_PRODUCTS = [
   {id:1,  name:'Riz Sauce Arachide',   price:25000, cat:'Nourriture', stock:20},
@@ -1075,6 +1072,7 @@ function listenOrders() {
       stockVendeur = snap.val();
       saveLS('cb_stock_vendeur', stockVendeur);
       if (currentPage==='caisse') renderProds();
+      if (currentPage==='stock')  renderStock();
     }
   });
 }
@@ -1186,7 +1184,7 @@ const NAV_MAP = {
     {id:'accueil', label:'Accueil'},
     {id:'caisse',  label:'Caisse'},
     {id:'journal', label:'Journal'},
-    // pas de verif ni d'autres pages
+    // pas de verif ni stock ni admin
   ],
 };
 
@@ -1225,16 +1223,11 @@ function initApp() {
 
 let currentPage = '';
 function showPage(id) {
-  // Vérifier si l'utilisateur a le droit d'accéder à cette page
   const allowed = NAV_MAP[currentUser.role] || [];
   if (!allowed.some(p => p.id === id)) {
     toast('Accès non autorisé');
-    // Rediriger vers la première page autorisée
-    if (allowed.length > 0) {
-      id = allowed[0].id;
-    } else {
-      return;
-    }
+    if (allowed.length > 0) id = allowed[0].id;
+    else return;
   }
   currentPage = id;
   document.querySelectorAll('.page').forEach(p => p.classList.remove('act'));
@@ -1296,12 +1289,7 @@ function renderDashboard() {
   if (currentUser.role === 'vendeur') {
     vend = currentUser.kiosque || currentUser.name;
     myOrders = todayOrders.filter(o => o.vendeur === vend);
-  } else if (currentUser.role === 'comptable') {
-    // pour les caissiers, on peut tout voir ou seulement ses commandes ? On garde tout pour eux.
-    // mais on peut afficher seulement ses commandes s'il le souhaite, mais on va tout afficher car c'est un superviseur.
-    // ne change rien.
   }
-  // Pour le dashboard, on affiche les statistiques selon le rôle :
   let totalJour, nbCommandes, enAttente, enPrep;
   if (currentUser.role === 'vendeur') {
     totalJour = myOrders.reduce((s,o) => s+(o.total||0), 0);
@@ -1365,7 +1353,6 @@ function renderDashboard() {
   }
   document.getElementById('dashKpi').innerHTML = kpiHtml;
 
-  // Alertes (toujours globales)
   const alerts = [];
   if (rupture>0) alerts.push({cls:'warn',msg:`Alerte: ${rupture} article(s) en rupture de stock`});
   if (stockBas>0) alerts.push({cls:'warn',msg:`Alerte: ${stockBas} article(s) avec stock bas (<= 5 unites)`});
@@ -1377,7 +1364,6 @@ function renderDashboard() {
     `<div class="alert-item ${a.cls}">${a.msg}</div>`
   ).join('');
 
-  // Dernières commandes : selon le rôle
   const ordersToShow = (currentUser.role === 'vendeur') ? myOrders : todayOrders;
   const recent = [...ordersToShow].reverse().slice(0,6);
   if (!recent.length) {
@@ -1612,7 +1598,6 @@ function populateVendeurFilter() {
 function renderJournal() {
   const date = document.getElementById('jDate').value;
   let day = orders.filter(o => o.date===date);
-  // Filtrer selon le rôle
   if (currentUser.role === 'vendeur') {
     const vend = currentUser.kiosque || currentUser.name;
     day = day.filter(o => o.vendeur === vend);
@@ -1620,7 +1605,6 @@ function renderJournal() {
     const filter = document.getElementById('jVendeurFilter').value;
     if (filter && filter !== 'tous') day = day.filter(o => o.vendeur === filter);
   }
-  // pour comptable, on affiche tout
   const total   = day.reduce((s,o)=>s+(o.total||0),0);
   const nbItems = day.reduce((s,o)=>s+o.items.reduce((ss,i)=>ss+i.qty,0),0);
   document.getElementById('statsGrid').innerHTML = `
@@ -1799,7 +1783,6 @@ function renderVerif() {
   const date = document.getElementById('vDate').value;
   let day = orders.filter(o=>o.date===date);
   if (currentUser.role === 'vendeur') {
-    // Les vendeurs n'ont pas accès à cette page, mais par sécurité on filtre
     const vend = currentUser.kiosque || currentUser.name;
     day = day.filter(o => o.vendeur === vend);
   }
@@ -2042,6 +2025,7 @@ async function setOrderStatus(id, status) {
 
 // ========== STOCK ==========
 function renderStock() {
+  // Alertes stock global
   const bas     = products.filter(p=>{const q=stock[p.id]||0;return q>0&&q<=5;});
   const rupture = products.filter(p=>(stock[p.id]||0)<=0);
   let alertHtml = '';
@@ -2049,6 +2033,7 @@ function renderStock() {
   if (bas.length>0)     alertHtml+=`<div class="alert-item warn">Stock bas (<=5) : ${bas.map(p=>p.name+' ('+stock[p.id]+')').join(', ')}</div>`;
   document.getElementById('stockAlertBar').innerHTML = alertHtml;
 
+  // Filtres catégorie
   const allCats = ['Tout', ...ALL_STOCK_CATS];
   document.getElementById('stockCatBar').innerHTML = allCats.map(c =>
     `<button class="stock-cat-btn ${c===stockCatFilter?'act':''}" onclick="setStockCat('${c}')">${c==='Tout'?'Tout':getCatIcon(c)}</button>`
@@ -2058,24 +2043,54 @@ function renderStock() {
   if (stockCatFilter !== 'Tout') filtered = products.filter(p=>p.cat===stockCatFilter);
   const sorted = [...filtered].sort((a,b)=>(stock[a.id]||0)-(stock[b.id]||0));
 
-  document.getElementById('stockGrid').innerHTML = sorted.map(p=>{
-    const qty = stock[p.id]!==undefined?stock[p.id]:0;
-    const cls = getStockClass(qty);
-    return `<div class="stock-card ${qty<=0?'out':qty<=5?'low':''}">
-      <div class="sc-info">
-        <div class="sc-name">${getCatIcon(p.cat)} ${p.name}</div>
-        <div class="sc-cat">${p.cat} -- ${fmt(p.price)}</div>
-        <div class="sc-stock ${cls}">${qty} unite(s) -- ${getStockLabel(qty)}</div>
-      </div>
-      <div class="sc-controls">
-        <input type="number" class="stock-adj-input" id="si-${p.id}" value="1" min="0">
-        <button class="stock-adj-btn stock-set-btn" onclick="adjustStock(${p.id},'set')" title="Definir ce stock">Definir</button>
-        <button class="stock-adj-btn stock-add-btn" onclick="adjustStock(${p.id},'add')" title="Ajouter au stock">+ Reassort</button>
-        <button class="stock-adj-btn stock-sub-btn" onclick="adjustStock(${p.id},'sub')" title="Retirer du stock">- Perte</button>
-      </div>
-    </div>`;
-  }).join('');
+  // Vue du stock global (admin et comptable) : pour les vendeurs, on affiche uniquement leur allocation
+  let stockHtml = '';
+  if (currentUser.role === 'vendeur') {
+    const vend = currentUser.kiosque || currentUser.name;
+    stockHtml = sorted.map(p => {
+      const qty = (stockVendeur[vend] && stockVendeur[vend][p.id]) || 0;
+      const cls = getStockClass(qty);
+      return `<div class="stock-card ${qty<=0?'out':qty<=5?'low':''}">
+        <div class="sc-info">
+          <div class="sc-name">${getCatIcon(p.cat)} ${p.name}</div>
+          <div class="sc-cat">${p.cat} -- ${fmt(p.price)}</div>
+          <div class="sc-stock ${cls}">${qty} unite(s) -- ${getStockLabel(qty)}</div>
+        </div>
+        <div style="font-size:.75rem;color:var(--muted);">Mon stock</div>
+      </div>`;
+    }).join('');
+  } else {
+    // Admin ou comptable : affichage du stock global avec boutons de gestion
+    stockHtml = sorted.map(p => {
+      const qty = stock[p.id]!==undefined?stock[p.id]:0;
+      const cls = getStockClass(qty);
+      return `<div class="stock-card ${qty<=0?'out':qty<=5?'low':''}">
+        <div class="sc-info">
+          <div class="sc-name">${getCatIcon(p.cat)} ${p.name}</div>
+          <div class="sc-cat">${p.cat} -- ${fmt(p.price)}</div>
+          <div class="sc-stock ${cls}">${qty} unite(s) -- ${getStockLabel(qty)}</div>
+        </div>
+        <div class="sc-controls">
+          <input type="number" class="stock-adj-input" id="si-${p.id}" value="1" min="0">
+          <button class="stock-adj-btn stock-set-btn" onclick="adjustStock(${p.id},'set')" title="Definir ce stock">Definir</button>
+          <button class="stock-adj-btn stock-add-btn" onclick="adjustStock(${p.id},'add')" title="Ajouter au stock">+ Reassort</button>
+          <button class="stock-adj-btn stock-sub-btn" onclick="adjustStock(${p.id},'sub')" title="Retirer du stock">- Perte</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('stockGrid').innerHTML = stockHtml;
 
+  // Gestion des allocations par vendeur (uniquement pour admin)
+  const allocSection = document.getElementById('allocationVendeurSection');
+  if (currentUser.role === 'admin') {
+    allocSection.style.display = 'block';
+    renderAllocationVendeur();
+  } else {
+    allocSection.style.display = 'none';
+  }
+
+  // Historique des mouvements (visible par admin et comptable)
   const tb = document.getElementById('mvtTable');
   if (!stockMvts.length) {
     tb.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:1.5rem;color:var(--muted)">Aucun mouvement enregistre</td></tr>';
@@ -2116,77 +2131,7 @@ async function adjustStock(id, mode) {
   toast('Stock mis a jour');
 }
 
-// ========== ADMIN ==========
-function renderAdmin() {
-  document.getElementById('userList').innerHTML = users.map(u=>`
-    <div class="user-row">
-      <div class="user-avatar">${u.name.split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase()}</div>
-      <div style="flex:1">
-        <div class="user-name">${u.name}</div>
-        <div class="user-role">${{admin:'Admin',comptable:'Caissier',cuisiniere:'Cuisiniere',vendeur:'Vendeur'}[u.role]||u.role} -- @${u.login}${u.kiosque?' -- '+u.kiosque:''}</div>
-      </div>
-      ${u.id!==1?`
-        <button class="icon-btn" onclick="editUserModal(${u.id})" title="Modifier">M</button>
-        <button class="icon-btn" onclick="delUser(${u.id})" style="margin-left:4px" title="Supprimer">X</button>`
-      :''}
-    </div>`).join('');
-
-  document.getElementById('prodMgmtGrid').innerHTML = products.map(p=>{
-    const qty   = stock[p.id]!==undefined?stock[p.id]:0;
-    const stCls = getStockClass(qty);
-    return `<div class="pm-card">
-      <div class="pm-info">
-        <div class="pm-name">${getCatIcon(p.cat)} ${p.name}</div>
-        <div class="pm-cat">${p.cat}</div>
-        <div class="pm-price">${fmt(p.price)} -- <span class="sc-stock ${stCls}" style="font-size:.72rem">${qty} en stock</span></div>
-      </div>
-      <button class="icon-btn" onclick="editProdModal(${p.id})" title="Modifier">M</button>
-      <button class="icon-btn" onclick="delProd(${p.id})" style="margin-left:4px" title="Supprimer">X</button>
-    </div>`;
-  }).join('');
-
-  renderAllocationVendeur();
-  renderVentesVendeur();
-  renderJournalActions();
-}
-
-function renderVentesVendeur() {
-  const todayOrders = orders.filter(o=>o.date===today());
-  const vendeurStats = {};
-  todayOrders.forEach(o => {
-    const v = o.vendeur || 'Non defini';
-    if (!vendeurStats[v]) vendeurStats[v] = {total:0, nb:0, items:0};
-    vendeurStats[v].total += o.total || 0;
-    vendeurStats[v].nb++;
-    vendeurStats[v].items += o.items.reduce((s,i)=>s+i.qty,0);
-  });
-  let html = '';
-  if (Object.keys(vendeurStats).length === 0) {
-    html = '<div style="color:var(--muted);padding:.5rem 0">Aucune vente aujourd\'hui.</div>';
-  } else {
-    html = `<div class="tbl-wrap"><table><thead><tr><th>Vendeur</th><th>Nb commandes</th><th>Articles vendus</th><th>Total</th></tr></thead><tbody>`;
-    for (const [v, stats] of Object.entries(vendeurStats)) {
-      html += `<tr><td><strong>${v}</strong></td><td>${stats.nb}</td><td>${stats.items}</td><td><strong>${fmt(stats.total)}</strong></td></tr>`;
-    }
-    html += '</tbody></table></div>';
-  }
-  document.getElementById('ventesVendeur').innerHTML = html;
-}
-
-function renderJournalActions() {
-  const container = document.getElementById('journalActions');
-  if (!journalActions.length) {
-    container.innerHTML = '<div style="color:var(--muted);padding:.5rem 0">Aucune action enregistree.</div>';
-    return;
-  }
-  container.innerHTML = journalActions.slice(0, 100).map(j => 
-    `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:.75rem;">
-      <span><strong>${j.user}</strong> - ${j.action}</span>
-      <span style="color:var(--muted);">${j.details} - ${j.ts}</span>
-    </div>`
-  ).join('');
-}
-
+// ========== ALLOCATION VENDEUR (intégrée dans l'onglet Stock) ==========
 function renderAllocationVendeur() {
   const container = document.getElementById('allocationVendeurContainer');
   const vendeurs = users.filter(u => u.role === 'vendeur' && u.kiosque);
@@ -2230,7 +2175,7 @@ function addAllocationVendeur(vendeur, prodId) {
   saveFB('cb_stock_vendeur', stockVendeur).then(() => {
     logAction('Allocation vendeur', 'Ajout de ' + qty + ' pour ' + vendeur + ' - produit ' + products.find(p=>p.id===prodId)?.name);
     toast(`Ajout de ${qty} pour ${vendeur}`);
-    renderAllocationVendeur();
+    renderStock();
     if (currentPage==='caisse') renderProds();
   });
 }
@@ -2256,8 +2201,78 @@ async function saveAllocationVendeur(mode) {
   await saveFB('cb_stock_vendeur', stockVendeur);
   logAction('Allocation vendeur', 'Mode ' + mode + ' applique sur plusieurs produits');
   toast(mode==='add' ? 'Ajouts effectues' : 'Valeurs definies');
-  renderAllocationVendeur();
+  renderStock();
   if (currentPage==='caisse') renderProds();
+}
+
+// ========== ADMIN ==========
+function renderAdmin() {
+  document.getElementById('userList').innerHTML = users.map(u=>`
+    <div class="user-row">
+      <div class="user-avatar">${u.name.split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase()}</div>
+      <div style="flex:1">
+        <div class="user-name">${u.name}</div>
+        <div class="user-role">${{admin:'Admin',comptable:'Caissier',cuisiniere:'Cuisiniere',vendeur:'Vendeur'}[u.role]||u.role} -- @${u.login}${u.kiosque?' -- '+u.kiosque:''}</div>
+      </div>
+      ${u.id!==1?`
+        <button class="icon-btn" onclick="editUserModal(${u.id})" title="Modifier">M</button>
+        <button class="icon-btn" onclick="delUser(${u.id})" style="margin-left:4px" title="Supprimer">X</button>`
+      :''}
+    </div>`).join('');
+
+  document.getElementById('prodMgmtGrid').innerHTML = products.map(p=>{
+    const qty   = stock[p.id]!==undefined?stock[p.id]:0;
+    const stCls = getStockClass(qty);
+    return `<div class="pm-card">
+      <div class="pm-info">
+        <div class="pm-name">${getCatIcon(p.cat)} ${p.name}</div>
+        <div class="pm-cat">${p.cat}</div>
+        <div class="pm-price">${fmt(p.price)} -- <span class="sc-stock ${stCls}" style="font-size:.72rem">${qty} en stock</span></div>
+      </div>
+      <button class="icon-btn" onclick="editProdModal(${p.id})" title="Modifier">M</button>
+      <button class="icon-btn" onclick="delProd(${p.id})" style="margin-left:4px" title="Supprimer">X</button>
+    </div>`;
+  }).join('');
+
+  renderVentesVendeur();
+  renderJournalActions();
+}
+
+function renderVentesVendeur() {
+  const todayOrders = orders.filter(o=>o.date===today());
+  const vendeurStats = {};
+  todayOrders.forEach(o => {
+    const v = o.vendeur || 'Non defini';
+    if (!vendeurStats[v]) vendeurStats[v] = {total:0, nb:0, items:0};
+    vendeurStats[v].total += o.total || 0;
+    vendeurStats[v].nb++;
+    vendeurStats[v].items += o.items.reduce((s,i)=>s+i.qty,0);
+  });
+  let html = '';
+  if (Object.keys(vendeurStats).length === 0) {
+    html = '<div style="color:var(--muted);padding:.5rem 0">Aucune vente aujourd\'hui.</div>';
+  } else {
+    html = `<div class="tbl-wrap"><table><thead><tr><th>Vendeur</th><th>Nb commandes</th><th>Articles vendus</th><th>Total</th></tr></thead><tbody>`;
+    for (const [v, stats] of Object.entries(vendeurStats)) {
+      html += `<tr><td><strong>${v}</strong></td><td>${stats.nb}</td><td>${stats.items}</td><td><strong>${fmt(stats.total)}</strong></td></tr>`;
+    }
+    html += '</tbody></table></div>';
+  }
+  document.getElementById('ventesVendeur').innerHTML = html;
+}
+
+function renderJournalActions() {
+  const container = document.getElementById('journalActions');
+  if (!journalActions.length) {
+    container.innerHTML = '<div style="color:var(--muted);padding:.5rem 0">Aucune action enregistree.</div>';
+    return;
+  }
+  container.innerHTML = journalActions.slice(0, 100).map(j => 
+    `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:.75rem;">
+      <span><strong>${j.user}</strong> - ${j.action}</span>
+      <span style="color:var(--muted);">${j.details} - ${j.ts}</span>
+    </div>`
+  ).join('');
 }
 
 function exportVentesVendeur() {
