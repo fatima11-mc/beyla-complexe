@@ -1761,7 +1761,7 @@ function updateClock() {
 }
 setInterval(updateClock, 1000);
 
-// ========== JOURNAL - CORRIGÉ ==========
+// ========== JOURNAL - VERSION CORRIGÉE ==========
 function populateVendeurFilter() {
   const sel = document.getElementById('jVendeurFilter');
   if (currentUser.role === 'admin') {
@@ -1776,18 +1776,15 @@ function populateVendeurFilter() {
 }
 
 function renderJournal() {
-  // Récupérer la date du jour ou celle sélectionnée
   const dateInput = document.getElementById('jDate');
   let dateVal = dateInput.value;
   if (!dateVal) {
     dateVal = today();
     dateInput.value = dateVal;
   }
-  
-  // Filtrer les commandes par date
+ 
   let day = orders.filter(o => o.date === dateVal);
-  
-  // Filtrer selon le rôle de l'utilisateur
+ 
   if (currentUser.role === 'vendeur') {
     const vend = currentUser.kiosque || currentUser.name;
     day = day.filter(o => o.vendeur === vend || o.kiosqueSource === vend);
@@ -1801,31 +1798,30 @@ function renderJournal() {
       day = day.filter(o => o.vendeur === filter.value || o.kiosqueSource === filter.value);
     }
   }
-  
-  // Statistiques
+ 
   const total = day.reduce((s, o) => s + (o.total || 0), 0);
-  const nbItems = day.reduce((s, o) => s + o.items.reduce((ss, i) => ss + i.qty, 0), 0);
-  
+  const nbItems = day.reduce((s, o) => s + (o.items || []).reduce((ss, i) => ss + (i.qty || 0), 0), 0);
+ 
   document.getElementById('statsGrid').innerHTML = `
     <div class="stat-c"><div class="stat-l">Commandes</div><div class="stat-v">${day.length}</div></div>
     <div class="stat-c"><div class="stat-l">Articles vendus</div><div class="stat-v a">${nbItems}</div></div>
     <div class="stat-c"><div class="stat-l">Recettes</div><div class="stat-v g">${fmt(total)}</div></div>
     <div class="stat-c"><div class="stat-l">Moy./commande</div><div class="stat-v">${day.length ? fmt(Math.round(total / day.length)) : '0 GNF'}</div></div>`;
-
+ 
   const tb = document.getElementById('jTable');
   if (!day.length) {
     tb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--muted)">Aucune commande ce jour</td></tr>';
     return;
   }
-  
+ 
   const stMap = { en_attente: 'bg-o', attente: 'bg-a', preparation: 'bg-b', servie: 'bg-g' };
   const stLabel = { en_attente: 'À valider', attente: 'En cuisine', preparation: 'En prep.', servie: 'Servie' };
-  
+ 
   tb.innerHTML = [...day].reverse().map(o => {
     const st = o.status || 'attente';
-    const articles = o.items.map(i => {
+    const articles = (o.items || []).map(i => {
       const p = products.find(p => p.id === i.id);
-      return p ? `${p.name} x${i.qty}` : `${i.name} x${i.qty}`;
+      return p ? `${p.name} x${i.qty || 0}` : `${i.name || '?'} x${i.qty || 0}`;
     }).join(', ');
     return `<tr>
       <td><strong style="color:var(--accent)">${o.id}</strong></td>
@@ -1833,8 +1829,8 @@ function renderJournal() {
       <td>${o.caissier || '--'}</td>
       <td>${o.vendeur || '--'}</td>
       <td>${o.kiosqueSource || '--'}</td>
-      <td style="font-size:.75rem;max-width:200px;white-space:normal;word-break:break-word;">${articles}</td>
-      <td><strong>${fmt(o.total)}</strong></td>
+      <td style="font-size:.75rem;max-width:200px;white-space:normal;word-break:break-word;">${articles || '--'}</td>
+      <td><strong>${fmt(o.total || 0)}</strong></td>
       <td><span class="badge ${stMap[st] || 'bg-a'}">${stLabel[st] || 'Attente'}</span></td>
       <td style="white-space:nowrap">
         <button class="icon-btn" onclick="viewOrder('${o.id}')" title="Détail">V</button>
@@ -1844,7 +1840,7 @@ function renderJournal() {
   }).join('');
 }
 
-// ========== VERIFICATION - CORRIGÉE ==========
+// ========== VERIFICATION - VERSION CORRIGÉE ==========
 function renderVerif() {
   const dateInput = document.getElementById('vDate');
   let dateVal = dateInput.value;
@@ -1852,9 +1848,9 @@ function renderVerif() {
     dateVal = today();
     dateInput.value = dateVal;
   }
-  
+ 
   let day = orders.filter(o => o.date === dateVal);
-  
+ 
   if (currentUser.role === 'vendeur') {
     const vend = currentUser.kiosque || currentUser.name;
     day = day.filter(o => o.vendeur === vend || o.kiosqueSource === vend);
@@ -1863,26 +1859,26 @@ function renderVerif() {
   } else if (currentUser.role === 'comptable') {
     day = day.filter(o => o.caissier === currentUser.name);
   }
-  
-  const sysTotal = day.reduce((s,o)=>s+(o.total||0),0);
+ 
+  const sysTotal = day.reduce((s, o) => s + (o.total || 0), 0);
   const bycat = {};
-  day.forEach(o=>o.items.forEach(i=>{
-    const p = products.find(x=>x.id===i.id);
-    const c = p?p.cat:'Autre';
-    bycat[c] = (bycat[c]||0) + i.price*i.qty;
+  day.forEach(o => (o.items || []).forEach(i => {
+    const p = products.find(x => x.id === i.id);
+    const c = p ? p.cat : 'Autre';
+    bycat[c] = (bycat[c] || 0) + (i.price || 0) * (i.qty || 0);
   }));
-  
+ 
   const byCaissier = {};
-  day.forEach(o=>{
-    const c = o.caissier||'--';
-    if (!byCaissier[c]) byCaissier[c]={n:0,total:0};
-    byCaissier[c].n++; byCaissier[c].total+=(o.total||0);
+  day.forEach(o => {
+    const c = o.caissier || '--';
+    if (!byCaissier[c]) byCaissier[c] = { n: 0, total: 0 };
+    byCaissier[c].n++; byCaissier[c].total += (o.total || 0);
   });
-  
-  const byStatus = {en_attente:0,attente:0,preparation:0,servie:0};
-  day.forEach(o=>{ byStatus[o.status||'attente']++; });
-  const saved = verifs[dateVal]||{};
-
+ 
+  const byStatus = { en_attente: 0, attente: 0, preparation: 0, servie: 0 };
+  day.forEach(o => { byStatus[o.status || 'attente']++; });
+  const saved = verifs[dateVal] || {};
+ 
   document.getElementById('verifGrid').innerHTML = `
     <div>
       <div class="verif-card">
@@ -1890,9 +1886,9 @@ function renderVerif() {
         <div class="verif-row"><span>Commandes enregistrées</span><strong>${day.length}</strong></div>
         <div class="verif-row"><span>Servies</span><strong style="color:var(--green)">${byStatus.servie}</strong></div>
         <div class="verif-row"><span>En attente de validation</span><strong style="color:var(--orange)">${byStatus.en_attente}</strong></div>
-        <div class="verif-row"><span>En cuisine/prep.</span><strong style="color:var(--amber)">${byStatus.attente+byStatus.preparation}</strong></div>
-        ${ALL_STOCK_CATS.map(cat=>`
-          <div class="verif-row"><span>${getCatIcon(cat)}</span><strong>${fmt(bycat[cat]||0)}</strong></div>`
+        <div class="verif-row"><span>En cuisine/prep.</span><strong style="color:var(--amber)">${byStatus.attente + byStatus.preparation}</strong></div>
+        ${ALL_STOCK_CATS.map(cat => `
+          <div class="verif-row"><span>${getCatIcon(cat)}</span><strong>${fmt(bycat[cat] || 0)}</strong></div>`
         ).join('')}
         <div class="verif-total">
           <span>Total attendu</span>
@@ -1901,7 +1897,7 @@ function renderVerif() {
       </div>
       <div class="verif-card" style="margin-top:1.2rem;">
         <div class="verif-title">Par caissier / vendeur</div>
-        ${Object.entries(byCaissier).map(([c,v])=>`
+        ${Object.entries(byCaissier).map(([c, v]) => `
           <div class="verif-row"><span>${c}</span>
             <div style="text-align:right">
               <strong>${fmt(v.total)}</strong><br>
@@ -1915,21 +1911,22 @@ function renderVerif() {
       <div class="verif-row">
         <span>Argent compté (GNF)</span>
         <input type="number" class="big-in" id="vCash" placeholder="0"
-          value="${saved.cash||''}" oninput="calcEcart(${sysTotal})">
+          value="${saved.cash || ''}" oninput="calcEcart(${sysTotal})">
       </div>
       <div class="verif-total" id="vEcartRow">
         <span>Écart de caisse</span><span id="vEcart" style="font-size:1.1rem">--</span>
       </div>
       <div id="verifAlert"></div>
-      <textarea class="note-in" id="vNote" rows="2" placeholder="Observations...">${saved.note||''}</textarea>
+      <textarea class="note-in" id="vNote" rows="2" placeholder="Observations...">${saved.note || ''}</textarea>
       <button class="btn btn-green" style="width:100%;margin-top:6px" onclick="saveVerif('${dateVal}',${sysTotal})">
         Enregistrer la vérification
       </button>
-      ${saved.savedAt?`<div style="font-size:.72rem;margin-top:8px;text-align:center;color:var(--muted)">Sauvegarde : ${saved.savedAt}</div>`:''}
+      ${saved.savedAt ? `<div style="font-size:.72rem;margin-top:8px;text-align:center;color:var(--muted)">Sauvegarde : ${saved.savedAt}</div>` : ''}
     </div>`;
-  if (saved.cash!==undefined) calcEcart(sysTotal);
+  if (saved.cash !== undefined) calcEcart(sysTotal);
 }
 
+// ========== VERIFICATION - CALCUL ECART ==========
 function calcEcart(sysTotal) {
   const cash  = parseFloat(document.getElementById('vCash')?.value)||0;
   const ecart = cash - sysTotal;
@@ -2068,7 +2065,7 @@ function printBon(id) {
 }
 
 function exportExcel() {
-  const date = document.getElementById('jDate').value;
+  const date = document.getElementById('jDate').value || today();
   let day = orders.filter(o=>o.date===date);
   if (currentUser.role === 'admin') {
     const filter = document.getElementById('jVendeurFilter');
