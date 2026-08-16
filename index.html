@@ -1160,7 +1160,6 @@ const NAV_MAP = {
     {id:'caisse',  label:'Caisse'},
     {id:'journal', label:'Journal'},
     {id:'queue',   label:'Suivi'},
-    {id:'stock',   label:'Stocks'}, // visible mais masqué si serveur ne voit pas le stock
   ],
 };
 
@@ -1210,16 +1209,13 @@ function updateKiosqueSourceVisibility() {
   const row = document.getElementById('kiosqueSourceRow');
   const sel = document.getElementById('kiosqueSourceSel');
   
-  // Pour les serveurs et les vendeurs, pré-sélectionner leur kiosque
   if (currentUser.role === 'vendeur') {
     row.style.display = 'none';
     currentKiosqueSource = currentUser.kiosque || '';
-    // Forcer la sélection du kiosque
     if (currentKiosqueSource) {
       sel.value = currentKiosqueSource;
     }
   } else if (currentUser.role === 'serveur') {
-    // Pour le serveur, afficher le sélecteur et pré-sélectionner le premier kiosque disponible
     row.style.display = 'flex';
     if (!currentKiosqueSource || !sel.querySelector(`option[value="${currentKiosqueSource}"]`)) {
       const firstOption = sel.querySelector('option:not([value=""])');
@@ -1322,19 +1318,15 @@ function updateQueueBadge() {
 function renderDashboard() {
   let todayOrders = orders.filter(o => o.date===today());
   
-  // Filtrer selon le rôle
   let myOrders = todayOrders;
   if (currentUser.role === 'vendeur') {
     const vend = currentUser.kiosque || currentUser.name;
-    myOrders = todayOrders.filter(o => o.vendeur === vend);
+    myOrders = todayOrders.filter(o => o.vendeur === vend || o.kiosqueSource === vend);
   } else if (currentUser.role === 'serveur') {
-    const nom = currentUser.name;
-    myOrders = todayOrders.filter(o => o.vendeur === nom);
+    myOrders = todayOrders.filter(o => o.vendeur === currentUser.name);
   } else if (currentUser.role === 'comptable') {
-    const nom = currentUser.name;
-    myOrders = todayOrders.filter(o => o.caissier === nom);
+    myOrders = todayOrders.filter(o => o.caissier === currentUser.name);
   }
-  // L'admin voit tout
   
   let totalJour = myOrders.reduce((s,o) => s+(o.total||0), 0);
   let nbCommandes = myOrders.length;
@@ -1342,7 +1334,6 @@ function renderDashboard() {
   let enAttente = myOrders.filter(o => o.status==='attente').length;
   let enPrep = myOrders.filter(o => o.status==='preparation').length;
 
-  // Alertes stock uniquement pour admin et vendeur
   let rupture = 0, stockBas = 0;
   if (currentUser.role === 'admin' || currentUser.role === 'vendeur') {
     const kiosques = currentUser.role === 'vendeur' ? [currentUser.kiosque] : users.filter(u => u.role === 'vendeur' && u.kiosque).map(u => u.kiosque);
@@ -1380,7 +1371,6 @@ function renderDashboard() {
         <div class="kpi-label">${rupture>0?'Ruptures de stock':stockBas>0?'Stock bas':'Stock OK'}</div>
       </div>`;
   } else {
-    // Admin voit tout
     const allEnAttentePaiement = todayOrders.filter(o => o.status==='en_attente').length;
     const allEnAttente = todayOrders.filter(o => o.status==='attente').length;
     const allEnPrep = todayOrders.filter(o => o.status==='preparation').length;
@@ -1499,7 +1489,6 @@ function renderProds() {
     let stockMsg = '';
     let stockCls = 'ok';
     
-    // Les serveurs ne voient pas le stock
     if (isServeur) {
       stockMsg = 'Disponible';
       stockCls = 'inf';
@@ -1544,7 +1533,7 @@ function addToCart(id) {
   const p = products.find(x => x.id===id);
   if (!p) return;
   let qtyStock = 0;
-  let hasStock = !isFood(p) && currentUser.role !== 'serveur'; // Les serveurs n'ont pas de stock
+  let hasStock = !isFood(p) && currentUser.role !== 'serveur';
   if (hasStock) {
     let kiosque = '';
     if (currentUser.role === 'vendeur') {
@@ -1651,7 +1640,6 @@ async function confirmOrder() {
   }
   if (!kiosqueSource) { toast('Sélectionner un kiosque source'); return; }
 
-  // Vérifier le stock pour les non-nourriture (sauf serveurs qui ne gèrent pas le stock)
   const isVendeur = currentUser.role === 'vendeur';
   const isServeur = currentUser.role === 'serveur';
   
@@ -1664,9 +1652,7 @@ async function confirmOrder() {
     }
   }
 
-  // Pour les serveurs, le stock sera déduit par le kiosque lors de la validation
   if (isVendeur) {
-    // Vendeur : on déduit directement
     for (const item of cart) {
       const p = products.find(x=>x.id===item.id);
       if (!p || isFood(p)) continue;
@@ -1676,15 +1662,11 @@ async function confirmOrder() {
     }
   }
 
-  // Déterminer si la commande contient de la nourriture
   const hasFood = cart.some(item => {
     const p = products.find(x=>x.id===item.id);
     return p && isFood(p);
   });
 
-  // Déterminer le statut initial
-  // - Si c'est un vendeur (kiosque) : statut = attente ou servie selon la présence de nourriture
-  // - Si c'est un serveur/admin/caissier : statut = en_attente (en attente de validation par le kiosque)
   let orderStatus = '';
   if (isVendeur) {
     orderStatus = hasFood ? 'attente' : 'servie';
@@ -1721,13 +1703,12 @@ async function confirmOrder() {
   updateQueueBadge();
 }
 
-// ========== VALIDATION PAR LE KIOSQUE (UNIQUEMENT VENDEUR) ==========
+// ========== VALIDATION PAR LE KIOSQUE ==========
 async function validatePayment(id) {
   const o = orders.find(x=>x.id===id);
   if (!o) return;
   if (o.status !== 'en_attente') { toast('Cette commande ne peut pas être validée'); return; }
   
-  // SEUL le vendeur (agent de kiosque) peut valider
   if (currentUser.role !== 'vendeur') {
     toast('Seul l\'agent du kiosque peut valider cette commande');
     return;
@@ -1736,13 +1717,11 @@ async function validatePayment(id) {
   const kiosque = o.kiosqueSource;
   if (!kiosque) { toast('Kiosque source manquant'); return; }
   
-  // Vérifier que le vendeur connecté correspond au kiosque source
   if (currentUser.kiosque !== kiosque) {
     toast('Vous ne pouvez valider que les commandes de votre kiosque');
     return;
   }
   
-  // Vérifier le stock
   for (const item of o.items) {
     const p = products.find(x=>x.id===item.id);
     if (!p || isFood(p)) continue;
@@ -1753,7 +1732,6 @@ async function validatePayment(id) {
     }
   }
   
-  // Déduire le stock
   for (const item of o.items) {
     const p = products.find(x=>x.id===item.id);
     if (!p || isFood(p)) continue;
@@ -1762,7 +1740,6 @@ async function validatePayment(id) {
     await logStockMvt(item.id, 'vente', item.qty, stockVendeur[kiosque][item.id], kiosque, `Validation commande ${o.id}`);
   }
   
-  // Déterminer si la commande contient de la nourriture
   const hasFood = o.items.some(item => {
     const p = products.find(x=>x.id===item.id);
     return p && isFood(p);
@@ -1784,7 +1761,7 @@ function updateClock() {
 }
 setInterval(updateClock, 1000);
 
-// ========== JOURNAL ==========
+// ========== JOURNAL - CORRIGÉ ==========
 function populateVendeurFilter() {
   const sel = document.getElementById('jVendeurFilter');
   if (currentUser.role === 'admin') {
@@ -1792,40 +1769,52 @@ function populateVendeurFilter() {
     const vendeurs = [...new Set(orders.map(o => o.vendeur).filter(Boolean))];
     sel.innerHTML = '<option value="tous">Tous les vendeurs</option>' + 
       vendeurs.map(v => `<option value="${v}">${v}</option>`).join('');
+    sel.value = 'tous';
   } else {
     sel.style.display = 'none';
   }
 }
 
 function renderJournal() {
-  const date = document.getElementById('jDate').value;
-  let day = orders.filter(o => o.date===date);
-  if (currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
+  const dateVal = document.getElementById('jDate').value || today();
+  document.getElementById('jDate').value = dateVal;
+  
+  let day = orders.filter(o => o.date === dateVal);
+  
+  if (currentUser.role === 'vendeur') {
     const vend = currentUser.kiosque || currentUser.name;
-    day = day.filter(o => o.vendeur === vend);
+    day = day.filter(o => o.vendeur === vend || o.kiosqueSource === vend);
+  } else if (currentUser.role === 'serveur') {
+    day = day.filter(o => o.vendeur === currentUser.name);
   } else if (currentUser.role === 'comptable') {
     day = day.filter(o => o.caissier === currentUser.name);
   } else if (currentUser.role === 'admin') {
-    const filter = document.getElementById('jVendeurFilter').value;
-    if (filter && filter !== 'tous') day = day.filter(o => o.vendeur === filter);
+    const filter = document.getElementById('jVendeurFilter');
+    if (filter && filter.value && filter.value !== 'tous') {
+      day = day.filter(o => o.vendeur === filter.value || o.kiosqueSource === filter.value);
+    }
   }
-  const total   = day.reduce((s,o)=>s+(o.total||0),0);
-  const nbItems = day.reduce((s,o)=>s+o.items.reduce((ss,i)=>ss+i.qty,0),0);
+  
+  const total = day.reduce((s, o) => s + (o.total || 0), 0);
+  const nbItems = day.reduce((s, o) => s + o.items.reduce((ss, i) => ss + i.qty, 0), 0);
+  
   document.getElementById('statsGrid').innerHTML = `
     <div class="stat-c"><div class="stat-l">Commandes</div><div class="stat-v">${day.length}</div></div>
     <div class="stat-c"><div class="stat-l">Articles vendus</div><div class="stat-v a">${nbItems}</div></div>
     <div class="stat-c"><div class="stat-l">Recettes</div><div class="stat-v g">${fmt(total)}</div></div>
-    <div class="stat-c"><div class="stat-l">Moy./commande</div><div class="stat-v">${day.length?fmt(Math.round(total/day.length)):'0 GNF'}</div></div>`;
+    <div class="stat-c"><div class="stat-l">Moy./commande</div><div class="stat-v">${day.length ? fmt(Math.round(total / day.length)) : '0 GNF'}</div></div>`;
 
   const tb = document.getElementById('jTable');
   if (!day.length) {
     tb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--muted)">Aucune commande ce jour</td></tr>';
     return;
   }
-  const stMap   = {en_attente:'bg-o',attente:'bg-a',preparation:'bg-b',servie:'bg-g'};
-  const stLabel = {en_attente:'À valider',attente:'En cuisine',preparation:'En prep.',servie:'Servie'};
+  
+  const stMap = { en_attente: 'bg-o', attente: 'bg-a', preparation: 'bg-b', servie: 'bg-g' };
+  const stLabel = { en_attente: 'À valider', attente: 'En cuisine', preparation: 'En prep.', servie: 'Servie' };
+  
   tb.innerHTML = [...day].reverse().map(o => {
-    const st = o.status||'attente';
+    const st = o.status || 'attente';
     const articles = o.items.map(i => {
       const p = products.find(p => p.id === i.id);
       return p ? `${p.name} x${i.qty}` : `${i.name} x${i.qty}`;
@@ -1833,15 +1822,15 @@ function renderJournal() {
     return `<tr>
       <td><strong style="color:var(--accent)">${o.id}</strong></td>
       <td>${o.time}</td>
-      <td>${o.caissier||'--'}</td>
-      <td>${o.vendeur||'--'}</td>
-      <td>${o.kiosqueSource||'--'}</td>
+      <td>${o.caissier || '--'}</td>
+      <td>${o.vendeur || '--'}</td>
+      <td>${o.kiosqueSource || '--'}</td>
       <td style="font-size:.75rem;max-width:200px;white-space:normal;word-break:break-word;">${articles}</td>
       <td><strong>${fmt(o.total)}</strong></td>
-      <td><span class="badge ${stMap[st]||'bg-a'}">${stLabel[st]||'Attente'}</span></td>
+      <td><span class="badge ${stMap[st] || 'bg-a'}">${stLabel[st] || 'Attente'}</span></td>
       <td style="white-space:nowrap">
-        <button class="icon-btn" onclick="viewOrder('${o.id}')" title="Detail">V</button>
-        ${currentUser.role==='admin' ? `<button class="icon-btn" onclick="openCancelOrder('${o.id}')" style="margin-left:4px" title="Annuler">X</button>` : ''}
+        <button class="icon-btn" onclick="viewOrder('${o.id}')" title="Détail">V</button>
+        ${currentUser.role === 'admin' ? `<button class="icon-btn" onclick="openCancelOrder('${o.id}')" style="margin-left:4px" title="Annuler">X</button>` : ''}
       </td>
     </tr>`;
   }).join('');
@@ -1900,7 +1889,6 @@ async function confirmCancelOrder() {
   const o = orders.find(x => x.id === cancelOrderId);
   if (!o) { closeModal('modalCancelOrder'); return; }
   
-  // Restaurer le stock si la commande était déjà validée (status != en_attente)
   if (o.status !== 'en_attente') {
     const kiosque = o.kiosqueSource;
     if (kiosque) {
@@ -1964,11 +1952,15 @@ function exportExcel() {
   const date = document.getElementById('jDate').value;
   let day = orders.filter(o=>o.date===date);
   if (currentUser.role === 'admin') {
-    const filter = document.getElementById('jVendeurFilter').value;
-    if (filter !== 'tous') day = day.filter(o => o.vendeur === filter);
-  } else if (currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
+    const filter = document.getElementById('jVendeurFilter');
+    if (filter && filter.value && filter.value !== 'tous') {
+      day = day.filter(o => o.vendeur === filter.value || o.kiosqueSource === filter.value);
+    }
+  } else if (currentUser.role === 'vendeur') {
     const vend = currentUser.kiosque || currentUser.name;
-    day = day.filter(o => o.vendeur === vend);
+    day = day.filter(o => o.vendeur === vend || o.kiosqueSource === vend);
+  } else if (currentUser.role === 'serveur') {
+    day = day.filter(o => o.vendeur === currentUser.name);
   } else if (currentUser.role === 'comptable') {
     day = day.filter(o => o.caissier === currentUser.name);
   }
@@ -2002,9 +1994,11 @@ function exportExcel() {
 function renderVerif() {
   const date = document.getElementById('vDate').value;
   let day = orders.filter(o=>o.date===date);
-  if (currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
+  if (currentUser.role === 'vendeur') {
     const vend = currentUser.kiosque || currentUser.name;
-    day = day.filter(o => o.vendeur === vend);
+    day = day.filter(o => o.vendeur === vend || o.kiosqueSource === vend);
+  } else if (currentUser.role === 'serveur') {
+    day = day.filter(o => o.vendeur === currentUser.name);
   } else if (currentUser.role === 'comptable') {
     day = day.filter(o => o.caissier === currentUser.name);
   }
@@ -2200,7 +2194,6 @@ function renderQueue() {
   const stLabel = {en_attente:'À valider',attente:'En cuisine',preparation:'En prep.',servie:'Servie'};
   const stMap   = {en_attente:'bg-o',attente:'bg-a',preparation:'bg-b',servie:'bg-g'};
 
-  // VENDEUR (kiosque) - peut valider les commandes en_attente de son kiosque
   if (currentUser.role === 'vendeur') {
     grid.innerHTML = filtered.map(o => {
       const st = o.status||'attente';
@@ -2222,7 +2215,6 @@ function renderQueue() {
     return;
   }
 
-  // SERVEUR - voit ses commandes en lecture seule
   if (currentUser.role === 'serveur') {
     grid.innerHTML = filtered.map(o => {
       const st = o.status||'attente';
@@ -2241,7 +2233,6 @@ function renderQueue() {
     return;
   }
 
-  // ADMIN - peut tout voir mais NE PEUT PAS VALIDER
   if (currentUser.role === 'admin' || currentUser.role === 'comptable') {
     grid.innerHTML = filtered.map(o => {
       const st = o.status||'attente';
@@ -2263,7 +2254,6 @@ function renderQueue() {
     return;
   }
 
-  // CUISINE - uniquement les commandes en attente et preparation
   grid.innerHTML = filtered.filter(o => o.status === 'attente' || o.status === 'preparation').map(o => {
     const st = o.status||'attente';
     const canStart = st==='attente';
@@ -2309,7 +2299,6 @@ async function setOrderStatus(id, status) {
 
 // ========== STOCK ==========
 function renderStock() {
-  // Les serveurs ne voient pas le stock
   if (currentUser.role === 'serveur') {
     document.getElementById('stockContent').innerHTML = '<div style="color:var(--muted);padding:2rem;text-align:center;">Le stock est géré par les kiosques. Vous pouvez consulter vos commandes dans l\'onglet "Suivi".</div>';
     document.getElementById('stockTabs').innerHTML = '';
