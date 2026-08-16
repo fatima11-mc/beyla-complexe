@@ -9,7 +9,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <style>
-/* ===== VARIABLES & RESET (inchangées) ===== */
+/* ===== VARIABLES & RESET ===== */
 :root {
   --bg:#f0ede8;--surface:#fff;--surface2:#f7f5f2;--border:#e0dbd3;
   --text:#18150f;--muted:#8a8278;--accent:#b84a1a;--accent2:#f5f0eb;
@@ -23,116 +23,874 @@
 body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;-webkit-tap-highlight-color:transparent;}
 input,select,textarea,button{font-family:inherit;}
 
-/* ===== LOGIN (inchangé) ===== */
-#loginScreen{/* ... identique ... */}
-/* ... tout le CSS reste inchangé ... */
-/* Le CSS ci‑dessous est identique à la version précédente, je ne le répète pas pour alléger.
-   Dans le code final livré, il sera complet. */
+/* ===== LOGIN ===== */
+#loginScreen{
+  position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+  z-index:9999;padding:1rem;overflow:hidden;
+}
+#loginScreen::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,#0d1b2a 0%,#1a2e4a 40%,#2d1a0e 100%);z-index:0;
+}
+#loginScreen::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 30% 70%,rgba(184,74,26,.25) 0%,transparent 60%),
+             radial-gradient(ellipse at 70% 30%,rgba(212,175,55,.15) 0%,transparent 60%),
+             radial-gradient(ellipse at 50% 50%,rgba(26,74,138,.12) 0%,transparent 70%);
+  z-index:1;
+}
+#loginScreen .deco{
+  position:absolute;inset:0;z-index:1;
+  background-image:repeating-linear-gradient(0deg,transparent,transparent 60px,rgba(255,255,255,.015) 60px,rgba(255,255,255,.015) 61px),
+                   repeating-linear-gradient(90deg,transparent,transparent 60px,rgba(255,255,255,.015) 60px,rgba(255,255,255,.015) 61px);
+}
+.login-wrap{position:relative;z-index:2;width:100%;max-width:420px;display:flex;flex-direction:column;align-items:center;}
+.login-brand{text-align:center;margin-bottom:2rem;}
+.login-brand-icon{font-size:2.2rem;margin-bottom:.5rem;display:block;filter:drop-shadow(0 2px 8px rgba(255,200,100,.3));}
+.login-brand-name{font-family:'DM Serif Display',serif;font-size:2.6rem;color:#fff;letter-spacing:.02em;line-height:1;}
+.login-brand-sep{width:48px;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);margin:.7rem auto;border-radius:2px;}
+.login-brand-sub{font-size:.68rem;color:rgba(255,255,255,.4);letter-spacing:.2em;text-transform:uppercase;}
+.login-box{
+  background:rgba(255,255,255,.98);border-radius:22px;padding:2rem 2rem 1.8rem;
+  width:100%;box-shadow:0 32px 80px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.1),inset 0 1px 0 rgba(255,255,255,.8);
+}
+.login-title{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:1rem;text-align:center;}
+.role-chips{display:flex;gap:6px;margin-bottom:1.2rem;flex-wrap:wrap;}
+.role-chip{
+  flex:1;padding:10px 6px;border:1.5px solid var(--border);border-radius:10px;
+  text-align:center;cursor:pointer;font-size:.78rem;font-weight:600;
+  transition:.2s;background:var(--surface2);color:var(--muted);min-width:60px;
+}
+.role-chip.sel{border-color:var(--accent);background:linear-gradient(135deg,var(--accent2),#fde8dc);color:var(--accent);box-shadow:0 2px 8px rgba(184,74,26,.15);}
+.login-label{font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;display:block;}
+.login-input{
+  width:100%;border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;
+  font-size:.95rem;outline:none;margin-bottom:10px;color:var(--text);
+  background:var(--surface2);transition:.2s;
+}
+.login-input:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(184,74,26,.1);}
+.login-btn{
+  width:100%;background:linear-gradient(135deg,var(--accent),#d4581f);color:#fff;border:none;padding:14px;
+  border-radius:10px;font-size:.95rem;font-weight:700;cursor:pointer;margin-top:6px;
+  transition:.2s;letter-spacing:.03em;box-shadow:0 4px 16px rgba(184,74,26,.4);
+}
+.login-btn:hover{background:linear-gradient(135deg,#a03f16,#c04d18);box-shadow:0 6px 20px rgba(184,74,26,.5);}
+.login-btn:active{opacity:.85;transform:scale(.99);}
+.login-err{color:var(--red);font-size:.82rem;margin-top:8px;text-align:center;min-height:18px;}
+.login-sync{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:1.2rem;font-size:.7rem;color:rgba(255,255,255,.4);}
+
+/* ===== HEADER ===== */
+.header{
+  background:linear-gradient(90deg,#0d1b2a,#1a2e4a);height:var(--nav-h);display:flex;align-items:center;
+  padding:0 1.2rem;gap:1rem;position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 12px rgba(0,0,0,.3);
+}
+.h-logo{font-family:'DM Serif Display',serif;color:#fff;font-size:1.15rem;white-space:nowrap;}
+.h-role{
+  font-size:.62rem;background:rgba(255,255,255,.12);color:rgba(255,255,255,.7);
+  padding:3px 10px;border-radius:20px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;
+  border:1px solid rgba(255,255,255,.1);
+}
+.h-space{flex:1;}
+.h-user{color:rgba(255,255,255,.65);font-size:.82rem;white-space:nowrap;display:none;}
+.h-nav{display:flex;gap:4px;}
+.hn{
+  background:none;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.75);
+  padding:6px 13px;border-radius:8px;cursor:pointer;font-size:.78rem;font-weight:500;
+  transition:.15s;position:relative;
+}
+.hn:hover{background:rgba(255,255,255,.1);}
+.hn.act{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(184,74,26,.4);}
+.hn .notif-dot{
+  position:absolute;top:3px;right:3px;width:7px;height:7px;border-radius:50%;
+  background:#f59e0b;border:1.5px solid #1a2e4a;
+}
+.h-actions{display:flex;align-items:center;gap:6px;margin-left:8px;}
+.h-sync{
+  width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);cursor:pointer;font-size:1rem;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.15s;
+}
+.h-sync:hover{background:rgba(255,255,255,.2);}
+.h-sync.spinning{animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.logout-btn{
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);
+  padding:6px 12px;border-radius:8px;cursor:pointer;font-size:.75rem;white-space:nowrap;transition:.15s;
+}
+.logout-btn:hover{background:rgba(184,74,26,.3);border-color:var(--accent);}
+.pwd-btn{
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);
+  padding:6px 12px;border-radius:8px;cursor:pointer;font-size:.75rem;white-space:nowrap;transition:.15s;
+}
+.pwd-btn:hover{background:rgba(255,255,255,.15);}
+
+/* ===== SYNC DOT ===== */
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#555;display:inline-block;flex-shrink:0;}
+.sync-dot.online{background:#22c55e;box-shadow:0 0 6px rgba(34,197,94,.5);}
+.sync-dot.offline{background:#f59e0b;box-shadow:0 0 6px rgba(245,158,11,.4);}
+
+/* ===== BOTTOM NAV ===== */
+.bottom-nav{
+  display:none;position:fixed;bottom:0;left:0;right:0;height:var(--bottom-h);
+  background:linear-gradient(0deg,#0d1b2a,#1a2e4a);
+  border-top:1px solid rgba(255,255,255,.08);z-index:100;
+  justify-content:space-around;align-items:center;padding:0 2px;
+  box-shadow:0 -4px 20px rgba(0,0,0,.3);
+}
+.bn-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;border:none;background:none;color:rgba(255,255,255,.45);cursor:pointer;
+  padding:8px 2px;font-size:.58rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.04em;transition:.15s;position:relative;border-radius:10px;
+}
+.bn-item.act{color:#fff;}
+.bn-item.act .bn-icon{
+  background:rgba(184,74,26,.3);border-radius:8px;padding:4px 8px;
+}
+.bn-icon{font-size:1.25rem;line-height:1;transition:.15s;}
+.bn-notif{
+  position:absolute;top:4px;right:calc(50% - 18px);width:8px;height:8px;
+  border-radius:50%;background:#f59e0b;border:1.5px solid #1a2e4a;
+}
+.bn-logout{
+  flex:0 0 auto;width:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;border:none;background:rgba(184,74,26,.2);color:rgba(255,100,80,.9);cursor:pointer;
+  padding:8px 4px;font-size:.58rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.04em;transition:.15s;border-radius:10px;margin:0 2px;
+  border:1px solid rgba(184,74,26,.3);
+}
+.pending-badge{background:var(--amber);color:#fff;border-radius:10px;font-size:.6rem;font-weight:700;padding:1px 5px;margin-left:4px;}
+
+/* ===== PAGES ===== */
+.page{display:none;}
+.page.act{display:block;}
+
+/* ===== DASHBOARD ===== */
+.dashboard-wrap{padding:1.2rem;overflow-y:auto;height:calc(100vh - var(--nav-h));}
+.dash-welcome{margin-bottom:1.2rem;padding:1.2rem;background:linear-gradient(135deg,#1a2e4a,#2d1a0e);border-radius:var(--r-lg);color:#fff;}
+.dash-welcome-title{font-family:'DM Serif Display',serif;font-size:1.5rem;color:#fff;line-height:1.2;}
+.dash-welcome-sub{font-size:.78rem;color:rgba(255,255,255,.5);margin-top:4px;}
+.dash-section-title{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.6rem;margin-top:1rem;}
+.kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:.5rem;}
+.kpi-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:1rem;position:relative;overflow:hidden;box-shadow:var(--sh);
+}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.kpi-card.green::before{background:linear-gradient(90deg,var(--green),#2d9b5a);}
+.kpi-card.red::before{background:linear-gradient(90deg,var(--red),#dc2626);}
+.kpi-card.amber::before{background:linear-gradient(90deg,var(--amber),#d97706);}
+.kpi-card.blue::before{background:linear-gradient(90deg,var(--blue),#2563eb);}
+.kpi-icon{font-size:1.5rem;margin-bottom:.4rem;}
+.kpi-val{font-size:1.3rem;font-weight:700;line-height:1;}
+.kpi-label{font-size:.66rem;color:var(--muted);margin-top:4px;font-weight:500;}
+.dash-alerts{margin-bottom:.5rem;}
+.alert-item{
+  display:flex;align-items:center;gap:10px;padding:.65rem .9rem;
+  border-radius:var(--r);margin-bottom:6px;font-size:.8rem;
+}
+.alert-item.warn{background:var(--amber-bg);color:var(--amber);border:1px solid rgba(146,88,10,.2);}
+.alert-item.info{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(26,74,138,.15);}
+.alert-item.ok{background:var(--green-bg);color:var(--green);border:1px solid rgba(26,107,58,.15);}
+.dash-orders-preview{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;}
+.dash-order-row{
+  display:flex;align-items:center;gap:10px;padding:.65rem 1rem;
+  border-bottom:1px solid var(--border);font-size:.8rem;
+}
+.dash-order-row:last-child{border-bottom:none;}
+.dash-order-id{font-weight:700;color:var(--accent);min-width:90px;}
+.dash-empty{padding:1.5rem;text-align:center;color:var(--muted);font-size:.82rem;}
+
+/* ===== CAISSE ===== */
+.caisse-wrap{display:grid;grid-template-columns:300px 1fr;height:calc(100vh - var(--nav-h));overflow:hidden;}
+.left-p{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.lp-head{padding:.8rem 1rem;border-bottom:1px solid var(--border);}
+.lp-title{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:7px;}
+.s-box{display:flex;align-items:center;gap:8px;border:1.5px solid var(--border);border-radius:10px;padding:9px 12px;background:var(--bg);transition:.15s;}
+.s-box:focus-within{border-color:var(--accent);}
+.s-box input{border:none;background:none;outline:none;font-size:.88rem;width:100%;color:var(--text);}
+.cat-bar{display:flex;gap:5px;padding:8px 1rem;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;}
+.cat-bar::-webkit-scrollbar{display:none;}
+.cat-btn{
+  white-space:nowrap;font-size:.72rem;font-weight:600;padding:6px 14px;border-radius:20px;
+  border:1.5px solid var(--border);cursor:pointer;background:var(--surface);color:var(--muted);transition:.15s;
+}
+.cat-btn.act{background:linear-gradient(135deg,#0d1b2a,#1a2e4a);color:#fff;border-color:transparent;box-shadow:0 2px 8px rgba(0,0,0,.2);}
+.prod-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px;overflow-y:auto;flex:1;}
+.prod-card{
+  border:1.5px solid var(--border);border-radius:var(--r);padding:10px;cursor:pointer;
+  background:var(--surface);transition:.15s;text-align:left;position:relative;width:100%;
+  box-shadow:0 1px 4px rgba(0,0,0,.04);
+}
+.prod-card:hover{border-color:var(--accent);box-shadow:0 2px 12px rgba(184,74,26,.12);}
+.prod-card:active{transform:scale(.96);}
+.prod-card.unavail{opacity:.4;cursor:not-allowed;background:var(--surface2);}
+.prod-card.low-stock{border-color:var(--amber);}
+.prod-dispo{position:absolute;top:7px;right:7px;width:7px;height:7px;border-radius:50%;background:var(--green);}
+.prod-dispo.off{background:#ccc;}
+.prod-name{font-size:.8rem;font-weight:600;margin-bottom:2px;line-height:1.3;padding-right:14px;}
+.prod-cat{font-size:.65rem;color:var(--muted);margin-bottom:4px;}
+.prod-price{font-size:.85rem;font-weight:700;color:var(--accent);}
+.prod-stock{font-size:.65rem;margin-top:3px;padding:2px 6px;border-radius:12px;display:inline-block;background:var(--surface2);}
+.prod-stock.ok{color:var(--green);background:var(--green-bg);}
+.prod-stock.low{color:var(--amber);background:var(--amber-bg);}
+.prod-stock.out{color:var(--red);background:var(--red-bg);}
+.prod-stock.inf{color:var(--blue);background:var(--blue-bg);}
+.prod-na{font-size:.65rem;color:var(--red);font-weight:600;}
+.right-p{display:flex;flex-direction:column;overflow:hidden;}
+.order-top{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:.8rem 1.2rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.tbl-badge{background:linear-gradient(135deg,var(--accent),#d4581f);color:#fff;border-radius:8px;padding:4px 12px;font-size:.78rem;font-weight:700;}
+.order-meta{font-size:.72rem;color:var(--muted);margin-left:auto;}
+.tbl-row{
+  padding:7px 1.2rem;background:var(--surface2);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+}
+.tbl-row label{font-size:.72rem;color:var(--muted);font-weight:600;text-transform:uppercase;}
+.tbl-row select,.tbl-row input[type=text]{
+  border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:.85rem;
+  background:var(--surface);color:var(--text);outline:none;transition:.15s;
+}
+.tbl-row select:focus,.tbl-row input[type=text]:focus{border-color:var(--accent);}
+.tbl-row input[type=text]{flex:1;min-width:90px;}
+.order-items{flex:1;overflow-y:auto;padding:10px 1.2rem;}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--muted);gap:8px;}
+.empty-icon{font-size:2.5rem;opacity:.15;}
+.order-item{
+  display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid var(--border);
+  border-radius:var(--r);margin-bottom:6px;background:var(--surface);box-shadow:0 1px 4px rgba(0,0,0,.04);
+}
+.oi-name{flex:1;font-size:.85rem;font-weight:600;}
+.oi-unit{font-size:.7rem;color:var(--muted);}
+.qty-ctrl{display:flex;align-items:center;gap:4px;}
+.qb{
+  width:30px;height:30px;border-radius:50%;border:1.5px solid var(--border);background:var(--bg);
+  cursor:pointer;font-size:1.1rem;font-weight:700;display:flex;align-items:center;
+  justify-content:center;transition:.12s;
+}
+.qb:active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.qn{width:26px;text-align:center;font-weight:700;font-size:.9rem;}
+.oi-total{font-weight:700;min-width:80px;text-align:right;font-size:.85rem;color:var(--accent);}
+.del-btn{
+  width:26px;height:26px;border:none;background:var(--red-bg);color:var(--red);
+  border-radius:50%;cursor:pointer;font-size:.78rem;display:flex;align-items:center;
+  justify-content:center;flex-shrink:0;transition:.15s;
+}
+.del-btn:active{background:var(--red);color:#fff;}
+.order-foot{background:var(--surface);border-top:1px solid var(--border);padding:.9rem 1.2rem;}
+.tot-row{display:flex;justify-content:space-between;font-size:.84rem;margin-bottom:4px;}
+.tot-main{font-size:1.08rem;font-weight:700;border-top:1px solid var(--border);padding-top:8px;margin:4px 0 10px;}
+.note-in{
+  width:100%;border:1.5px solid var(--border);border-radius:10px;padding:9px 12px;
+  font-size:.82rem;resize:none;background:var(--bg);outline:none;margin-bottom:8px;transition:.15s;
+}
+.note-in:focus{border-color:var(--accent);}
+.act-row{display:flex;gap:8px;}
+.btn{padding:12px;border-radius:var(--r);border:none;cursor:pointer;font-size:.83rem;font-weight:600;transition:.15s;flex:1;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.btn:active{transform:scale(.97);}
+.btn-ghost{background:var(--bg);color:var(--muted);border:1.5px solid var(--border);}
+.btn-ok{background:linear-gradient(135deg,var(--accent),#d4581f);color:#fff;box-shadow:0 3px 12px rgba(184,74,26,.3);}
+.btn-green{background:linear-gradient(135deg,var(--green),#2d9b5a);color:#fff;}
+.btn-blue{background:linear-gradient(135deg,var(--blue),#2563eb);color:#fff;}
+.caisse-mobile-tabs{display:none;background:var(--surface);border-bottom:1px solid var(--border);}
+.cmt-btn{
+  flex:1;padding:13px;border:none;background:none;font-size:.82rem;font-weight:700;
+  color:var(--muted);cursor:pointer;border-bottom:2.5px solid transparent;
+}
+.cmt-btn.act{color:var(--accent);border-bottom-color:var(--accent);}
+
+/* ===== INNER PAGES ===== */
+.inner-page{padding:1.2rem 1.2rem;overflow-y:auto;height:calc(100vh - var(--nav-h));}
+.pg-header{display:flex;align-items:flex-start;gap:1rem;margin-bottom:1.2rem;flex-wrap:wrap;}
+.pg-title{font-family:'DM Serif Display',serif;font-size:1.5rem;}
+.pg-sub{font-size:.78rem;color:var(--muted);}
+.date-in{border:1.5px solid var(--border);border-radius:10px;padding:9px 12px;font-size:.88rem;background:var(--surface);outline:none;color:var(--text);transition:.15s;}
+.date-in:focus{border-color:var(--accent);}
+.export-btn{background:linear-gradient(135deg,var(--green),#2d9b5a);color:#fff;border:none;padding:9px 16px;border-radius:10px;cursor:pointer;font-size:.82rem;font-weight:600;margin-left:auto;transition:.15s;box-shadow:0 2px 8px rgba(26,107,58,.3);}
+.add-btn{background:linear-gradient(135deg,var(--accent),#d4581f);color:#fff;border:none;padding:9px 16px;border-radius:10px;cursor:pointer;font-size:.82rem;font-weight:600;transition:.15s;box-shadow:0 2px 8px rgba(184,74,26,.3);}
+.filter-select{
+  border:1.5px solid var(--border);border-radius:10px;padding:8px 12px;font-size:.85rem;
+  background:var(--surface);color:var(--text);outline:none;transition:.15s;
+}
+.filter-select:focus{border-color:var(--accent);}
+
+/* ===== STATS GRID ===== */
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:1.2rem;}
+.stat-c{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:.9rem 1rem;box-shadow:var(--sh);}
+.stat-l{font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;margin-bottom:5px;}
+.stat-v{font-size:1.25rem;font-weight:700;}
+.stat-v.g{color:var(--green);}
+.stat-v.r{color:var(--red);}
+.stat-v.a{color:var(--amber);}
+
+/* ===== TABLES ===== */
+.tbl-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;overflow-x:auto;box-shadow:var(--sh);}
+table{width:100%;border-collapse:collapse;font-size:.8rem;}
+thead th{
+  background:var(--surface2);padding:10px 10px;text-align:left;font-size:.65rem;
+  text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700;
+  border-bottom:1.5px solid var(--border);white-space:nowrap;
+}
+tbody tr{border-bottom:1px solid var(--border);transition:.15s;}
+tbody tr:hover{background:var(--surface2);}
+tbody tr:last-child{border-bottom:none;}
+tbody td{padding:9px 10px;}
+.badge{display:inline-block;font-size:.64rem;font-weight:700;padding:3px 9px;border-radius:20px;}
+.bg-g{background:var(--green-bg);color:var(--green);}
+.bg-r{background:var(--red-bg);color:var(--red);}
+.bg-a{background:var(--amber-bg);color:var(--amber);}
+.bg-b{background:var(--blue-bg);color:var(--blue);}
+.bg-o{background:var(--orange-bg);color:var(--orange);}
+.icon-btn{
+  width:30px;height:30px;border:1.5px solid var(--border);background:var(--bg);
+  border-radius:8px;cursor:pointer;font-size:.82rem;display:inline-flex;
+  align-items:center;justify-content:center;transition:.15s;
+}
+.icon-btn:hover{background:var(--accent2);border-color:var(--accent);}
+
+/* ===== VERIFICATION ===== */
+.verif-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;}
+.verif-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.2rem;box-shadow:var(--sh);}
+.verif-title{font-weight:700;font-size:.92rem;margin-bottom:.8rem;padding-bottom:8px;border-bottom:1.5px solid var(--border);}
+.verif-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:.85rem;}
+.verif-row:last-child{border-bottom:none;}
+.verif-total{display:flex;justify-content:space-between;align-items:center;padding:10px 0;font-size:1rem;font-weight:700;border-top:2px solid var(--border);margin-top:8px;}
+.big-in{
+  border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:.92rem;
+  font-weight:700;background:var(--bg);outline:none;color:var(--text);width:130px;text-align:right;transition:.15s;
+}
+.big-in:focus{border-color:var(--accent);}
+.verif-alert{border-radius:var(--r);padding:.8rem;margin-top:.8rem;font-size:.82rem;font-weight:500;}
+.alert-ok{background:var(--green-bg);color:var(--green);}
+.alert-bad{background:var(--red-bg);color:var(--red);}
+
+/* ===== DISPONIBILITE PLATS ===== */
+.cuisine-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+.cuisine-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:1rem;display:flex;align-items:center;gap:10px;transition:.2s;box-shadow:var(--sh);}
+.cuisine-card.dispo{border-color:var(--green);background:var(--green-bg);}
+.cuisine-card.indispo{border-color:#ddd;background:var(--surface2);opacity:.7;}
+.cc-info{flex:1;}
+.cc-name{font-weight:600;font-size:.88rem;margin-bottom:2px;}
+.cc-cat{font-size:.7rem;color:var(--muted);}
+.toggle-btn{width:50px;height:28px;border-radius:14px;border:none;cursor:pointer;position:relative;transition:.25s;flex-shrink:0;}
+.toggle-btn.on{background:linear-gradient(135deg,var(--green),#2d9b5a);}
+.toggle-btn.off{background:#ccc;}
+.toggle-btn::after{content:'';position:absolute;width:22px;height:22px;border-radius:50%;background:#fff;top:3px;transition:.25s;box-shadow:0 1px 4px rgba(0,0,0,.25);}
+.toggle-btn.on::after{left:25px;}
+.toggle-btn.off::after{left:3px;}
+
+/* ===== FILE D'ATTENTE CUISINE ===== */
+.queue-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;}
+.queue-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:1.1rem;transition:.15s;box-shadow:var(--sh);}
+.queue-card.en_attente{border-color:var(--orange);background:var(--orange-bg);}
+.queue-card.attente{border-color:var(--amber);background:var(--amber-bg);}
+.queue-card.preparation{border-color:var(--blue);background:var(--blue-bg);}
+.queue-card.servie{border-color:var(--green);background:var(--green-bg);opacity:.75;}
+.qc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem;}
+.qc-num{font-weight:700;font-size:.9rem;color:var(--text);}
+.qc-time{font-size:.7rem;color:var(--muted);}
+.qc-client{font-size:.78rem;margin-bottom:.5rem;color:var(--text);font-weight:600;}
+.qc-items{font-size:.82rem;line-height:1.8;margin-bottom:.8rem;}
+.qc-item-line{display:flex;justify-content:space-between;}
+.qc-note{font-size:.75rem;background:rgba(0,0,0,.06);border-radius:6px;padding:6px 8px;margin-bottom:.8rem;color:var(--amber);border-left:3px solid var(--amber);}
+.qc-actions{display:flex;gap:6px;flex-wrap:wrap;}
+.qc-btn{flex:1;padding:9px;border-radius:8px;border:none;cursor:pointer;font-size:.75rem;font-weight:700;transition:.15s;min-width:70px;}
+.qc-btn-validate{background:linear-gradient(135deg,var(--green),#2d9b5a);color:#fff;}
+.qc-btn-start{background:linear-gradient(135deg,var(--blue),#2563eb);color:#fff;}
+.qc-btn-done{background:linear-gradient(135deg,var(--green),#2d9b5a);color:#fff;}
+.qc-filter-bar{display:flex;gap:8px;margin-bottom:1.2rem;flex-wrap:wrap;}
+.qc-filter-btn{
+  padding:8px 18px;border-radius:20px;border:1.5px solid var(--border);cursor:pointer;
+  font-size:.78rem;font-weight:600;background:var(--surface);color:var(--muted);transition:.15s;
+}
+.qc-filter-btn.act{background:linear-gradient(135deg,#0d1b2a,#1a2e4a);color:#fff;border-color:transparent;box-shadow:0 2px 8px rgba(0,0,0,.2);}
+.queue-empty{text-align:center;padding:3rem;color:var(--muted);}
+
+/* ===== STATUT CAISSIER (vue simplifiée) ===== */
+.caissier-status-card{
+  background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-lg);
+  padding:1rem 1.2rem;margin-bottom:8px;display:flex;align-items:center;gap:12px;
+  box-shadow:var(--sh);
+}
+.csc-id{font-weight:700;font-size:.82rem;color:var(--accent);min-width:110px;}
+.csc-info{flex:1;font-size:.8rem;color:var(--muted);}
+.csc-client{font-weight:600;color:var(--text);}
+
+/* ===== STOCK ===== */
+.stock-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem;}
+.stock-tab-btn{
+  padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);cursor:pointer;
+  font-size:.75rem;font-weight:600;background:var(--surface);color:var(--muted);transition:.15s;
+}
+.stock-tab-btn.act{background:linear-gradient(135deg,#0d1b2a,#1a2e4a);color:#fff;border-color:transparent;}
+.stock-grid{display:grid;grid-template-columns:1fr;gap:8px;}
+.stock-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:.9rem;display:flex;align-items:center;gap:12px;box-shadow:var(--sh);}
+.stock-card.low{border-color:var(--amber);background:var(--amber-bg);}
+.stock-card.out{border-color:var(--red);background:var(--red-bg);}
+.sc-info{flex:1;}
+.sc-name{font-weight:600;font-size:.88rem;}
+.sc-cat{font-size:.7rem;color:var(--muted);}
+.sc-stock{font-size:.78rem;font-weight:700;padding:2px 8px;border-radius:12px;}
+.sc-stock.ok{color:var(--green);background:var(--green-bg);}
+.sc-stock.low{color:var(--amber);background:var(--amber-bg);}
+.sc-stock.out{color:var(--red);background:var(--red-bg);}
+.sc-stock.inf{color:var(--blue);background:var(--blue-bg);}
+.sc-controls{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.stock-adj-input{
+  width:65px;border:1.5px solid var(--border);border-radius:8px;padding:6px 8px;
+  font-size:.88rem;text-align:center;background:var(--surface2);outline:none;
+}
+.stock-adj-btn{padding:7px 12px;border:none;border-radius:8px;cursor:pointer;font-size:.78rem;font-weight:700;transition:.15s;}
+.stock-set-btn{background:var(--blue-bg);color:var(--blue);}
+.stock-add-btn{background:var(--green-bg);color:var(--green);}
+.stock-sub-btn{background:var(--red-bg);color:var(--red);}
+.mvt-grid{margin-top:1.5rem;}
+.mvt-title{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.7rem;}
+
+/* ===== ADMIN ===== */
+.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;}
+.admin-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.2rem;box-shadow:var(--sh);}
+.admin-card-title{font-weight:700;font-size:.92rem;margin-bottom:.8rem;}
+.user-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.user-row:last-child{border-bottom:none;}
+.user-avatar{
+  width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent2),#fde8dc);color:var(--accent);
+  font-weight:700;font-size:.78rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.user-name{flex:1;font-weight:600;font-size:.85rem;}
+.user-role{font-size:.7rem;color:var(--muted);}
+.prod-mgmt-grid{display:grid;grid-template-columns:1fr;gap:8px;}
+.pm-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:.9rem;display:flex;align-items:center;gap:10px;}
+.pm-info{flex:1;}
+.pm-name{font-weight:600;font-size:.85rem;}
+.pm-cat{font-size:.7rem;color:var(--muted);}
+.pm-price{font-weight:700;color:var(--accent);font-size:.88rem;}
+
+/* ===== MODALS ===== */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(2px);}
+.overlay.open{display:flex;}
+.modal{
+  background:var(--surface);border-radius:20px 20px 0 0;padding:1.5rem 1.5rem 2.5rem;
+  width:100%;max-width:480px;box-shadow:0 -20px 60px rgba(0,0,0,.25);max-height:92vh;overflow-y:auto;
+}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 1rem;display:block;}
+.modal h3{font-family:'DM Serif Display',serif;font-size:1.3rem;margin-bottom:1rem;}
+.form-group{margin-bottom:10px;}
+.form-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:5px;display:block;}
+.form-in{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:11px 13px;font-size:.9rem;outline:none;background:var(--surface2);color:var(--text);transition:.15s;}
+.form-in:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(184,74,26,.08);}
+.modal-acts{display:flex;gap:8px;margin-top:1.2rem;}
+.modal-acts .btn{flex:1;}
+
+/* ===== TOAST ===== */
+.toast{
+  position:fixed;bottom:5.5rem;left:50%;transform:translateX(-50%) translateY(80px);
+  z-index:9999;background:linear-gradient(135deg,#18150f,#2d2318);color:#fff;padding:11px 22px;border-radius:50px;
+  font-size:.85rem;font-weight:600;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap;
+  box-shadow:0 4px 20px rgba(0,0,0,.3);
+}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+/* ===== RESPONSIVE ===== */
+@media(min-width:768px){
+  .h-user{display:block;}
+  .stats-grid{grid-template-columns:repeat(4,1fr);}
+  .kpi-grid{grid-template-columns:repeat(4,1fr);}
+}
+@media(max-width:900px){
+  .caisse-wrap{grid-template-columns:240px 1fr;}
+  .prod-grid{grid-template-columns:1fr;}
+}
+@media(max-width:640px){
+  :root{--nav-h:52px;--bottom-h:68px;}
+  .header{padding:0 .8rem;gap:.6rem;}
+  .h-nav{display:none;}
+  .logout-btn,.pwd-btn{display:none;}
+  .h-role{display:none;}
+  .h-user{display:none;}
+  .bottom-nav{display:flex;}
+  .caisse-wrap{display:flex;flex-direction:column;height:auto;min-height:calc(100vh - var(--nav-h) - var(--bottom-h));overflow-y:auto;}
+  .left-p,.right-p{height:auto;min-height:calc(100vh - var(--nav-h) - var(--bottom-h));overflow-y:auto;}
+  .right-p{display:flex;flex-direction:column;}
+  .order-items{max-height:38vh;overflow-y:auto;}
+  .order-foot{position:sticky;bottom:0;background:var(--surface);padding:1rem 1rem;border-top:1px solid var(--border);margin-top:auto;}
+  .act-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .act-row .btn{flex:1;min-width:90px;padding:14px;}
+  .btn-ok{font-size:.95rem;}
+  .inner-page{padding:.9rem .9rem;height:auto;min-height:calc(100vh - var(--nav-h) - var(--bottom-h));overflow-y:auto;}
+  .dashboard-wrap{padding:.9rem .9rem;height:auto;min-height:calc(100vh - var(--nav-h) - var(--bottom-h));overflow-y:auto;}
+  .prod-grid{grid-template-columns:1fr 1fr;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .verif-grid{grid-template-columns:1fr;}
+  .admin-grid{grid-template-columns:1fr;}
+  .toast{bottom:calc(var(--bottom-h) + .8rem);}
+  .modal{border-radius:20px 20px 0 0;}
+  .sc-controls{justify-content:flex-start;}
+  .caisse-mobile-tabs{display:flex;}
+  .queue-grid{grid-template-columns:1fr;}
+  .cuisine-grid{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:480px){
+  .tbl-row{flex-direction:column;align-items:stretch;gap:6px;}
+  .order-item{flex-wrap:wrap;gap:6px;}
+  .oi-name{width:100%;margin-bottom:2px;}
+  .qty-ctrl{margin-left:auto;}
+  .kpi-val{font-size:1.1rem;}
+}
+@media(max-width:380px){
+  .prod-card{padding:8px;}
+  .prod-name{font-size:.75rem;}
+  .prod-price{font-size:.8rem;}
+  .bn-item{font-size:.55rem;}
+  .bn-icon{font-size:1.15rem;}
+}
+#floatingValidate{display:none;position:fixed;bottom:calc(var(--bottom-h) + 10px);left:0;right:0;z-index:999;padding:0 16px;}
+#floatingValidate button{
+  width:100%;background:linear-gradient(135deg,var(--accent),#d4581f);color:white;border:none;padding:16px;
+  border-radius:50px;font-size:1rem;font-weight:700;cursor:pointer;
+  box-shadow:0 6px 24px rgba(184,74,26,.5);letter-spacing:.03em;
+}
 </style>
 </head>
 <body>
-<!-- Login, header, etc. identiques -->
 
+<!-- ==================== LOGIN ==================== -->
+<div id="loginScreen">
+  <div class="deco"></div>
+  <div class="login-wrap">
+    <div class="login-brand">
+      <span class="login-brand-icon">H</span>
+      <div class="login-brand-name">Complexe Beyla</div>
+      <div class="login-brand-sep"></div>
+      <div class="login-brand-sub">Systeme de gestion</div>
+    </div>
+    <div class="login-box">
+      <div class="login-title">Connexion</div>
+      <div class="role-chips" id="roleChips">
+        <div class="role-chip sel" onclick="selRole('admin',this)">Admin</div>
+        <div class="role-chip" onclick="selRole('comptable',this)">Caissier</div>
+        <div class="role-chip" onclick="selRole('cuisiniere',this)">Cuisine</div>
+        <div class="role-chip" onclick="selRole('vendeur',this)">Kiosque</div>
+        <div class="role-chip" onclick="selRole('serveur',this)">Serveur</div>
+      </div>
+      <label class="login-label">Nom d'utilisateur</label>
+      <input class="login-input" id="loginUser" placeholder="ex: admin" autocomplete="off">
+      <label class="login-label">Mot de passe</label>
+      <input class="login-input" id="loginPass" type="password" placeholder="......">
+      <button class="login-btn" onclick="doLogin()">Se connecter</button>
+      <div class="login-err" id="loginErr"></div>
+    </div>
+    <div class="login-sync">
+      <span class="sync-dot" id="loginSyncDot"></span>
+      <span id="loginSyncMsg">Connexion...</span>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== APP ==================== -->
 <div id="app" style="display:none;">
-  <!-- Header -->
-  <header class="header">...</header>
 
-  <!-- Pages -->
-  <div id="pg-accueil" class="page">...</div>
+<header class="header">
+  <div class="h-logo">Complexe Beyla</div>
+  <div class="h-role" id="hRole"></div>
+  <div class="h-space"></div>
+  <div class="h-nav" id="hNav"></div>
+  <div class="h-user" id="hUser"></div>
+  <div class="h-actions">
+    <span class="sync-dot" id="headerSyncDot"></span>
+    <button class="pwd-btn" onclick="openChangePwd()" title="Modifier mot de passe">MDP</button>
+    <button class="h-sync" id="syncBtn" onclick="syncNow()" title="Synchroniser">&#8635;</button>
+    <button class="logout-btn" onclick="doLogout()">Deconnexion</button>
+  </div>
+</header>
 
-  <!-- CAISSE (modifiée : plus de table) -->
-  <div id="pg-caisse" class="page">
-    <div class="caisse-mobile-tabs">...</div>
-    <div class="caisse-wrap">
-      <div class="left-p" id="cataloguePanel">...</div>
-      <div class="right-p" id="commandePanel">
-        <div class="order-top">
-          <div style="font-weight:700;font-size:.9rem;">Nouvelle commande</div>
-          <div class="tbl-badge" id="tblBadge">Client --</div>
-          <div class="order-meta" id="orderMeta"></div>
-        </div>
-        <div class="tbl-row">
-          <label>Nom du client</label>
-          <input type="text" id="clientIn" placeholder="Nom (obligatoire)" required>
-        </div>
-        <!-- Ligne pour choisir le kiosque source (serveur/admin/caissier) -->
-        <div class="tbl-row" id="kiosqueSourceRow">
-          <label>Kiosque source</label>
-          <select id="kiosqueSourceSel">
-            <option value="">-- Sélectionner --</option>
-          </select>
-        </div>
-        <div class="order-items" id="orderItems"></div>
-        <div class="order-foot">
-          <div class="tot-row"><span style="color:var(--muted)">Sous-total</span><span id="subT">0 GNF</span></div>
-          <div class="tot-row tot-main"><span>TOTAL</span><span id="totalT" style="color:var(--accent)">0 GNF</span></div>
-          <textarea class="note-in" id="noteIn" rows="2" placeholder="Note pour la cuisine..."></textarea>
-          <div class="act-row">
-            <button class="btn btn-ghost" onclick="clearCart()">Annuler</button>
-            <button class="btn btn-ok" onclick="confirmOrder()">Valider</button>
-          </div>
+<!-- ACCUEIL -->
+<div id="pg-accueil" class="page">
+  <div class="dashboard-wrap">
+    <div class="dash-welcome">
+      <div class="dash-welcome-title" id="dashWelcomeTitle">Bienvenue</div>
+      <div class="dash-welcome-sub" id="dashWelcomeSub">Complexe Beyla - Systeme de gestion</div>
+    </div>
+    <div class="dash-section-title">Aujourd'hui</div>
+    <div class="kpi-grid" id="dashKpi"></div>
+    <div class="dash-section-title">Alertes</div>
+    <div id="dashAlerts" style="margin-bottom:.5rem;"></div>
+    <div class="dash-section-title">Mes dernieres commandes</div>
+    <div class="dash-orders-preview" id="dashOrders"></div>
+  </div>
+</div>
+
+<!-- CAISSE -->
+<div id="pg-caisse" class="page">
+  <div class="caisse-mobile-tabs">
+    <button class="cmt-btn act" id="cmt-catalogue" onclick="switchCaisseTab('catalogue')">Catalogue</button>
+    <button class="cmt-btn" id="cmt-commande" onclick="switchCaisseTab('commande')">Commande <span id="cartCountBadge"></span></button>
+  </div>
+  <div class="caisse-wrap">
+    <div class="left-p" id="cataloguePanel">
+      <div class="lp-head">
+        <div class="lp-title">Catalogue produits</div>
+        <div class="s-box"><span>🔍</span><input type="text" id="searchIn" placeholder="Rechercher..." oninput="renderProds()"></div>
+      </div>
+      <div class="cat-bar" id="catBar"></div>
+      <div class="prod-grid" id="prodGrid"></div>
+    </div>
+    <div class="right-p" id="commandePanel">
+      <div class="order-top">
+        <div style="font-weight:700;font-size:.9rem;">Nouvelle commande</div>
+        <div class="tbl-badge" id="tblBadge">Client --</div>
+        <div class="order-meta" id="orderMeta"></div>
+      </div>
+      <div class="tbl-row">
+        <label>Nom du client</label>
+        <input type="text" id="clientIn" placeholder="Nom (obligatoire)" required>
+      </div>
+      <div class="tbl-row" id="kiosqueSourceRow">
+        <label>Kiosque source</label>
+        <select id="kiosqueSourceSel">
+          <option value="">-- Sélectionner --</option>
+        </select>
+      </div>
+      <div class="order-items" id="orderItems"></div>
+      <div class="order-foot">
+        <div class="tot-row"><span style="color:var(--muted)">Sous-total</span><span id="subT">0 GNF</span></div>
+        <div class="tot-row tot-main"><span>TOTAL</span><span id="totalT" style="color:var(--accent)">0 GNF</span></div>
+        <textarea class="note-in" id="noteIn" rows="2" placeholder="Note pour la cuisine..."></textarea>
+        <div class="act-row">
+          <button class="btn btn-ghost" onclick="clearCart()">Annuler</button>
+          <button class="btn btn-ok" onclick="confirmOrder()">Valider</button>
         </div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- JOURNAL (modifié : colonne "Table" remplacée par "Client") -->
-  <div id="pg-journal" class="page">...</div>
-
-  <!-- VERIF --><div id="pg-verif" class="page">...</div>
-
-  <!-- FILE D'ATTENTE CUISINE -->
-  <div id="pg-queue" class="page">
-    <div class="inner-page">
-      <div class="pg-header">
-        <div><div class="pg-title" id="queueTitle">File d'attente</div><div class="pg-sub" id="queueSub">Commandes en cours</div></div>
-        <button style="border:1.5px solid var(--border);border-radius:10px;padding:9px 14px;cursor:pointer;font-size:.82rem;background:var(--surface);font-weight:600;" onclick="syncNow()">Actualiser</button>
-      </div>
-      <div class="qc-filter-bar" id="queueFilterBar">
-        <button class="qc-filter-btn act" id="qf-tous" onclick="setQueueFilter('tous')">Toutes</button>
-        <button class="qc-filter-btn" id="qf-en_attente" onclick="setQueueFilter('en_attente')">En attente paiement</button>
-        <button class="qc-filter-btn" id="qf-attente" onclick="setQueueFilter('attente')">En cuisine</button>
-        <button class="qc-filter-btn" id="qf-preparation" onclick="setQueueFilter('preparation')">En prep.</button>
-        <button class="qc-filter-btn" id="qf-servie" onclick="setQueueFilter('servie')">Servies</button>
-      </div>
-      <div class="queue-grid" id="queueGrid"></div>
+<!-- JOURNAL -->
+<div id="pg-journal" class="page">
+  <div class="inner-page">
+    <div class="pg-header">
+      <div><div class="pg-title">Journal</div><div class="pg-sub">Historique par journee</div></div>
+      <input type="date" class="date-in" id="jDate" onchange="renderJournal()">
+      <select class="filter-select" id="jVendeurFilter" onchange="renderJournal()" style="display:none;">
+        <option value="tous">Tous les vendeurs</option>
+      </select>
+      <button class="export-btn" onclick="exportExcel()">Excel</button>
+    </div>
+    <div class="stats-grid" id="statsGrid"></div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>N°</th><th>Heure</th><th>Client</th><th>Caissier</th><th>Vendeur</th><th>Kiosque</th><th>Total</th><th>Statut</th><th>Actions</th></tr></thead>
+        <tbody id="jTable"></tbody>
+      </table>
     </div>
   </div>
+</div>
 
-  <!-- DISPO --><div id="pg-cuisine" class="page">...</div>
+<!-- VERIFICATION -->
+<div id="pg-verif" class="page">
+  <div class="inner-page">
+    <div class="pg-header">
+      <div><div class="pg-title">Verification</div><div class="pg-sub">Rapprochement fin de journee</div></div>
+      <input type="date" class="date-in" id="vDate" onchange="renderVerif()">
+    </div>
+    <div class="verif-grid" id="verifGrid"></div>
+  </div>
+</div>
 
-  <!-- STOCK (avec sous-onglets) -->
-  <div id="pg-stock" class="page">
-    <div class="inner-page">
-      <div class="pg-header">
-        <div><div class="pg-title">Stock</div><div class="pg-sub">Gestion des stocks par kiosque</div></div>
+<!-- FILE D'ATTENTE CUISINE -->
+<div id="pg-queue" class="page">
+  <div class="inner-page">
+    <div class="pg-header">
+      <div><div class="pg-title" id="queueTitle">File d'attente</div><div class="pg-sub" id="queueSub">Commandes en cours</div></div>
+      <button style="border:1.5px solid var(--border);border-radius:10px;padding:9px 14px;cursor:pointer;font-size:.82rem;background:var(--surface);font-weight:600;" onclick="syncNow()">Actualiser</button>
+    </div>
+    <div class="qc-filter-bar" id="queueFilterBar">
+      <button class="qc-filter-btn act" id="qf-tous" onclick="setQueueFilter('tous')">Toutes</button>
+      <button class="qc-filter-btn" id="qf-en_attente" onclick="setQueueFilter('en_attente')">À valider</button>
+      <button class="qc-filter-btn" id="qf-attente" onclick="setQueueFilter('attente')">En cuisine</button>
+      <button class="qc-filter-btn" id="qf-preparation" onclick="setQueueFilter('preparation')">En prep.</button>
+      <button class="qc-filter-btn" id="qf-servie" onclick="setQueueFilter('servie')">Servies</button>
+    </div>
+    <div class="queue-grid" id="queueGrid"></div>
+  </div>
+</div>
+
+<!-- DISPONIBILITE PLATS -->
+<div id="pg-cuisine" class="page">
+  <div class="inner-page">
+    <div class="pg-header">
+      <div><div class="pg-title">Disponibilite</div><div class="pg-sub">Plats disponibles aujourd'hui</div></div>
+    </div>
+    <div class="cuisine-grid" id="cuisineGrid"></div>
+  </div>
+</div>
+
+<!-- STOCK -->
+<div id="pg-stock" class="page">
+  <div class="inner-page">
+    <div class="pg-header">
+      <div><div class="pg-title">Stock</div><div class="pg-sub">Gestion des stocks par kiosque</div></div>
+    </div>
+    <div class="stock-tabs" id="stockTabs"></div>
+    <div id="stockContent"></div>
+    <div class="mvt-grid">
+      <div class="mvt-title">Historique des mouvements recents</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Date/Heure</th><th>Produit</th><th>Categorie</th><th>Type</th><th>Quantite</th><th>Stock apres</th><th>Par</th><th>Kiosque</th></tr></thead>
+          <tbody id="mvtTable"></tbody>
+        </table>
       </div>
-      <!-- Onglets pour les kiosques -->
-      <div class="stock-tabs" id="stockTabs" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem;">
-        <!-- Généré par JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="pg-admin" class="page">
+  <div class="inner-page">
+    <div class="pg-header"><div class="pg-title">Administration</div></div>
+    <div class="admin-grid">
+      <div class="admin-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem;">
+          <div class="admin-card-title" style="margin:0">Comptes utilisateurs</div>
+          <button class="add-btn" onclick="openAddUser()">+ Ajouter</button>
+        </div>
+        <div id="userList"></div>
       </div>
-      <div id="stockContent">
-        <!-- Contenu dynamique -->
+      <div class="admin-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem;">
+          <div class="admin-card-title" style="margin:0">Produits & Menu</div>
+          <button class="add-btn" onclick="openAddProd()">+ Ajouter</button>
+        </div>
+        <div class="prod-mgmt-grid" id="prodMgmtGrid"></div>
       </div>
-      <!-- Historique des mouvements (sous-onglet ou en bas) -->
-      <div class="mvt-grid" style="margin-top:1.5rem;">
-        <div class="mvt-title">Historique des mouvements recents</div>
-        <div class="tbl-wrap">
-          <table>
-            <thead><tr><th>Date/Heure</th><th>Produit</th><th>Categorie</th><th>Type</th><th>Quantite</th><th>Stock apres</th><th>Par</th><th>Kiosque</th></tr></thead>
-            <tbody id="mvtTable"></tbody>
-          </table>
+      <div class="admin-card" style="grid-column:1/-1;">
+        <div class="admin-card-title">Controle anti-vol - Ventes par kiosque</div>
+        <div id="ventesVendeur"></div>
+        <div style="margin-top:1rem;">
+          <button class="btn btn-blue" onclick="exportVentesVendeur()" style="flex:0;padding:8px 20px;">Exporter les ventes</button>
         </div>
       </div>
+      <div class="admin-card" style="grid-column:1/-1;">
+        <div class="admin-card-title">Journal des actions sensibles</div>
+        <div id="journalActions" style="max-height:300px;overflow-y:auto;font-size:.8rem;"></div>
+      </div>
     </div>
   </div>
-
-  <!-- ADMIN --><div id="pg-admin" class="page">...</div>
+</div>
 
 </div><!-- /app -->
 
-<!-- Modals (inchangées) -->
+<div class="bottom-nav" id="bottomNav"></div>
+<div id="floatingValidate">
+  <button onclick="confirmOrder()">VALIDER LA COMMANDE</button>
+</div>
 
+<!-- ===== MODALS ===== -->
+<div class="overlay" id="modalOrder">
+  <div class="modal">
+    <span class="modal-handle"></span>
+    <h3>Detail commande</h3>
+    <div id="modalOrderContent"></div>
+    <div class="modal-acts" id="modalOrderActs">
+      <button class="btn btn-ghost" onclick="closeModal('modalOrder')">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="modalCancelOrder">
+  <div class="modal">
+    <span class="modal-handle"></span>
+    <h3>Annuler la commande</h3>
+    <div style="font-size:.88rem;color:var(--muted);margin-bottom:1rem;line-height:1.7;">
+      Cette action supprime definitivement la commande.<br>
+      Le stock sera restaure automatiquement.
+    </div>
+    <div class="form-group">
+      <label class="form-label">Raison de l'annulation</label>
+      <textarea class="form-in" id="cancelReason" rows="2" placeholder="ex: Erreur de saisie, client parti..."></textarea>
+    </div>
+    <div class="modal-acts">
+      <button class="btn btn-ghost" onclick="closeModal('modalCancelOrder')">Retour</button>
+      <button class="btn" style="background:var(--red);color:#fff;" onclick="confirmCancelOrder()">Confirmer annulation</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="modalUser">
+  <div class="modal">
+    <span class="modal-handle"></span>
+    <h3 id="modalUserTitle">Nouveau compte</h3>
+    <div class="form-group"><label class="form-label">Nom complet</label><input class="form-in" id="uName" placeholder="ex: Mamadou Diallo"></div>
+    <div class="form-group"><label class="form-label">Nom d'utilisateur</label><input class="form-in" id="uLogin" placeholder="ex: mamadou1"></div>
+    <div class="form-group"><label class="form-label">Mot de passe</label><input class="form-in" id="uPass" type="password" placeholder="......"></div>
+    <div class="form-group"><label class="form-label">Role</label>
+      <select class="form-in" id="uRole" onchange="toggleKiosqueField()">
+        <option value="admin">Administrateur</option>
+        <option value="comptable">Caissier / Comptable</option>
+        <option value="cuisiniere">Cuisiniere</option>
+        <option value="vendeur">Vendeur(euse) kiosque</option>
+        <option value="serveur">Serveur(euse) salle</option>
+      </select>
+    </div>
+    <div class="form-group" id="kiosqueGroup" style="display:none;">
+      <label class="form-label">Kiosque / Point de vente</label>
+      <input class="form-in" id="uKiosque" placeholder="ex: Kiosque Sud">
+    </div>
+    <div class="modal-acts">
+      <button class="btn btn-ghost" onclick="closeModal('modalUser')">Annuler</button>
+      <button class="btn btn-ok" onclick="saveUser()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="modalProd">
+  <div class="modal">
+    <span class="modal-handle"></span>
+    <h3 id="modalProdTitle">Nouveau produit</h3>
+    <div class="form-group"><label class="form-label">Nom du produit</label><input class="form-in" id="pName" placeholder="ex: Jus Gingembre Frais"></div>
+    <div class="form-group"><label class="form-label">Prix (GNF)</label><input class="form-in" id="pPrice" type="number" placeholder="ex: 10000"></div>
+    <div class="form-group"><label class="form-label">Categorie</label>
+      <select class="form-in" id="pCat">
+        <option value="Nourriture">Nourriture</option>
+        <option value="Boissons">Boissons & Jus</option>
+        <option value="Chicha">Chicha</option>
+        <option value="Snacks">Snacks / Popcorn</option>
+        <option value="Desserts">Desserts / Creme glacee</option>
+      </select>
+    </div>
+    <div class="modal-acts">
+      <button class="btn btn-ghost" onclick="closeModal('modalProd')">Annuler</button>
+      <button class="btn btn-ok" onclick="saveProd()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="modalPwd">
+  <div class="modal">
+    <span class="modal-handle"></span>
+    <h3>Modifier mon mot de passe</h3>
+    <div class="form-group"><label class="form-label">Ancien mot de passe</label><input class="form-in" id="pwdOld" type="password" placeholder="......"></div>
+    <div class="form-group"><label class="form-label">Nouveau mot de passe</label><input class="form-in" id="pwdNew" type="password" placeholder="......"></div>
+    <div class="form-group"><label class="form-label">Confirmer le nouveau</label><input class="form-in" id="pwdConf" type="password" placeholder="......"></div>
+    <div id="pwdErr" style="color:var(--red);font-size:.82rem;min-height:18px;margin-top:4px;"></div>
+    <div class="modal-acts">
+      <button class="btn btn-ghost" onclick="closeModal('modalPwd')">Annuler</button>
+      <button class="btn btn-ok" onclick="doChangePwd()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ==================== JAVASCRIPT ==================== -->
 <script>
 // ========== DONNEES PAR DEFAUT ==========
 const DEFAULT_USERS = [
@@ -193,31 +951,183 @@ let cancelOrderId = null;
 let stockCatFilter = 'Tout';
 let currentKiosqueSource = '';
 
-// ========== FIREBASE (inchangé) ==========
-// ... (identique) ...
+const ALL_STOCK_CATS = ['Nourriture','Boissons','Chicha','Snacks','Desserts'];
 
-// ========== UTILS (inchangés) ==========
+// ========== FIREBASE ==========
+const fbConfig = {
+  apiKey:"AIzaSyChu30n42dZaGKZmjyrHsJdEg9UoRbRpyw",
+  authDomain:"complexe-beyla.firebaseapp.com",
+  databaseURL:"https://complexe-beyla-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:"complexe-beyla",
+  storageBucket:"complexe-beyla.firebasestorage.app",
+  messagingSenderId:"402067946689",
+  appId:"1:402067946689:web:9d71e1f9ae523da40ae840"
+};
+firebase.initializeApp(fbConfig);
+const db = firebase.database();
+
+function saveLS(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
+
+async function saveFB(key, data) {
+  saveLS(key, data);
+  try {
+    await db.ref('beyla/' + key).set(data);
+    setSyncDot(true);
+  } catch(e) { setSyncDot(false); }
+}
+
+function setSyncDot(online) {
+  ['loginSyncDot','headerSyncDot'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.toggle('online', online);
+    el.classList.toggle('offline', !online);
+  });
+}
+
+async function loadFB() {
+  try {
+    const keys = ['cb_users','cb_prods','cb_orders','cb_dispo','cb_verifs','cb_stock_vendeur','cb_stock_mvts','cb_journal_actions'];
+    for (const key of keys) {
+      const snap = await db.ref('beyla/' + key).once('value');
+      if (snap.exists()) {
+        const val = snap.val();
+        saveLS(key, val);
+        if (key==='cb_users')        users     = val;
+        if (key==='cb_prods')        products  = val;
+        if (key==='cb_orders')       orders    = val;
+        if (key==='cb_dispo')        dispo     = val;
+        if (key==='cb_verifs')       verifs    = val;
+        if (key==='cb_stock_vendeur') stockVendeur = val;
+        if (key==='cb_stock_mvts')   stockMvts = Array.isArray(val) ? val : Object.values(val);
+        if (key==='cb_journal_actions') journalActions = Array.isArray(val) ? val : Object.values(val);
+      }
+    }
+    setSyncDot(true);
+    const msg = document.getElementById('loginSyncMsg');
+    if (msg) msg.textContent = 'Connecte';
+    return true;
+  } catch(e) {
+    const msg = document.getElementById('loginSyncMsg');
+    if (msg) msg.textContent = 'Mode hors ligne';
+    setSyncDot(false);
+    return false;
+  }
+}
+
+async function syncNow() {
+  if (syncInProgress) return;
+  syncInProgress = true;
+  const btn = document.getElementById('syncBtn');
+  if (btn) btn.classList.add('spinning');
+  await loadFB();
+  refreshCurrentPage();
+  toast('Synchronise');
+  syncInProgress = false;
+  if (btn) btn.classList.remove('spinning');
+}
+
+function listenOrders() {
+  db.ref('beyla/cb_orders').on('value', snap => {
+    if (snap.exists()) {
+      orders = snap.val();
+      saveLS('cb_orders', orders);
+      if (currentPage==='queue')   renderQueue();
+      if (currentPage==='journal') renderJournal();
+      if (currentPage==='accueil') renderDashboard();
+      updateQueueBadge();
+    }
+  });
+  db.ref('beyla/cb_stock_vendeur').on('value', snap => {
+    if (snap.exists()) {
+      stockVendeur = snap.val();
+      saveLS('cb_stock_vendeur', stockVendeur);
+      if (currentPage==='caisse') renderProds();
+      if (currentPage==='stock')  renderStock();
+    }
+  });
+}
+
+// ========== UTILS ==========
 function fmt(n) { return Number(n).toLocaleString('fr-FR') + ' GNF'; }
 function today() { return new Date().toISOString().slice(0,10); }
 function nowTime() { return new Date().toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'}); }
 function nowFull() { return new Date().toLocaleString('fr-FR', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
 function genId() { return 'CMD-' + String(orders.length+1).padStart(4,'0') + '-' + Date.now().toString(36).slice(-3).toUpperCase(); }
-function toast(msg) { /* ... */ }
-function openModal(id) { /* ... */ }
-function closeModal(id) { /* ... */ }
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function getStockClass(qty) { return qty <= 0 ? 'out' : qty <= 5 ? 'low' : 'ok'; }
 function getStockLabel(qty) { return qty <= 0 ? 'Rupture' : qty <= 5 ? 'Stock bas' : 'En stock'; }
-function getCatIcon(cat) { const icons = {Nourriture:'Nourriture',Boissons:'Boissons',Chicha:'Chicha',Snacks:'Snacks',Desserts:'Desserts'}; return icons[cat] || cat; }
+function getCatIcon(cat) {
+  const icons = {Nourriture:'Nourriture',Boissons:'Boissons',Chicha:'Chicha',Snacks:'Snacks',Desserts:'Desserts'};
+  return icons[cat] || cat;
+}
 function isFood(product) { return product.cat === 'Nourriture'; }
 
-// ========== FONCTIONS DE LOG ==========
-async function logStockMvt(prodId, type, qty, stockAfter, kiosque, note) { /* ... */ }
-async function logAction(action, details) { /* ... */ }
+async function logStockMvt(prodId, type, qty, stockAfter, kiosque, note) {
+  const p = products.find(x => x.id === prodId);
+  const mvt = {
+    ts: nowFull(), date: today(), prodId,
+    prodName: p ? p.name : '?', prodCat: p ? p.cat : '?',
+    type, qty, stockAfter,
+    by: currentUser ? currentUser.name : '--',
+    kiosque: kiosque || '--',
+    note: note||''
+  };
+  stockMvts.unshift(mvt);
+  if (stockMvts.length > 200) stockMvts = stockMvts.slice(0,200);
+  await saveFB('cb_stock_mvts', stockMvts);
+}
+
+async function logAction(action, details) {
+  const entry = {
+    ts: nowFull(),
+    user: currentUser ? currentUser.name : 'Systeme',
+    action: action,
+    details: details || ''
+  };
+  journalActions.unshift(entry);
+  if (journalActions.length > 500) journalActions = journalActions.slice(0,500);
+  await saveFB('cb_journal_actions', journalActions);
+}
 
 // ========== LOGIN ==========
-function selRole(r, el) { /* ... */ }
-async function doLogin() { /* ... */ }
-function doLogout() { /* ... */ }
+function selRole(r, el) {
+  selRoleVal = r;
+  document.querySelectorAll('.role-chip').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+async function doLogin() {
+  const loginVal = document.getElementById('loginUser').value.trim();
+  const passVal  = document.getElementById('loginPass').value;
+  document.getElementById('loginErr').textContent = '';
+  await loadFB();
+  initStock();
+  const u = users.find(x => x.login === loginVal && x.pass === passVal && x.role === selRoleVal);
+  if (!u) { document.getElementById('loginErr').textContent = 'Identifiants incorrects.'; return; }
+  currentUser = u;
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  logAction('Connexion', 'Utilisateur ' + u.name + ' connecte');
+  initApp();
+}
+
+function doLogout() {
+  if (currentUser) logAction('Deconnexion', 'Utilisateur ' + currentUser.name + ' deconnecte');
+  currentUser = null; cart = [];
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginErr').textContent = '';
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+}
+document.getElementById('loginPass').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
 
 // ========== APP INIT ==========
 const NAV_MAP = {
@@ -257,7 +1167,34 @@ const NAV_MAP = {
 };
 
 function initApp() {
-  // ... (identique)
+  const roleLabels = {admin:'Administrateur', comptable:'Caissier', cuisiniere:'Cuisiniere', vendeur:'Kiosque', serveur:'Serveur'};
+  document.getElementById('hRole').textContent = roleLabels[currentUser.role];
+  document.getElementById('hUser').textContent = currentUser.name;
+  document.getElementById('dashWelcomeTitle').textContent = 'Bonjour, ' + currentUser.name.split(' ')[0];
+  document.getElementById('dashWelcomeSub').textContent = new Date().toLocaleDateString('fr-FR', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+  const navs = NAV_MAP[currentUser.role] || [];
+  document.getElementById('hNav').innerHTML = navs.map(n =>
+    `<button class="hn" id="hn-${n.id}" onclick="showPage('${n.id}')">${n.label}</button>`
+  ).join('');
+
+  let bottomHTML = navs.map(n =>
+    `<button class="bn-item" id="bn-${n.id}" onclick="showPage('${n.id}')">
+      <span class="bn-icon">${n.label[0]}</span>${n.label}
+    </button>`
+  ).join('');
+
+  if (currentUser.role !== 'cuisiniere') {
+    bottomHTML += `<button class="bn-item" onclick="openChangePwd()" title="Mot de passe">
+      <span class="bn-icon">M</span>MDP
+    </button>`;
+  }
+  bottomHTML += `<button class="bn-logout" onclick="doLogout()" title="Deconnexion">
+    <span class="bn-icon" style="font-size:1.2rem;">X</span>Deco.
+  </button>`;
+
+  document.getElementById('bottomNav').innerHTML = bottomHTML;
+
   populateKiosqueSource();
   listenOrders();
   showPage(navs[0].id);
@@ -307,38 +1244,361 @@ document.getElementById('kiosqueSourceSel').addEventListener('change', function(
 
 let currentPage = '';
 function showPage(id) {
-  // ... (identique)
-  if (id==='stock') renderStock();
-  // ...
+  const allowed = NAV_MAP[currentUser.role] || [];
+  if (!allowed.some(p => p.id === id)) {
+    toast('Accès non autorisé');
+    if (allowed.length > 0) id = allowed[0].id;
+    else return;
+  }
+  currentPage = id;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('act'));
+  document.querySelectorAll('.hn, .bn-item').forEach(b => b.classList.remove('act'));
+  const pg = document.getElementById('pg-' + id);
+  if (pg) pg.classList.add('act');
+  document.querySelectorAll('#hn-'+id+', #bn-'+id).forEach(b => b.classList.add('act'));
+
+  if (id==='accueil') renderDashboard();
+  if (id==='caisse')  { initCaisse(); updateKiosqueSourceVisibility(); }
+  if (id==='journal') { 
+    document.getElementById('jDate').value = today();
+    populateVendeurFilter();
+    renderJournal(); 
+  }
+  if (id==='verif')   { document.getElementById('vDate').value = today(); renderVerif(); }
+  if (id==='cuisine') renderCuisine();
+  if (id==='queue')   renderQueue();
+  if (id==='stock')   renderStock();
+  if (id==='admin')   renderAdmin();
+
+  const fv = document.getElementById('floatingValidate');
+  if (fv) fv.style.display = (id==='caisse' && window.innerWidth <= 640) ? 'block' : 'none';
 }
+function refreshCurrentPage() { if (currentPage) showPage(currentPage); }
+
+window.addEventListener('resize', () => {
+  const fv = document.getElementById('floatingValidate');
+  if (fv) fv.style.display = (currentPage==='caisse' && window.innerWidth<=640) ? 'block' : 'none';
+  if (window.innerWidth > 640) {
+    const cat = document.getElementById('cataloguePanel');
+    const cmd = document.getElementById('commandePanel');
+    if (cat) cat.style.display='';
+    if (cmd) cmd.style.display='';
+  }
+});
 
 // ========== BADGE ==========
-function updateQueueBadge() { /* ... */ }
+function updateQueueBadge() {
+  const pending = orders.filter(o => o.date===today() && (o.status==='en_attente' || o.status==='attente' || o.status==='preparation')).length;
+  ['hn-queue','bn-queue'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    const old = btn.querySelector('.notif-dot, .bn-notif');
+    if (old) old.remove();
+    if (pending > 0 && (currentUser.role === 'admin' || currentUser.role === 'cuisiniere' || currentUser.role === 'serveur' || currentUser.role === 'vendeur')) {
+      const dot = document.createElement('span');
+      dot.className = btn.id.startsWith('hn') ? 'notif-dot' : 'bn-notif';
+      btn.appendChild(dot);
+    }
+  });
+}
 
 // ========== DASHBOARD ==========
-function renderDashboard() { /* ... */ }
+function renderDashboard() {
+  let todayOrders = orders.filter(o => o.date===today());
+  let myOrders = todayOrders;
+  if (currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
+    const vend = currentUser.kiosque || currentUser.name;
+    myOrders = todayOrders.filter(o => o.vendeur === vend);
+  }
+  let totalJour, nbCommandes, enAttente, enPrep;
+  if (currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
+    totalJour = myOrders.reduce((s,o) => s+(o.total||0), 0);
+    nbCommandes = myOrders.length;
+    enAttente = myOrders.filter(o => o.status==='en_attente' || o.status==='attente').length;
+    enPrep = myOrders.filter(o => o.status==='preparation').length;
+  } else {
+    totalJour = todayOrders.reduce((s,o) => s+(o.total||0), 0);
+    nbCommandes = todayOrders.length;
+    enAttente = todayOrders.filter(o => o.status==='en_attente' || o.status==='attente').length;
+    enPrep = todayOrders.filter(o => o.status==='preparation').length;
+  }
+
+  const kiosques = users.filter(u => u.role === 'vendeur' && u.kiosque).map(u => u.kiosque);
+  let rupture = 0, stockBas = 0;
+  products.forEach(p => {
+    if (isFood(p)) return;
+    kiosques.forEach(k => {
+      const qty = (stockVendeur[k] && stockVendeur[k][p.id]) || 0;
+      if (qty <= 0) rupture++;
+      else if (qty <= 5) stockBas++;
+    });
+  });
+
+  let kpiHtml = '';
+  if (currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
+    kpiHtml = `
+      <div class="kpi-card green">
+        <div class="kpi-icon">$</div>
+        <div class="kpi-val">${fmt(totalJour)}</div>
+        <div class="kpi-label">Mes recettes du jour</div>
+      </div>
+      <div class="kpi-card blue">
+        <div class="kpi-icon">#</div>
+        <div class="kpi-val">${nbCommandes}</div>
+        <div class="kpi-label">Mes commandes</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-icon">!</div>
+        <div class="kpi-val">${enAttente+enPrep}</div>
+        <div class="kpi-label">Mes commandes en cours</div>
+      </div>
+      <div class="kpi-card ${rupture>0?'red':stockBas>0?'amber':'green'}">
+        <div class="kpi-icon">*</div>
+        <div class="kpi-val">${rupture>0?rupture:stockBas}</div>
+        <div class="kpi-label">${rupture>0?'Ruptures de stock':stockBas>0?'Stock bas':'Stock OK'}</div>
+      </div>`;
+  } else {
+    kpiHtml = `
+      <div class="kpi-card green">
+        <div class="kpi-icon">$</div>
+        <div class="kpi-val">${fmt(totalJour)}</div>
+        <div class="kpi-label">Recettes du jour</div>
+      </div>
+      <div class="kpi-card blue">
+        <div class="kpi-icon">#</div>
+        <div class="kpi-val">${nbCommandes}</div>
+        <div class="kpi-label">Commandes aujourd'hui</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-icon">!</div>
+        <div class="kpi-val">${enAttente+enPrep}</div>
+        <div class="kpi-label">En cours</div>
+      </div>
+      <div class="kpi-card ${rupture>0?'red':stockBas>0?'amber':'green'}">
+        <div class="kpi-icon">*</div>
+        <div class="kpi-val">${rupture>0?rupture:stockBas}</div>
+        <div class="kpi-label">${rupture>0?'Ruptures de stock':stockBas>0?'Stock bas':'Stock OK'}</div>
+      </div>`;
+  }
+  document.getElementById('dashKpi').innerHTML = kpiHtml;
+
+  const alerts = [];
+  if (rupture>0) alerts.push({cls:'warn',msg:`Alerte: ${rupture} produit(s) en rupture dans certains kiosques`});
+  if (stockBas>0) alerts.push({cls:'warn',msg:`Alerte: ${stockBas} produit(s) avec stock bas (<=5) dans certains kiosques`});
+  if (enAttente>0 && currentUser.role !== 'vendeur' && currentUser.role !== 'serveur') alerts.push({cls:'info',msg:`Info: ${enAttente} commande(s) en attente`});
+  if (enPrep>0 && currentUser.role !== 'vendeur' && currentUser.role !== 'serveur')    alerts.push({cls:'info',msg:`Info: ${enPrep} commande(s) en preparation`});
+  if (!alerts.length) alerts.push({cls:'ok',msg:'Tout est en ordre'});
+
+  document.getElementById('dashAlerts').innerHTML = alerts.map(a =>
+    `<div class="alert-item ${a.cls}">${a.msg}</div>`
+  ).join('');
+
+  const ordersToShow = (currentUser.role === 'vendeur' || currentUser.role === 'serveur') ? myOrders : todayOrders;
+  const recent = [...ordersToShow].reverse().slice(0,6);
+  if (!recent.length) {
+    document.getElementById('dashOrders').innerHTML = '<div class="dash-empty">Aucune commande aujourd\'hui</div>';
+  } else {
+    const stMap   = {en_attente:'bg-o',attente:'bg-a',preparation:'bg-b',servie:'bg-g'};
+    const stLabel = {en_attente:'À valider',attente:'En cuisine',preparation:'En prep.',servie:'Servie'};
+    document.getElementById('dashOrders').innerHTML = recent.map(o => {
+      const st = o.status||'attente';
+      return `<div class="dash-order-row">
+        <span class="dash-order-id">${o.id}</span>
+        <span style="flex:1;color:var(--muted);font-size:.78rem">${o.client} -- ${o.time}</span>
+        <span class="badge ${stMap[st]||'bg-a'}">${stLabel[st]||'Attente'}</span>
+        <span style="font-weight:700;margin-left:auto;font-size:.85rem">${fmt(o.total)}</span>
+      </div>`;
+    }).join('');
+  }
+  updateQueueBadge();
+}
 
 // ========== CAISSE ==========
-function switchCaisseTab(tab) { /* ... */ }
+function switchCaisseTab(tab) {
+  const cat = document.getElementById('cataloguePanel');
+  const cmd = document.getElementById('commandePanel');
+  document.getElementById('cmt-catalogue').classList.toggle('act', tab==='catalogue');
+  document.getElementById('cmt-commande').classList.toggle('act', tab==='commande');
+  if (window.innerWidth > 640) return;
+  if (tab==='catalogue') { cat.style.display=''; cmd.style.display='none'; }
+  else                   { cat.style.display='none'; cmd.style.display='flex'; }
+}
+
 const CATS = ['Tout','Nourriture','Boissons','Chicha','Snacks','Desserts'];
 let activeCat = 'Tout';
-function initCaisse() { /* ... */ }
-function renderCatBar() { /* ... */ }
+
+function initCaisse() { 
+  renderCatBar(); 
+  renderProds(); 
+  renderCart(); 
+  updateClock(); 
+  updateKiosqueSourceVisibility();
+  if (window.innerWidth<=640) switchCaisseTab('catalogue'); 
+}
+
+function renderCatBar() {
+  const icons = {Tout:'Tout',Nourriture:'Nourriture',Boissons:'Boissons',Chicha:'Chicha',Snacks:'Snacks',Desserts:'Desserts'};
+  document.getElementById('catBar').innerHTML = CATS.map(c =>
+    `<button class="cat-btn ${c===activeCat?'act':''}" onclick="setCat('${c}')">${icons[c]||c}</button>`
+  ).join('');
+}
 function setCat(c) { activeCat=c; renderCatBar(); renderProds(); }
 
 function renderProds() {
-  // ... (identique, mais le stock affiché dépend du kiosque source)
+  const q = document.getElementById('searchIn').value.toLowerCase();
+  const filtered = products.filter(p =>
+    (activeCat==='Tout'||p.cat===activeCat) && (!q||p.name.toLowerCase().includes(q))
+  );
+  const todayKey = today();
+  const g = document.getElementById('prodGrid');
+  if (!filtered.length) {
+    g.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--muted)">Aucun article</div>';
+    return;
+  }
+
+  const isVendeur = currentUser.role === 'vendeur';
+  const isServeur = currentUser.role === 'serveur';
+  const isAdminOrCaissier = (currentUser.role === 'admin' || currentUser.role === 'comptable');
+
+  let kiosqueAffiche = '';
+  if (isVendeur) {
+    kiosqueAffiche = currentUser.kiosque || '';
+  } else if (isServeur || isAdminOrCaissier) {
+    kiosqueAffiche = currentKiosqueSource;
+  }
+
+  g.innerHTML = filtered.map(p => {
+    const avail    = dispo[todayKey]===undefined || dispo[todayKey][p.id]!==false;
+    let hasStock = !isFood(p);
+    let qty = 0;
+    let stockMsg = '';
+    let stockCls = 'ok';
+    if (hasStock) {
+      if (kiosqueAffiche && stockVendeur[kiosqueAffiche]) {
+        qty = stockVendeur[kiosqueAffiche][p.id] || 0;
+      } else {
+        qty = 0;
+      }
+      const cls = getStockClass(qty);
+      stockCls = cls;
+      if (qty <= 0) stockMsg = 'Rupture';
+      else if (qty <= 5) stockMsg = `Reste: ${qty}`;
+      else stockMsg = `${qty} dispo`;
+    } else {
+      stockMsg = 'Disponible';
+      stockCls = 'inf';
+    }
+    const inCart   = (cart.find(c=>c.id===p.id)||{qty:0}).qty;
+    const noStock  = hasStock && qty <= 0;
+    const lowStock = hasStock && qty > 0 && qty <= 5;
+    const disabled = !avail || noStock;
+    const serveurDisabled = (isServeur || isAdminOrCaissier) && !kiosqueAffiche;
+    const finalDisabled = disabled || serveurDisabled;
+    return `<button class="prod-card ${finalDisabled?'unavail':''} ${lowStock&&!noStock?'low-stock':''}"
+        onclick="${finalDisabled ? `toast('${noStock?'Rupture de stock':serveurDisabled?'Veuillez choisir un kiosque source':'Indisponible aujourd\'hui'}')` : `addToCart(${p.id})`}">
+      <div class="prod-dispo ${avail&&!noStock?'':'off'}"></div>
+      <div class="prod-name">${p.name}</div>
+      <div class="prod-cat">${getCatIcon(p.cat)}</div>
+      <div class="prod-price">${fmt(p.price)}</div>
+      <div class="prod-stock ${stockCls}">${stockMsg}</div>
+      ${!avail ? '<div class="prod-na">Indisponible</div>' : ''}
+      ${hasStock && kiosqueAffiche ? `<div style="font-size:.55rem;color:var(--muted);margin-top:2px;">${kiosqueAffiche}</div>` : ''}
+    </button>`;
+  }).join('');
 }
 
 function addToCart(id) {
-  // ... (identique, avec vérification du kiosque source)
+  const p = products.find(x => x.id===id);
+  if (!p) return;
+  let qtyStock = 0;
+  let hasStock = !isFood(p);
+  if (hasStock) {
+    let kiosque = '';
+    if (currentUser.role === 'vendeur') {
+      kiosque = currentUser.kiosque || '';
+    } else {
+      kiosque = currentKiosqueSource;
+    }
+    if (!kiosque) { toast('Veuillez sélectionner un kiosque source'); return; }
+    qtyStock = (stockVendeur[kiosque] && stockVendeur[kiosque][id]) || 0;
+    const inCart = (cart.find(c=>c.id===id)||{qty:0}).qty;
+    if (qtyStock - inCart <= 0) { toast('Stock insuffisant pour ce kiosque'); return; }
+  }
+  const ex = cart.find(c => c.id===id);
+  if (ex) ex.qty++;
+  else cart.push({id, name:p.name, price:p.price, qty:1});
+  renderCart(); renderProds();
+  if (window.innerWidth<=640) switchCaisseTab('commande');
 }
 
-function chgQty(id, d) { /* ... */ }
-function delItem(id) { /* ... */ }
-function renderCart() { /* ... */ }
+function chgQty(id, d) {
+  const item = cart.find(c=>c.id===id);
+  if (!item) return;
+  const p = products.find(x=>x.id===id);
+  if (!p) return;
+  if (d > 0 && !isFood(p)) {
+    let kiosque = '';
+    if (currentUser.role === 'vendeur') {
+      kiosque = currentUser.kiosque || '';
+    } else {
+      kiosque = currentKiosqueSource;
+    }
+    if (!kiosque) { toast('Kiosque source manquant'); return; }
+    const qtyStock = (stockVendeur[kiosque] && stockVendeur[kiosque][id]) || 0;
+    if (item.qty >= qtyStock) { toast('Stock insuffisant'); return; }
+  }
+  item.qty += d;
+  if (item.qty <= 0) cart = cart.filter(c=>c.id!==id);
+  renderCart(); renderProds();
+}
 
-// Plus de fonction updTable() ; on utilise le clientIn pour l'identification.
+function delItem(id) { cart=cart.filter(c=>c.id!==id); renderCart(); renderProds(); }
+
+function renderCart() {
+  const el    = document.getElementById('orderItems');
+  const badge = document.getElementById('cartCountBadge');
+  const tot   = cart.reduce((s,c) => s+c.price*c.qty, 0);
+  const totQty = cart.reduce((s,c) => s+c.qty, 0);
+  if (badge) badge.innerHTML = totQty>0 ? `<span class="pending-badge">${totQty}</span>` : '';
+  if (!cart.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">-</div><div style="font-weight:700;font-size:.92rem">Commande vide</div><div style="font-size:.78rem;color:var(--muted)">Toucher un article pour l\'ajouter</div></div>';
+    document.getElementById('subT').textContent  = '0 GNF';
+    document.getElementById('totalT').textContent = '0 GNF';
+    return;
+  }
+  el.innerHTML = cart.map(c => {
+    const p = products.find(x=>x.id===c.id);
+    const hasStock = p && !isFood(p);
+    let stockRestant = 0;
+    if (hasStock) {
+      let kiosque = '';
+      if (currentUser.role === 'vendeur') {
+        kiosque = currentUser.kiosque || '';
+      } else {
+        kiosque = currentKiosqueSource;
+      }
+      if (kiosque && stockVendeur[kiosque]) {
+        stockRestant = (stockVendeur[kiosque][c.id] || 0) - c.qty;
+      }
+    }
+    return `<div class="order-item">
+      <div style="flex:1">
+        <div class="oi-name">${c.name}</div>
+        <div class="oi-unit">${fmt(c.price)} / unite</div>
+        ${hasStock ? `<div style="font-size:.65rem;color:var(--muted);">Reste: ${Math.max(0, stockRestant)}</div>` : ''}
+      </div>
+      <div class="qty-ctrl">
+        <button class="qb" onclick="chgQty(${c.id},-1)">-</button>
+        <div class="qn">${c.qty}</div>
+        <button class="qb" onclick="chgQty(${c.id},+1)">+</button>
+      </div>
+      <div class="oi-total">${fmt(c.price*c.qty)}</div>
+      <button class="del-btn" onclick="delItem(${c.id})">X</button>
+    </div>`;
+  }).join('');
+  document.getElementById('subT').textContent  = fmt(tot);
+  document.getElementById('totalT').textContent = fmt(tot);
+}
 
 function clearCart() {
   cart=[];
@@ -352,7 +1612,6 @@ async function confirmOrder() {
   if (!cart.length) { toast('La commande est vide'); return; }
   const client = document.getElementById('clientIn').value.trim();
   if (!client) { toast('Veuillez entrer un nom de client'); return; }
-  // Vérifier le kiosque source
   let kiosqueSource = '';
   if (currentUser.role === 'vendeur') {
     kiosqueSource = currentUser.kiosque || '';
@@ -361,7 +1620,6 @@ async function confirmOrder() {
   }
   if (!kiosqueSource) { toast('Sélectionner un kiosque source'); return; }
 
-  // Vérifier le stock (on ne déduit pas encore)
   for (const item of cart) {
     const p = products.find(x=>x.id===item.id);
     if (!p || isFood(p)) continue;
@@ -380,7 +1638,7 @@ async function confirmOrder() {
     note:     document.getElementById('noteIn').value,
     items:    cart.map(c=>({...c})),
     total:    cart.reduce((s,c)=>s+c.price*c.qty,0),
-    status:   'en_attente'  // nouvelle commande en attente de validation paiement
+    status:   'en_attente'
   };
 
   orders.push(order);
@@ -391,36 +1649,351 @@ async function confirmOrder() {
   updateQueueBadge();
 }
 
-function updateClock() { /* ... */ }
+function updateClock() {
+  const el = document.getElementById('orderMeta');
+  if (el) el.textContent = new Date().toLocaleString('fr-FR',{weekday:'short',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+}
 setInterval(updateClock, 1000);
 
 // ========== JOURNAL ==========
-function populateVendeurFilter() { /* ... */ }
+function populateVendeurFilter() {
+  const sel = document.getElementById('jVendeurFilter');
+  if (currentUser.role === 'admin') {
+    sel.style.display = 'inline-block';
+    const vendeurs = [...new Set(orders.map(o => o.vendeur).filter(Boolean))];
+    sel.innerHTML = '<option value="tous">Tous les vendeurs</option>' + 
+      vendeurs.map(v => `<option value="${v}">${v}</option>`).join('');
+  } else {
+    sel.style.display = 'none';
+  }
+}
+
 function renderJournal() {
   const date = document.getElementById('jDate').value;
   let day = orders.filter(o => o.date===date);
-  // ... filtrage
-  // Dans le tableau, remplacer "Table" par "Client"
+  if (currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
+    const vend = currentUser.kiosque || currentUser.name;
+    day = day.filter(o => o.vendeur === vend);
+  } else if (currentUser.role === 'admin') {
+    const filter = document.getElementById('jVendeurFilter').value;
+    if (filter && filter !== 'tous') day = day.filter(o => o.vendeur === filter);
+  }
+  const total   = day.reduce((s,o)=>s+(o.total||0),0);
+  const nbItems = day.reduce((s,o)=>s+o.items.reduce((ss,i)=>ss+i.qty,0),0);
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat-c"><div class="stat-l">Commandes</div><div class="stat-v">${day.length}</div></div>
+    <div class="stat-c"><div class="stat-l">Articles vendus</div><div class="stat-v a">${nbItems}</div></div>
+    <div class="stat-c"><div class="stat-l">Recettes</div><div class="stat-v g">${fmt(total)}</div></div>
+    <div class="stat-c"><div class="stat-l">Moy./commande</div><div class="stat-v">${day.length?fmt(Math.round(total/day.length)):'0 GNF'}</div></div>`;
+
   const tb = document.getElementById('jTable');
-  // ... affichage avec colonne Client
+  if (!day.length) {
+    tb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--muted)">Aucune commande ce jour</td></tr>';
+    return;
+  }
+  const stMap   = {en_attente:'bg-o',attente:'bg-a',preparation:'bg-b',servie:'bg-g'};
+  const stLabel = {en_attente:'À valider',attente:'En cuisine',preparation:'En prep.',servie:'Servie'};
+  tb.innerHTML = [...day].reverse().map(o => {
+    const st = o.status||'attente';
+    return `<tr>
+      <td><strong style="color:var(--accent)">${o.id}</strong></td>
+      <td>${o.time}</td>
+      <td>${o.client}</td>
+      <td>${o.caissier||'--'}</td>
+      <td>${o.vendeur||'--'}</td>
+      <td>${o.kiosqueSource||'--'}</td>
+      <td><strong>${fmt(o.total)}</strong></td>
+      <td><span class="badge ${stMap[st]||'bg-a'}">${stLabel[st]||'Attente'}</span></td>
+      <td style="white-space:nowrap">
+        <button class="icon-btn" onclick="viewOrder('${o.id}')" title="Detail">V</button>
+        ${currentUser.role==='admin' ? `<button class="icon-btn" onclick="openCancelOrder('${o.id}')" style="margin-left:4px" title="Annuler">X</button>` : ''}
+      </td>
+    </tr>`;
+  }).join('');
 }
 
-function viewOrder(id) { /* ... avec affichage du client et du statut en_attente */ }
-function openCancelOrder(id) { /* ... */ }
-async function confirmCancelOrder() { /* ... */ }
-function printBon(id) { /* ... */ }
-function exportExcel() { /* ... */ }
+function viewOrder(id) {
+  const o = orders.find(x=>x.id===id);
+  if (!o) return;
+  viewOrderId = id;
+  const stLabel = {en_attente:'En attente de validation',attente:'En cuisine',preparation:'En preparation',servie:'Servie'};
+  const stCls   = {en_attente:'bg-o',attente:'bg-a',preparation:'bg-b',servie:'bg-g'};
+  const st = o.status||'attente';
+  document.getElementById('modalOrderContent').innerHTML = `
+    <div style="font-size:.85rem;line-height:2;">
+      <div><strong>N° :</strong> ${o.id}</div>
+      <div><strong>Date :</strong> ${o.date} a ${o.time}</div>
+      <div><strong>Client :</strong> ${o.client}</div>
+      <div><strong>Caissier :</strong> ${o.caissier||'--'}</div>
+      <div><strong>Vendeur :</strong> ${o.vendeur||'--'}</div>
+      <div><strong>Kiosque source :</strong> ${o.kiosqueSource||'--'}</div>
+      <div><strong>Statut :</strong> <span class="badge ${stCls[st]||'bg-a'}">${stLabel[st]||'Attente'}</span></div>
+      <hr style="margin:.6rem 0;border-color:var(--border);">
+      ${o.items.map(i=>`
+        <div style="display:flex;justify-content:space-between;padding:3px 0;">
+          <span>${getCatIcon(products.find(p=>p.id===i.id)?.cat||'')} ${i.name} x${i.qty}</span>
+          <span style="font-weight:600">${fmt(i.price*i.qty)}</span>
+        </div>`).join('')}
+      <hr style="margin:.6rem 0;border-color:var(--border);">
+      <div style="display:flex;justify-content:space-between;font-size:1rem">
+        <strong>TOTAL</strong><strong style="color:var(--accent)">${fmt(o.total)}</strong>
+      </div>
+      ${o.note ? `<div style="margin-top:8px;font-size:.78rem;color:var(--amber);background:var(--amber-bg);padding:6px 10px;border-radius:6px;">Note: ${o.note}</div>` : ''}
+    </div>`;
+  const actsEl = document.getElementById('modalOrderActs');
+  if (currentUser.role === 'admin') {
+    actsEl.innerHTML = `
+      <button class="btn btn-ghost" onclick="closeModal('modalOrder')">Fermer</button>
+      <button class="btn btn-blue" onclick="printBon('${id}')">Imprimer</button>
+      <button class="btn" style="background:var(--red);color:#fff;" onclick="closeModal('modalOrder');openCancelOrder('${id}')">Annuler</button>`;
+  } else {
+    actsEl.innerHTML = `<button class="btn btn-ghost" onclick="closeModal('modalOrder')">Fermer</button>`;
+  }
+  openModal('modalOrder');
+}
+
+function openCancelOrder(id) {
+  cancelOrderId = id;
+  document.getElementById('cancelReason').value = '';
+  openModal('modalCancelOrder');
+}
+
+async function confirmCancelOrder() {
+  if (!cancelOrderId) return;
+  const reason = document.getElementById('cancelReason').value.trim();
+  const o = orders.find(x => x.id === cancelOrderId);
+  if (!o) { closeModal('modalCancelOrder'); return; }
+  // Restaurer le stock si la commande était déjà validée (status !== en_attente)
+  if (o.status !== 'en_attente') {
+    const kiosque = o.kiosqueSource;
+    if (kiosque) {
+      for (const item of o.items) {
+        const p = products.find(x=>x.id===item.id);
+        if (!p || isFood(p)) continue;
+        if (!stockVendeur[kiosque]) stockVendeur[kiosque] = {};
+        stockVendeur[kiosque][item.id] = (stockVendeur[kiosque][item.id]||0) + item.qty;
+        await logStockMvt(item.id, 'ajustement', item.qty, stockVendeur[kiosque][item.id], kiosque,
+          `Annulation commande ${o.id}${reason?' -- '+reason:''} (restauration)`);
+      }
+    }
+  }
+  orders = orders.filter(x => x.id !== cancelOrderId);
+  await saveFB('cb_orders', orders);
+  await saveFB('cb_stock_vendeur', stockVendeur);
+  logAction('Annulation commande', 'Commande ' + o.id + ' annulee par ' + currentUser.name + (reason?' - raison: '+reason:''));
+  closeModal('modalCancelOrder');
+  cancelOrderId = null;
+  toast('Commande annulee' + (o.status !== 'en_attente' ? ', stock restaure' : ''));
+  if (currentPage==='journal') renderJournal();
+  if (currentPage==='queue')   renderQueue();
+}
+
+function printBon(id) {
+  if (currentUser.role !== 'admin') { toast('Action reservee a l\'administrateur'); return; }
+  const order = orders.find(o=>o.id===id);
+  if (!order) return;
+  const bonHTML = `<div style="font-family:monospace;width:72mm;font-size:11px;line-height:1.8;padding:4mm;color:#000;background:#fff;">
+    <div style="text-align:center;border-bottom:1px dashed #000;padding-bottom:6px;margin-bottom:8px;">
+      <div style="font-size:15px;font-weight:bold;letter-spacing:.05em;">COMPLEXE BEYLA</div>
+      <div style="font-size:10px;">BON DE COMMANDE CUISINE</div>
+    </div>
+    <div style="font-size:10px;border-bottom:1px dashed #000;padding-bottom:6px;margin-bottom:8px;">
+      <div><b>N° :</b> ${order.id}</div>
+      <div><b>Date :</b> ${order.date} ${order.time}</div>
+      <div><b>Client :</b> ${order.client}</div>
+      ${order.vendeur?`<div><b>Vendeur :</b> ${order.vendeur}</div>`:''}
+      ${order.kiosqueSource?`<div><b>Kiosque :</b> ${order.kiosqueSource}</div>`:''}
+    </div>
+    <div style="margin-bottom:8px;">
+      ${order.items.map(i=>`
+        <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px dotted #ddd;">
+          <span style="font-size:13px;font-weight:bold;">${i.name}</span>
+          <span style="font-size:14px;font-weight:bold;background:#000;color:#fff;padding:1px 7px;border-radius:3px;">x${i.qty}</span>
+        </div>`).join('')}
+    </div>
+    ${order.note?`<div style="border:1px solid #000;padding:5px 7px;font-size:10px;margin-top:4px;background:#fffbf0;"><b>NOTE :</b> ${order.note}</div>`:''}
+    <div style="text-align:center;margin-top:10px;font-size:9px;border-top:1px dashed #000;padding-top:4px;color:#666;">Imprime ${order.date} a ${order.time}</div>
+  </div>`;
+  const w = window.open('','','width=420,height=600');
+  if (!w) { toast('Autoriser les popups pour imprimer'); return; }
+  w.document.write('<html><body style="margin:0">'+bonHTML+'</body></html>');
+  w.document.close();
+  w.focus();
+  setTimeout(()=>{ w.print(); w.close(); }, 350);
+  closeModal('modalOrder');
+}
+
+function exportExcel() {
+  const date = document.getElementById('jDate').value;
+  let day = orders.filter(o=>o.date===date);
+  if (currentUser.role === 'admin') {
+    const filter = document.getElementById('jVendeurFilter').value;
+    if (filter !== 'tous') day = day.filter(o => o.vendeur === filter);
+  } else if (currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
+    const vend = currentUser.kiosque || currentUser.name;
+    day = day.filter(o => o.vendeur === vend);
+  }
+  if (!day.length) { toast('Aucune donnee a exporter'); return; }
+  const wb = XLSX.utils.book_new();
+  const rows = [
+    ['COMPLEXE BEYLA -- JOURNAL DU ' + date],[],
+    ['N° Commande','Date','Heure','Client','Caissier','Vendeur','Kiosque source','Statut','Articles','Total (GNF)']
+  ];
+  day.forEach(o => rows.push([
+    o.id, o.date, o.time, o.client, o.caissier||'--', o.vendeur||'--', o.kiosqueSource||'--',
+    o.status||'attente',
+    o.items.map(i=>i.name+' x'+i.qty).join(' | '),
+    o.total
+  ]));
+  rows.push([],['','','','','','','','','TOTAL JOUR',day.reduce((s,o)=>s+(o.total||0),0)]);
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [{wch:16},{wch:12},{wch:8},{wch:20},{wch:18},{wch:18},{wch:16},{wch:14},{wch:50},{wch:16}];
+  XLSX.utils.book_append_sheet(wb,ws,'Journal');
+  XLSX.writeFile(wb,'Beyla_Journal_'+date+'.xlsx');
+  toast('Fichier Excel exporte');
+}
 
 // ========== VERIFICATION ==========
-function renderVerif() { /* ... */ }
-function calcEcart(sysTotal) { /* ... */ }
-async function saveVerif(date, sysTotal) { /* ... */ }
+function renderVerif() {
+  const date = document.getElementById('vDate').value;
+  let day = orders.filter(o=>o.date===date);
+  if (currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
+    const vend = currentUser.kiosque || currentUser.name;
+    day = day.filter(o => o.vendeur === vend);
+  }
+  const sysTotal = day.reduce((s,o)=>s+(o.total||0),0);
+  const bycat    = {};
+  day.forEach(o=>o.items.forEach(i=>{
+    const p = products.find(x=>x.id===i.id);
+    const c = p?p.cat:'Autre';
+    bycat[c] = (bycat[c]||0) + i.price*i.qty;
+  }));
+  const byCaissier = {};
+  day.forEach(o=>{
+    const c = o.caissier||'--';
+    if (!byCaissier[c]) byCaissier[c]={n:0,total:0};
+    byCaissier[c].n++; byCaissier[c].total+=(o.total||0);
+  });
+  const byStatus = {en_attente:0,attente:0,preparation:0,servie:0};
+  day.forEach(o=>{ byStatus[o.status||'attente']++; });
+  const saved = verifs[date]||{};
+
+  document.getElementById('verifGrid').innerHTML = `
+    <div>
+      <div class="verif-card">
+        <div class="verif-title">Recapitulatif systeme</div>
+        <div class="verif-row"><span>Commandes enregistrees</span><strong>${day.length}</strong></div>
+        <div class="verif-row"><span>Servies</span><strong style="color:var(--green)">${byStatus.servie}</strong></div>
+        <div class="verif-row"><span>En attente</span><strong style="color:var(--amber)">${byStatus.en_attente+byStatus.attente+byStatus.preparation}</strong></div>
+        ${ALL_STOCK_CATS.map(cat=>`
+          <div class="verif-row"><span>${getCatIcon(cat)}</span><strong>${fmt(bycat[cat]||0)}</strong></div>`
+        ).join('')}
+        <div class="verif-total">
+          <span>Total attendu</span>
+          <span style="color:var(--green);font-size:1.1rem">${fmt(sysTotal)}</span>
+        </div>
+      </div>
+      <div class="verif-card" style="margin-top:1.2rem;">
+        <div class="verif-title">Par caissier / vendeur</div>
+        ${Object.entries(byCaissier).map(([c,v])=>`
+          <div class="verif-row"><span>${c}</span>
+            <div style="text-align:right">
+              <strong>${fmt(v.total)}</strong><br>
+              <span style="font-size:.72rem;color:var(--muted)">${v.n} cmd</span>
+            </div>
+          </div>`).join('') || '<div style="color:var(--muted);padding:.5rem 0">Aucune commande</div>'}
+      </div>
+    </div>
+    <div class="verif-card">
+      <div class="verif-title">Verification physique</div>
+      <div class="verif-row">
+        <span>Argent compte (GNF)</span>
+        <input type="number" class="big-in" id="vCash" placeholder="0"
+          value="${saved.cash||''}" oninput="calcEcart(${sysTotal})">
+      </div>
+      <div class="verif-total" id="vEcartRow">
+        <span>Ecart de caisse</span><span id="vEcart" style="font-size:1.1rem">--</span>
+      </div>
+      <div id="verifAlert"></div>
+      <textarea class="note-in" id="vNote" rows="2" placeholder="Observations...">${saved.note||''}</textarea>
+      <button class="btn btn-green" style="width:100%;margin-top:6px" onclick="saveVerif('${date}',${sysTotal})">
+        Enregistrer la verification
+      </button>
+      ${saved.savedAt?`<div style="font-size:.72rem;margin-top:8px;text-align:center;color:var(--muted)">Sauvegarde : ${saved.savedAt}</div>`:''}
+    </div>`;
+  if (saved.cash!==undefined) calcEcart(sysTotal);
+}
+
+function calcEcart(sysTotal) {
+  const cash  = parseFloat(document.getElementById('vCash')?.value)||0;
+  const ecart = cash - sysTotal;
+  const eEl   = document.getElementById('vEcart');
+  if (eEl) {
+    eEl.textContent = (ecart>=0?'+':'')+fmt(Math.abs(ecart));
+    eEl.style.color = ecart===0?'var(--green)':'var(--red)';
+  }
+  const al = document.getElementById('verifAlert');
+  if (al&&cash>0) al.innerHTML = ecart===0
+    ? '<div class="verif-alert alert-ok">La caisse est correcte -- aucun ecart</div>'
+    : '<div class="verif-alert alert-bad">Anomalie de caisse -- verifier les transactions</div>';
+}
+
+async function saveVerif(date, sysTotal) {
+  const cash = parseFloat(document.getElementById('vCash').value)||0;
+  const note = document.getElementById('vNote').value;
+  verifs[date] = {cash,note,sysTotal,savedAt:new Date().toLocaleString('fr-FR')};
+  await saveFB('cb_verifs', verifs);
+  logAction('Verification', 'Verification du ' + date + ' - Ecart: ' + fmt(cash - sysTotal));
+  toast('Verification enregistree');
+  renderVerif();
+}
 
 // ========== DISPONIBILITE ==========
-function renderCuisine() { /* ... */ }
-async function toggleDispo(id) { /* ... */ }
+function renderCuisine() {
+  const k = today();
+  if (!dispo[k]) {
+    dispo[k]={};
+    products.forEach(p=>{ dispo[k][p.id]=true; });
+    saveFB('cb_dispo', dispo);
+  }
+  const byCat = {};
+  products.forEach(p => {
+    if (!byCat[p.cat]) byCat[p.cat]=[];
+    byCat[p.cat].push(p);
+  });
+  let html = '';
+  for (const [cat, prods] of Object.entries(byCat)) {
+    html += `<div style="grid-column:1/-1;margin-top:.5rem;margin-bottom:.3rem;">
+      <span style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)">
+        ${getCatIcon(cat)}
+      </span>
+    </div>`;
+    html += prods.map(p => {
+      const avail = dispo[k][p.id]!==false;
+      return `<div class="cuisine-card ${avail?'dispo':'indispo'}">
+        <div class="cc-info">
+          <div class="cc-name">${p.name}</div>
+          <div class="cc-cat">${fmt(p.price)}</div>
+        </div>
+        <button class="toggle-btn ${avail?'on':'off'}" onclick="toggleDispo(${p.id})"></button>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('cuisineGrid').innerHTML = html;
+}
 
-// ========== FILE D'ATTENTE CUISINE (avec validation paiement) ==========
+async function toggleDispo(id) {
+  const k = today();
+  if (!dispo[k]) dispo[k]={};
+  dispo[k][id] = dispo[k][id]===false;
+  await saveFB('cb_dispo', dispo);
+  logAction('Disponibilite', 'Produit ' + products.find(p=>p.id===id)?.name + ' modifie: ' + (dispo[k][id]?'Disponible':'Indisponible'));
+  renderCuisine();
+  if (currentPage==='caisse') renderProds();
+  toast(dispo[k][id]?'Disponible':'Marque indisponible');
+}
+
+// ========== FILE D'ATTENTE CUISINE ==========
 function setQueueFilter(f) {
   queueFilter = f;
   document.querySelectorAll('.qc-filter-btn').forEach(b=>b.classList.remove('act'));
@@ -429,10 +2002,94 @@ function setQueueFilter(f) {
 }
 
 function renderQueue() {
-  // ... (affiche les commandes avec statut 'en_attente' en plus)
-  // Ajouter un bouton "Valider le paiement" pour les commandes en_attente
-  // Seuls les admin, comptable, vendeur (kiosque) peuvent valider
-  // Après validation, le stock est déduit et le statut passe à 'attente'
+  if (currentUser.role === 'comptable') {
+    document.getElementById('queueTitle').textContent = 'Suivi commandes';
+    document.getElementById('queueSub').textContent   = 'Statut de vos commandes (lecture seule)';
+    document.getElementById('queueFilterBar').style.display = '';
+  } else if (currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
+    document.getElementById('queueTitle').textContent = 'Statut des commandes';
+    document.getElementById('queueSub').textContent   = 'Voir vos commandes en cours';
+    document.getElementById('queueFilterBar').style.display = 'none';
+  } else {
+    document.getElementById('queueTitle').textContent = 'File d\'attente';
+    document.getElementById('queueSub').textContent   = 'Commandes en cours';
+    document.getElementById('queueFilterBar').style.display = '';
+  }
+
+  let todayAll = orders.filter(o=>o.date===today());
+  if (currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
+    const vend = currentUser.kiosque || currentUser.name;
+    todayAll = todayAll.filter(o => o.vendeur === vend);
+  }
+  let filtered = todayAll;
+  if (queueFilter==='en_attente')  filtered = todayAll.filter(o=>o.status==='en_attente');
+  if (queueFilter==='attente')     filtered = todayAll.filter(o=>o.status==='attente');
+  if (queueFilter==='preparation') filtered = todayAll.filter(o=>o.status==='preparation');
+  if (queueFilter==='servie')      filtered = todayAll.filter(o=>o.status==='servie');
+
+  filtered.sort((a,b)=>{
+    const ord={en_attente:0,attente:1,preparation:2,servie:3};
+    const sa=ord[a.status||'attente']||0, sb=ord[b.status||'attente']||0;
+    if (sa!==sb) return sa-sb;
+    return a.time.localeCompare(b.time);
+  });
+
+  const grid = document.getElementById('queueGrid');
+  if (!filtered.length) {
+    grid.innerHTML = '<div class="queue-empty"><div style="font-size:2.5rem;opacity:.2">-</div><div style="margin-top:.8rem;font-weight:600">Aucune commande</div></div>';
+    return;
+  }
+
+  const stLabel = {en_attente:'À valider',attente:'En cuisine',preparation:'En prep.',servie:'Servie'};
+  const stMap   = {en_attente:'bg-o',attente:'bg-a',preparation:'bg-b',servie:'bg-g'};
+
+  if (currentUser.role === 'comptable' || currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
+    grid.innerHTML = filtered.map(o => {
+      const st = o.status||'attente';
+      return `<div class="caissier-status-card">
+        <div>
+          <div class="csc-id">${o.id}</div>
+          <div style="font-size:.7rem;color:var(--muted);margin-top:2px">${o.time}</div>
+        </div>
+        <div class="csc-info">
+          <div class="csc-client">${o.client}</div>
+          <div style="font-size:.75rem;margin-top:2px">${o.items.length} article(s) -- ${o.kiosqueSource||''}</div>
+        </div>
+        <span class="badge ${stMap[st]||'bg-a'}">${stLabel[st]||'Attente'}</span>
+        ${st==='en_attente' && (currentUser.role==='vendeur'||currentUser.role==='admin'||currentUser.role==='comptable') ? 
+          `<button class="qc-btn qc-btn-validate" onclick="validatePayment('${o.id}')">Valider paiement</button>` : ''}
+      </div>`;
+    }).join('');
+    updateQueueBadge();
+    return;
+  }
+
+  // Vue cuisine / admin
+  grid.innerHTML = filtered.map(o => {
+    const st = o.status||'attente';
+    const canStart = st==='attente';
+    const canDone  = st==='preparation';
+    return `<div class="queue-card ${st}">
+      <div class="qc-head">
+        <span class="qc-num">${o.id}</span>
+        <span><span class="badge ${stMap[st]||'bg-a'}">${stLabel[st]||'Attente'}</span></span>
+        <span class="qc-time">${o.time}</span>
+      </div>
+      <div class="qc-client">Client : <strong>${o.client}</strong></div>
+      <div style="font-size:.78rem;color:var(--muted);margin-bottom:.5rem;">Kiosque : ${o.kiosqueSource||'--'}</div>
+      <div class="qc-items">
+        ${o.items.map(i=>`<div class="qc-item-line"><span>${i.name}</span><strong style="background:var(--text);color:#fff;padding:1px 7px;border-radius:4px;font-size:.78rem">x${i.qty}</strong></div>`).join('')}
+      </div>
+      ${o.note?`<div class="qc-note">Note : ${o.note}</div>`:''}
+      <div class="qc-actions">
+        ${canStart?`<button class="qc-btn qc-btn-start" onclick="setOrderStatus('${o.id}','preparation')">Prendre en charge</button>`:''}
+        ${canDone ?`<button class="qc-btn qc-btn-done"  onclick="setOrderStatus('${o.id}','servie')">Commande servie</button>`:''}
+        ${st==='servie'?`<span style="font-size:.8rem;color:var(--green);flex:1;text-align:center;font-weight:700">Servie</span>`:''}
+        ${currentUser.role==='admin'?`<button class="qc-btn" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);flex:0 0 auto;width:40px;font-size:1rem;" onclick="printBon('${o.id}')" title="Imprimer">I</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  updateQueueBadge();
 }
 
 async function validatePayment(id) {
@@ -441,7 +2098,7 @@ async function validatePayment(id) {
   if (o.status !== 'en_attente') { toast('Cette commande ne peut pas être validée'); return; }
   const kiosque = o.kiosqueSource;
   if (!kiosque) { toast('Kiosque source manquant'); return; }
-  // Vérifier le stock (normalement déjà vérifié à la création, mais on revérifie)
+  // Vérifier le stock
   for (const item of o.items) {
     const p = products.find(x=>x.id===item.id);
     if (!p || isFood(p)) continue;
@@ -459,7 +2116,7 @@ async function validatePayment(id) {
     stockVendeur[kiosque][item.id] = Math.max(0, (stockVendeur[kiosque][item.id]||0) - item.qty);
     await logStockMvt(item.id, 'vente', item.qty, stockVendeur[kiosque][item.id], kiosque, `Commande ${o.id} - validée`);
   }
-  o.status = 'attente'; // passage en cuisine
+  o.status = 'attente';
   await saveFB('cb_orders', orders);
   await saveFB('cb_stock_vendeur', stockVendeur);
   logAction('Validation paiement', 'Commande ' + o.id + ' validée par ' + currentUser.name + ' - Kiosque: ' + kiosque);
@@ -469,7 +2126,6 @@ async function validatePayment(id) {
 }
 
 async function setOrderStatus(id, status) {
-  // Pour les autres transitions (preparation, servie)
   const o = orders.find(x=>x.id===id);
   if (!o) return;
   if (o.status === 'en_attente' && status !== 'annulee') {
@@ -483,16 +2139,14 @@ async function setOrderStatus(id, status) {
   toast('Statut mis à jour');
 }
 
-// ========== STOCK (avec sous-onglets) ==========
+// ========== STOCK ==========
 function renderStock() {
-  // Générer les onglets pour les kiosques
   const tabsContainer = document.getElementById('stockTabs');
   const kiosques = users.filter(u => u.role === 'vendeur' && u.kiosque).map(u => u.kiosque);
   const uniqueKiosques = [...new Set(kiosques)];
 
   let tabsHtml = '';
   if (currentUser.role === 'admin') {
-    // Onglet "Tous" + chaque kiosque
     tabsHtml += `<button class="stock-tab-btn act" data-tab="tous" onclick="switchStockTab('tous')">Tous</button>`;
     uniqueKiosques.forEach(k => {
       tabsHtml += `<button class="stock-tab-btn" data-tab="${k}" onclick="switchStockTab('${k}')">${k}</button>`;
@@ -503,12 +2157,10 @@ function renderStock() {
       tabsHtml += `<button class="stock-tab-btn act" data-tab="${monKiosque}" onclick="switchStockTab('${monKiosque}')">${monKiosque}</button>`;
     }
   } else if (currentUser.role === 'serveur' || currentUser.role === 'comptable') {
-    // Onglet "Vue globale" pour les serveurs (lecture seule)
     tabsHtml += `<button class="stock-tab-btn act" data-tab="tous" onclick="switchStockTab('tous')">Stocks disponibles</button>`;
   }
   tabsContainer.innerHTML = tabsHtml;
 
-  // Afficher le contenu par défaut (le premier onglet actif)
   const activeTab = document.querySelector('.stock-tab-btn.act')?.dataset.tab || 'tous';
   renderStockContent(activeTab);
 }
@@ -528,7 +2180,6 @@ function renderStockContent(tab) {
   let html = '';
 
   if (tab === 'tous') {
-    // Vue croisée : tous les produits et tous les kiosques
     const productsAStock = products.filter(p => !isFood(p));
     if (!productsAStock.length) {
       html = '<div style="color:var(--muted);padding:.5rem;">Aucun produit avec stock</div>';
@@ -553,7 +2204,7 @@ function renderStockContent(tab) {
           });
           if (isAdmin) {
             tableHtml += `<td>
-              <button class="icon-btn" onclick="openAdjustStock('${p.id}')" title="Ajuster pour tous">⚙️</button>
+              <button class="icon-btn" onclick="openAdjustStock('${p.id}')" title="Ajuster">⚙️</button>
             </td>`;
           }
           tableHtml += `</tr>`;
@@ -562,13 +2213,12 @@ function renderStockContent(tab) {
         html = tableHtml;
         if (isAdmin) {
           html += `<div style="margin-top:1rem;">
-            <p style="font-size:.8rem;color:var(--muted);">Cliquez sur ⚙️ pour ajuster le stock de ce produit dans tous les kiosques.</p>
+            <p style="font-size:.8rem;color:var(--muted);">Utilisez la vue par kiosque pour ajuster les quantités.</p>
           </div>`;
         }
       }
     }
   } else {
-    // Vue par kiosque individuel
     const kiosque = tab;
     const productsAStock = products.filter(p => !isFood(p));
     if (!productsAStock.length) {
@@ -596,8 +2246,6 @@ function renderStockContent(tab) {
   }
 
   container.innerHTML = html;
-
-  // Historique des mouvements (commun)
   renderStockMvt();
 }
 
@@ -630,10 +2278,7 @@ function renderStockMvt() {
   }
 }
 
-// Fonctions d'ajustement de stock (admin)
 function openAdjustStock(prodId) {
-  // On peut ouvrir une modale pour définir la quantité dans chaque kiosque
-  // Ou directement utiliser les champs dans la vue "Tous". Pour simplifier, on va juste toast.
   toast('Utilisez la vue par kiosque pour ajuster');
 }
 
@@ -658,26 +2303,254 @@ function adjustStockKiosque(kiosque, prodId, mode) {
   toast('Stock mis à jour');
 }
 
-// ========== ADMIN (inchangé) ==========
-function renderAdmin() { /* ... */ }
-function renderVentesVendeur() { /* ... */ }
-function renderJournalActions() { /* ... */ }
-function exportVentesVendeur() { /* ... */ }
-function openAddUser() { /* ... */ }
-function editUserModal(id) { /* ... */ }
-function toggleKiosqueField() { /* ... */ }
-async function saveUser() { /* ... */ }
-async function delUser(id) { /* ... */ }
+// ========== ADMIN ==========
+function renderAdmin() {
+  document.getElementById('userList').innerHTML = users.map(u=>`
+    <div class="user-row">
+      <div class="user-avatar">${u.name.split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase()}</div>
+      <div style="flex:1">
+        <div class="user-name">${u.name}</div>
+        <div class="user-role">${{admin:'Admin',comptable:'Caissier',cuisiniere:'Cuisiniere',vendeur:'Kiosque',serveur:'Serveur'}[u.role]||u.role} -- @${u.login}${u.kiosque?' -- '+u.kiosque:''}</div>
+      </div>
+      ${u.id!==1?`
+        <button class="icon-btn" onclick="editUserModal(${u.id})" title="Modifier">M</button>
+        <button class="icon-btn" onclick="delUser(${u.id})" style="margin-left:4px" title="Supprimer">X</button>`
+      :''}
+    </div>`).join('');
 
-// ========== PRODUITS (inchangé) ==========
-function openAddProd() { /* ... */ }
-function editProdModal(id) { /* ... */ }
-async function saveProd() { /* ... */ }
-async function delProd(id) { /* ... */ }
+  document.getElementById('prodMgmtGrid').innerHTML = products.map(p=>{
+    const isFoodCat = isFood(p);
+    const totalQty = Object.values(stockVendeur).reduce((acc, k) => acc + (k[p.id]||0), 0);
+    const qty   = isFoodCat ? '∞' : totalQty;
+    const stCls = isFoodCat ? 'inf' : getStockClass(totalQty);
+    const label = isFoodCat ? 'Illimité' : (totalQty <=0 ? 'Rupture' : (totalQty <=5 ? 'Stock bas' : 'En stock'));
+    return `<div class="pm-card">
+      <div class="pm-info">
+        <div class="pm-name">${getCatIcon(p.cat)} ${p.name}</div>
+        <div class="pm-cat">${p.cat}</div>
+        <div class="pm-price">${fmt(p.price)} -- <span class="sc-stock ${stCls}" style="font-size:.72rem">${qty} ${isFoodCat?'':'(total)'}</span></div>
+      </div>
+      <button class="icon-btn" onclick="editProdModal(${p.id})" title="Modifier">M</button>
+      <button class="icon-btn" onclick="delProd(${p.id})" style="margin-left:4px" title="Supprimer">X</button>
+    </div>`;
+  }).join('');
+
+  renderVentesVendeur();
+  renderJournalActions();
+}
+
+function renderVentesVendeur() {
+  const todayOrders = orders.filter(o=>o.date===today());
+  const vendeurStats = {};
+  todayOrders.forEach(o => {
+    const v = o.vendeur || 'Non defini';
+    if (!vendeurStats[v]) vendeurStats[v] = {total:0, nb:0, items:0};
+    vendeurStats[v].total += o.total || 0;
+    vendeurStats[v].nb++;
+    vendeurStats[v].items += o.items.reduce((s,i)=>s+i.qty,0);
+  });
+  let html = '';
+  if (Object.keys(vendeurStats).length === 0) {
+    html = '<div style="color:var(--muted);padding:.5rem 0">Aucune vente aujourd\'hui.</div>';
+  } else {
+    html = `<div class="tbl-wrap"><table><thead><tr><th>Vendeur</th><th>Nb commandes</th><th>Articles vendus</th><th>Total</th></tr></thead><tbody>`;
+    for (const [v, stats] of Object.entries(vendeurStats)) {
+      html += `<tr><td><strong>${v}</strong></td><td>${stats.nb}</td><td>${stats.items}</td><td><strong>${fmt(stats.total)}</strong></td></tr>`;
+    }
+    html += '</tbody></table></div>';
+  }
+  document.getElementById('ventesVendeur').innerHTML = html;
+}
+
+function renderJournalActions() {
+  const container = document.getElementById('journalActions');
+  if (!journalActions.length) {
+    container.innerHTML = '<div style="color:var(--muted);padding:.5rem 0">Aucune action enregistree.</div>';
+    return;
+  }
+  container.innerHTML = journalActions.slice(0, 100).map(j => 
+    `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:.75rem;">
+      <span><strong>${j.user}</strong> - ${j.action}</span>
+      <span style="color:var(--muted);">${j.details} - ${j.ts}</span>
+    </div>`
+  ).join('');
+}
+
+function exportVentesVendeur() {
+  const date = today();
+  const day = orders.filter(o=>o.date===date);
+  if (!day.length) { toast('Aucune donnee a exporter'); return; }
+  const wb = XLSX.utils.book_new();
+  const rows = [
+    ['COMPLEXE BEYLA -- VENTES PAR VENDEUR - ' + date],[],
+    ['Vendeur','Nb commandes','Articles vendus','Total (GNF)']
+  ];
+  const stats = {};
+  day.forEach(o => {
+    const v = o.vendeur || 'Non defini';
+    if (!stats[v]) stats[v] = {nb:0, items:0, total:0};
+    stats[v].nb++;
+    stats[v].items += o.items.reduce((s,i)=>s+i.qty,0);
+    stats[v].total += o.total||0;
+  });
+  for (const [v, s] of Object.entries(stats)) {
+    rows.push([v, s.nb, s.items, s.total]);
+  }
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  XLSX.utils.book_append_sheet(wb, ws, 'Ventes par vendeur');
+  XLSX.writeFile(wb, 'Beyla_Ventes_Vendeur_'+date+'.xlsx');
+  toast('Fichier exporte');
+}
+
+function openAddUser() {
+  editUserId=null;
+  document.getElementById('modalUserTitle').textContent='Nouveau compte';
+  ['uName','uLogin','uPass','uKiosque'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('uRole').value='comptable';
+  toggleKiosqueField();
+  openModal('modalUser');
+}
+
+function editUserModal(id) {
+  const u = users.find(x=>x.id===id);
+  if (!u) return;
+  editUserId=id;
+  document.getElementById('modalUserTitle').textContent='Modifier compte';
+  document.getElementById('uName').value  = u.name;
+  document.getElementById('uLogin').value = u.login;
+  document.getElementById('uPass').value  = '';
+  document.getElementById('uRole').value  = u.role;
+  document.getElementById('uKiosque').value = u.kiosque || '';
+  toggleKiosqueField();
+  openModal('modalUser');
+}
+
+function toggleKiosqueField() {
+  const role = document.getElementById('uRole').value;
+  const group = document.getElementById('kiosqueGroup');
+  if (role === 'vendeur' || role === 'serveur') {
+    group.style.display = 'block';
+  } else {
+    group.style.display = 'none';
+  }
+}
+
+async function saveUser() {
+  const name  = document.getElementById('uName').value.trim();
+  const login = document.getElementById('uLogin').value.trim();
+  const pass  = document.getElementById('uPass').value;
+  const role  = document.getElementById('uRole').value;
+  const kiosque = document.getElementById('uKiosque').value.trim() || null;
+  if (!name||!login) { toast('Remplir nom et login'); return; }
+  if (!editUserId&&!pass) { toast('Mot de passe requis'); return; }
+  if (users.find(u=>u.login===login&&u.id!==editUserId)) { toast('Login deja utilise'); return; }
+  if (editUserId) {
+    const u = users.find(x=>x.id===editUserId);
+    if (u) { u.name=name; u.login=login; if (pass) u.pass=pass; u.role=role; u.kiosque=kiosque; }
+  } else {
+    const mx = Math.max(...users.map(u=>u.id),0);
+    users.push({id:mx+1,name,login,pass,role,kiosque});
+  }
+  await saveFB('cb_users', users);
+  logAction('Gestion utilisateur', 'Compte ' + login + ' ' + (editUserId?'modifie':'cree') + ' par ' + currentUser.name);
+  closeModal('modalUser');
+  renderAdmin();
+  populateKiosqueSource();
+  toast('Compte enregistre');
+}
+
+async function delUser(id) {
+  if (id===currentUser.id) { toast('Impossible de supprimer votre compte'); return; }
+  if (!confirm('Supprimer ce compte ?')) return;
+  const user = users.find(u=>u.id===id);
+  users=users.filter(u=>u.id!==id);
+  await saveFB('cb_users',users);
+  logAction('Gestion utilisateur', 'Compte ' + user?.login + ' supprime par ' + currentUser.name);
+  renderAdmin();
+  populateKiosqueSource();
+  toast('Compte supprime');
+}
+
+// ========== PRODUITS ==========
+function openAddProd() {
+  editProdId=null;
+  document.getElementById('modalProdTitle').textContent='Nouveau produit';
+  document.getElementById('pName').value='';
+  document.getElementById('pPrice').value='';
+  document.getElementById('pCat').value='Nourriture';
+  openModal('modalProd');
+}
+
+function editProdModal(id) {
+  const p = products.find(x=>x.id===id);
+  if (!p) return;
+  editProdId=id;
+  document.getElementById('modalProdTitle').textContent='Modifier produit';
+  document.getElementById('pName').value  = p.name;
+  document.getElementById('pPrice').value = p.price;
+  document.getElementById('pCat').value   = p.cat;
+  openModal('modalProd');
+}
+
+async function saveProd() {
+  const name  = document.getElementById('pName').value.trim();
+  const price = parseFloat(document.getElementById('pPrice').value);
+  const cat   = document.getElementById('pCat').value;
+  if (!name||!price) { toast('Remplir nom et prix'); return; }
+  if (editProdId) {
+    const p = products.find(x=>x.id===editProdId);
+    if (p) { p.name=name; p.price=price; p.cat=cat; }
+  } else {
+    const mx    = Math.max(...products.map(p=>p.id),0);
+    const newId = mx+1;
+    products.push({id:newId,name,price,cat});
+  }
+  await saveFB('cb_prods',products);
+  logAction('Gestion produit', 'Produit ' + name + ' ' + (editProdId?'modifie':'cree') + ' par ' + currentUser.name);
+  closeModal('modalProd');
+  renderAdmin();
+  renderProds();
+  toast('Produit enregistre');
+}
+
+async function delProd(id) {
+  if (!confirm('Supprimer ce produit definitivement ?')) return;
+  const p = products.find(x=>x.id===id);
+  products=products.filter(p=>p.id!==id);
+  Object.keys(stockVendeur).forEach(k => {
+    delete stockVendeur[k][id];
+  });
+  await saveFB('cb_prods',products);
+  await saveFB('cb_stock_vendeur',stockVendeur);
+  logAction('Gestion produit', 'Produit ' + p?.name + ' supprime par ' + currentUser.name);
+  renderAdmin();
+  renderProds();
+  toast('Produit supprime');
+}
 
 // ========== MOT DE PASSE ==========
-function openChangePwd() { /* ... */ }
-async function doChangePwd() { /* ... */ }
+function openChangePwd() {
+  ['pwdOld','pwdNew','pwdConf'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('pwdErr').textContent='';
+  openModal('modalPwd');
+}
+
+async function doChangePwd() {
+  const old  = document.getElementById('pwdOld').value;
+  const nw   = document.getElementById('pwdNew').value;
+  const conf = document.getElementById('pwdConf').value;
+  const errEl = document.getElementById('pwdErr');
+  if (!old||!nw||!conf) { errEl.textContent='Remplir tous les champs.'; return; }
+  if (old!==currentUser.pass) { errEl.textContent='Ancien mot de passe incorrect.'; return; }
+  if (nw.length<4) { errEl.textContent='Minimum 4 caracteres requis.'; return; }
+  if (nw!==conf) { errEl.textContent='Les mots de passe ne correspondent pas.'; return; }
+  const u = users.find(x=>x.id===currentUser.id);
+  if (u) { u.pass=nw; currentUser.pass=nw; }
+  await saveFB('cb_users',users);
+  logAction('Changement mot de passe', 'Utilisateur ' + currentUser.name + ' a change son mot de passe');
+  closeModal('modalPwd');
+  toast('Mot de passe modifie');
+}
 
 // ========== FERMETURE MODALS ==========
 document.querySelectorAll('.overlay').forEach(overlay => {
