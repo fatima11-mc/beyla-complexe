@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Complexe Beyla</title>
+<title>Complexe Beyla - Gestion</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
@@ -772,13 +772,26 @@ tbody td{padding:9px 10px;}
       <div class="admin-card" style="grid-column:1/-1;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem;">
           <div class="admin-card-title" style="margin:0">Allocation de stock par vendeur</div>
-          <button class="btn btn-green" style="flex:0;padding:8px 20px;" onclick="saveAllocationVendeur()">Enregistrer</button>
+          <div>
+            <button class="btn btn-green" style="flex:0;padding:8px 20px;margin-right:8px;" onclick="saveAllocationVendeur('set')">Definir tout</button>
+            <button class="btn btn-blue" style="flex:0;padding:8px 20px;" onclick="saveAllocationVendeur('add')">Ajouter tout</button>
+          </div>
         </div>
         <div id="allocationVendeurContainer"></div>
+        <p style="font-size:.8rem;color:var(--muted);margin-top:.5rem;">Saisissez une quantite dans le champ, puis cliquez sur le bouton <strong>+</strong> pour l'ajouter au stock existant, ou sur <strong>Definir</strong> pour remplacer la valeur.</p>
       </div>
+      <!-- Tableau de bord anti-vol -->
       <div class="admin-card" style="grid-column:1/-1;">
-        <div class="admin-card-title">Ventes par vendeur (aujourd'hui)</div>
+        <div class="admin-card-title">Controle anti-vol - Ventes par vendeur</div>
         <div id="ventesVendeur"></div>
+        <div style="margin-top:1rem;">
+          <button class="btn btn-blue" onclick="exportVentesVendeur()" style="flex:0;padding:8px 20px;">Exporter les ventes</button>
+        </div>
+      </div>
+      <!-- Historique des actions sensibles -->
+      <div class="admin-card" style="grid-column:1/-1;">
+        <div class="admin-card-title">Journal des actions sensibles</div>
+        <div id="journalActions" style="max-height:300px;overflow-y:auto;font-size:.8rem;"></div>
       </div>
     </div>
   </div>
@@ -951,7 +964,8 @@ let dispo     = JSON.parse(localStorage.getItem('cb_dispo'))      || {};
 let verifs    = JSON.parse(localStorage.getItem('cb_verifs'))     || {};
 let stock     = JSON.parse(localStorage.getItem('cb_stock'))      || {};
 let stockMvts = JSON.parse(localStorage.getItem('cb_stock_mvts')) || [];
-let stockVendeur = JSON.parse(localStorage.getItem('cb_stock_vendeur')) || {}; // { vendeurNom: { produitId: qty } }
+let stockVendeur = JSON.parse(localStorage.getItem('cb_stock_vendeur')) || {};
+let journalActions = JSON.parse(localStorage.getItem('cb_journal_actions')) || [];
 
 let currentUser = null, cart = [], editUserId = null, editProdId = null;
 let viewOrderId = null, syncInProgress = false, queueFilter = 'tous';
@@ -995,7 +1009,7 @@ function setSyncDot(online) {
 
 async function loadFB() {
   try {
-    const keys = ['cb_users','cb_prods','cb_orders','cb_dispo','cb_verifs','cb_stock','cb_stock_mvts','cb_stock_vendeur'];
+    const keys = ['cb_users','cb_prods','cb_orders','cb_dispo','cb_verifs','cb_stock','cb_stock_mvts','cb_stock_vendeur','cb_journal_actions'];
     for (const key of keys) {
       const snap = await db.ref('beyla/' + key).once('value');
       if (snap.exists()) {
@@ -1009,6 +1023,7 @@ async function loadFB() {
         if (key==='cb_stock')        stock     = val;
         if (key==='cb_stock_mvts')   stockMvts = Array.isArray(val) ? val : Object.values(val);
         if (key==='cb_stock_vendeur') stockVendeur = val;
+        if (key==='cb_journal_actions') journalActions = Array.isArray(val) ? val : Object.values(val);
       }
     }
     setSyncDot(true);
@@ -1098,6 +1113,18 @@ async function logStockMvt(prodId, type, qty, stockAfter, note) {
   await saveFB('cb_stock_mvts', stockMvts);
 }
 
+async function logAction(action, details) {
+  const entry = {
+    ts: nowFull(),
+    user: currentUser ? currentUser.name : 'Systeme',
+    action: action,
+    details: details || ''
+  };
+  journalActions.unshift(entry);
+  if (journalActions.length > 500) journalActions = journalActions.slice(0,500);
+  await saveFB('cb_journal_actions', journalActions);
+}
+
 // ========== LOGIN ==========
 function selRole(r, el) {
   selRoleVal = r;
@@ -1116,10 +1143,12 @@ async function doLogin() {
   currentUser = u;
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
+  logAction('Connexion', 'Utilisateur ' + u.name + ' connecte');
   initApp();
 }
 
 function doLogout() {
+  if (currentUser) logAction('Deconnexion', 'Utilisateur ' + currentUser.name + ' deconnecte');
   currentUser = null; cart = [];
   document.getElementById('app').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
@@ -1349,7 +1378,6 @@ function renderProds() {
   g.innerHTML = filtered.map(p => {
     const avail    = dispo[todayKey]===undefined || dispo[todayKey][p.id]!==false;
     let qty = 0;
-    // Pour un vendeur, on utilise son stock alloué
     if (currentUser.role === 'vendeur') {
       const vend = currentUser.kiosque || currentUser.name;
       qty = (stockVendeur[vend] && stockVendeur[vend][p.id]) || 0;
@@ -1483,7 +1511,6 @@ async function confirmOrder() {
     total:    cart.reduce((s,c)=>s+c.price*c.qty,0),
     status:   'attente'
   };
-  // Mise a jour du stock selon le role
   for (const item of cart) {
     if (currentUser.role === 'vendeur') {
       const vend = currentUser.kiosque || currentUser.name;
@@ -1499,6 +1526,7 @@ async function confirmOrder() {
   await saveFB('cb_orders', orders);
   await saveFB('cb_stock', stock);
   await saveFB('cb_stock_vendeur', stockVendeur);
+  logAction('Vente', 'Commande ' + order.id + ' - ' + order.vendeur + ' - Total ' + fmt(order.total));
   toast('Commande '+order.id+' envoyee en cuisine');
   clearCart();
   updateQueueBadge();
@@ -1617,26 +1645,23 @@ async function confirmCancelOrder() {
   const reason = document.getElementById('cancelReason').value.trim();
   const o = orders.find(x => x.id === cancelOrderId);
   if (!o) { closeModal('modalCancelOrder'); return; }
-  // Restaurer le stock
   for (const item of o.items) {
-    if (currentUser.role === 'admin') { // admin annule, on restaure selon le vendeur ou global
-      // On regarde si la commande a un vendeur
-      if (o.vendeur && o.vendeur !== '--') {
-        if (!stockVendeur[o.vendeur]) stockVendeur[o.vendeur] = {};
-        stockVendeur[o.vendeur][item.id] = (stockVendeur[o.vendeur][item.id]||0) + item.qty;
-        await logStockMvt(item.id, 'ajustement', item.qty, stockVendeur[o.vendeur][item.id],
-          `Annulation commande ${o.id}${reason?' -- '+reason:''} (restauration vendeur)`);
-      } else {
-        stock[item.id] = (stock[item.id]||0) + item.qty;
-        await logStockMvt(item.id, 'ajustement', item.qty, stock[item.id],
-          `Annulation commande ${o.id}${reason?' -- '+reason:''} (restauration global)`);
-      }
+    if (o.vendeur && o.vendeur !== '--') {
+      if (!stockVendeur[o.vendeur]) stockVendeur[o.vendeur] = {};
+      stockVendeur[o.vendeur][item.id] = (stockVendeur[o.vendeur][item.id]||0) + item.qty;
+      await logStockMvt(item.id, 'ajustement', item.qty, stockVendeur[o.vendeur][item.id],
+        `Annulation commande ${o.id}${reason?' -- '+reason:''} (restauration vendeur)`);
+    } else {
+      stock[item.id] = (stock[item.id]||0) + item.qty;
+      await logStockMvt(item.id, 'ajustement', item.qty, stock[item.id],
+        `Annulation commande ${o.id}${reason?' -- '+reason:''} (restauration global)`);
     }
   }
   orders = orders.filter(x => x.id !== cancelOrderId);
   await saveFB('cb_orders', orders);
   await saveFB('cb_stock', stock);
   await saveFB('cb_stock_vendeur', stockVendeur);
+  logAction('Annulation commande', 'Commande ' + o.id + ' annulee par ' + currentUser.name + (reason?' - raison: '+reason:''));
   closeModal('modalCancelOrder');
   cancelOrderId = null;
   toast('Commande annulee, stock restaure');
@@ -1799,6 +1824,7 @@ async function saveVerif(date, sysTotal) {
   const note = document.getElementById('vNote').value;
   verifs[date] = {cash,note,sysTotal,savedAt:new Date().toLocaleString('fr-FR')};
   await saveFB('cb_verifs', verifs);
+  logAction('Verification', 'Verification du ' + date + ' - Ecart: ' + fmt(cash - sysTotal));
   toast('Verification enregistree');
   renderVerif();
 }
@@ -1842,6 +1868,7 @@ async function toggleDispo(id) {
   if (!dispo[k]) dispo[k]={};
   dispo[k][id] = dispo[k][id]===false;
   await saveFB('cb_dispo', dispo);
+  logAction('Disponibilite', 'Produit ' + products.find(p=>p.id===id)?.name + ' modifie: ' + (dispo[k][id]?'Disponible':'Indisponible'));
   renderCuisine();
   if (currentPage==='caisse') renderProds();
   toast(dispo[k][id]?'Disponible':'Marque indisponible');
@@ -1946,6 +1973,7 @@ async function setOrderStatus(id, status) {
   if (!o) return;
   o.status = status;
   await saveFB('cb_orders', orders);
+  logAction('Changement statut', 'Commande ' + id + ' passe a ' + status);
   renderQueue();
   const labels = {preparation:'Commande prise en charge',servie:'Commande servie'};
   toast(labels[status]||status);
@@ -2009,6 +2037,7 @@ function renderStock() {
 function setStockCat(cat) { stockCatFilter=cat; renderStock(); }
 
 async function adjustStock(id, mode) {
+  if (currentUser.role !== 'admin') { toast('Reserve a l\'admin'); return; }
   const inp = document.getElementById('si-'+id);
   const val = parseInt(inp.value)||0;
   if (val<=0&&mode!=='set') { toast('Entrer une quantite valide'); return; }
@@ -2020,6 +2049,7 @@ async function adjustStock(id, mode) {
   stock[id]=after;
   await saveFB('cb_stock',stock);
   await logStockMvt(id,type,val,after,mode==='set'?'Defini a '+after:'');
+  logAction('Ajustement stock', 'Produit ' + products.find(p=>p.id===id)?.name + ' - ' + mode + ' ' + val + ' (avant ' + before + ', apres ' + after + ')');
   renderStock();
   if (currentPage==='caisse') renderProds();
   toast('Stock mis a jour');
@@ -2054,40 +2084,55 @@ function renderAdmin() {
     </div>`;
   }).join('');
 
-  // Allocation par vendeur
   renderAllocationVendeur();
+  renderVentesVendeur();
+  renderJournalActions();
+}
 
-  // Statistiques ventes par vendeur (aujourd'hui)
+function renderVentesVendeur() {
   const todayOrders = orders.filter(o=>o.date===today());
   const vendeurStats = {};
   todayOrders.forEach(o => {
     const v = o.vendeur || 'Non defini';
-    if (!vendeurStats[v]) vendeurStats[v] = {total:0, nb:0};
+    if (!vendeurStats[v]) vendeurStats[v] = {total:0, nb:0, items:0};
     vendeurStats[v].total += o.total || 0;
     vendeurStats[v].nb++;
+    vendeurStats[v].items += o.items.reduce((s,i)=>s+i.qty,0);
   });
   let html = '';
   if (Object.keys(vendeurStats).length === 0) {
     html = '<div style="color:var(--muted);padding:.5rem 0">Aucune vente aujourd\'hui.</div>';
   } else {
-    html = `<div class="tbl-wrap"><table><thead><tr><th>Vendeur</th><th>Nombre commandes</th><th>Total</th></tr></thead><tbody>`;
+    html = `<div class="tbl-wrap"><table><thead><tr><th>Vendeur</th><th>Nb commandes</th><th>Articles vendus</th><th>Total</th></tr></thead><tbody>`;
     for (const [v, stats] of Object.entries(vendeurStats)) {
-      html += `<tr><td><strong>${v}</strong></td><td>${stats.nb}</td><td><strong>${fmt(stats.total)}</strong></td></tr>`;
+      html += `<tr><td><strong>${v}</strong></td><td>${stats.nb}</td><td>${stats.items}</td><td><strong>${fmt(stats.total)}</strong></td></tr>`;
     }
     html += '</tbody></table></div>';
   }
   document.getElementById('ventesVendeur').innerHTML = html;
 }
 
+function renderJournalActions() {
+  const container = document.getElementById('journalActions');
+  if (!journalActions.length) {
+    container.innerHTML = '<div style="color:var(--muted);padding:.5rem 0">Aucune action enregistree.</div>';
+    return;
+  }
+  container.innerHTML = journalActions.slice(0, 100).map(j => 
+    `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:.75rem;">
+      <span><strong>${j.user}</strong> - ${j.action}</span>
+      <span style="color:var(--muted);">${j.details} - ${j.ts}</span>
+    </div>`
+  ).join('');
+}
+
 function renderAllocationVendeur() {
   const container = document.getElementById('allocationVendeurContainer');
-  // Liste des vendeurs (role vendeur)
   const vendeurs = users.filter(u => u.role === 'vendeur' && u.kiosque);
   if (!vendeurs.length) {
     container.innerHTML = '<div style="color:var(--muted);padding:.5rem 0">Aucun vendeur enregistre.</div>';
     return;
   }
-  // Construire un tableau : produits en lignes, vendeurs en colonnes
   let html = `<div class="tbl-wrap"><table><thead><tr><th>Produit</th>`;
   vendeurs.forEach(v => {
     html += `<th>${v.kiosque}</th>`;
@@ -2097,8 +2142,15 @@ function renderAllocationVendeur() {
     html += `<tr><td><strong>${p.name}</strong></td>`;
     vendeurs.forEach(v => {
       const val = (stockVendeur[v.kiosque] && stockVendeur[v.kiosque][p.id]) || 0;
-      html += `<td><input type="number" class="form-in alloc-input" style="width:70px;padding:4px;" 
-                data-vendeur="${v.kiosque}" data-prod="${p.id}" value="${val}"></td>`;
+      html += `<td>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <span style="font-size:.75rem;color:var(--muted);">${val}</span>
+          <input type="number" class="form-in alloc-input" style="width:60px;padding:3px;" 
+            data-vendeur="${v.kiosque}" data-prod="${p.id}" value="0" min="0">
+          <button class="btn btn-green" style="flex:0;padding:2px 6px;font-size:.7rem;" 
+            onclick="addAllocationVendeur('${v.kiosque}',${p.id})">+</button>
+        </div>
+      </td>`;
     });
     html += `</tr>`;
   });
@@ -2106,20 +2158,71 @@ function renderAllocationVendeur() {
   container.innerHTML = html;
 }
 
-async function saveAllocationVendeur() {
+function addAllocationVendeur(vendeur, prodId) {
+  if (currentUser.role !== 'admin') { toast('Reserve a l\'admin'); return; }
+  const input = document.querySelector(`.alloc-input[data-vendeur="${vendeur}"][data-prod="${prodId}"]`);
+  if (!input) return;
+  const qty = parseInt(input.value) || 0;
+  if (qty <= 0) { toast('Entrez une quantite positive'); return; }
+  if (!stockVendeur[vendeur]) stockVendeur[vendeur] = {};
+  stockVendeur[vendeur][prodId] = (stockVendeur[vendeur][prodId] || 0) + qty;
+  saveFB('cb_stock_vendeur', stockVendeur).then(() => {
+    logAction('Allocation vendeur', 'Ajout de ' + qty + ' pour ' + vendeur + ' - produit ' + products.find(p=>p.id===prodId)?.name);
+    toast(`Ajout de ${qty} pour ${vendeur}`);
+    renderAllocationVendeur();
+    if (currentPage==='caisse') renderProds();
+  });
+}
+
+async function saveAllocationVendeur(mode) {
   if (currentUser.role !== 'admin') { toast('Reserve a l\'admin'); return; }
   const inputs = document.querySelectorAll('.alloc-input');
+  let changes = false;
   inputs.forEach(inp => {
     const vendeur = inp.dataset.vendeur;
     const prodId = parseInt(inp.dataset.prod);
     const val = parseInt(inp.value)||0;
+    if (val === 0) return;
     if (!stockVendeur[vendeur]) stockVendeur[vendeur] = {};
-    stockVendeur[vendeur][prodId] = val;
+    if (mode === 'add') {
+      stockVendeur[vendeur][prodId] = (stockVendeur[vendeur][prodId] || 0) + val;
+    } else {
+      stockVendeur[vendeur][prodId] = val;
+    }
+    changes = true;
   });
+  if (!changes) { toast('Aucune valeur saisie'); return; }
   await saveFB('cb_stock_vendeur', stockVendeur);
-  toast('Allocations enregistrees');
+  logAction('Allocation vendeur', 'Mode ' + mode + ' applique sur plusieurs produits');
+  toast(mode==='add' ? 'Ajouts effectues' : 'Valeurs definies');
   renderAllocationVendeur();
   if (currentPage==='caisse') renderProds();
+}
+
+function exportVentesVendeur() {
+  const date = today();
+  const day = orders.filter(o=>o.date===date);
+  if (!day.length) { toast('Aucune donnee a exporter'); return; }
+  const wb = XLSX.utils.book_new();
+  const rows = [
+    ['COMPLEXE BEYLA -- VENTES PAR VENDEUR - ' + date],[],
+    ['Vendeur','Nb commandes','Articles vendus','Total (GNF)']
+  ];
+  const stats = {};
+  day.forEach(o => {
+    const v = o.vendeur || 'Non defini';
+    if (!stats[v]) stats[v] = {nb:0, items:0, total:0};
+    stats[v].nb++;
+    stats[v].items += o.items.reduce((s,i)=>s+i.qty,0);
+    stats[v].total += o.total||0;
+  });
+  for (const [v, s] of Object.entries(stats)) {
+    rows.push([v, s.nb, s.items, s.total]);
+  }
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  XLSX.utils.book_append_sheet(wb, ws, 'Ventes par vendeur');
+  XLSX.writeFile(wb, 'Beyla_Ventes_Vendeur_'+date+'.xlsx');
+  toast('Fichier exporte');
 }
 
 function openAddUser() {
@@ -2172,6 +2275,7 @@ async function saveUser() {
     users.push({id:mx+1,name,login,pass,role,kiosque});
   }
   await saveFB('cb_users', users);
+  logAction('Gestion utilisateur', 'Compte ' + login + ' ' + (editUserId?'modifie':'cree') + ' par ' + currentUser.name);
   closeModal('modalUser');
   renderAdmin();
   toast('Compte enregistre');
@@ -2180,8 +2284,10 @@ async function saveUser() {
 async function delUser(id) {
   if (id===currentUser.id) { toast('Impossible de supprimer votre compte'); return; }
   if (!confirm('Supprimer ce compte ?')) return;
+  const user = users.find(u=>u.id===id);
   users=users.filter(u=>u.id!==id);
   await saveFB('cb_users',users);
+  logAction('Gestion utilisateur', 'Compte ' + user?.login + ' supprime par ' + currentUser.name);
   renderAdmin();
   toast('Compte supprime');
 }
@@ -2236,6 +2342,7 @@ async function saveProd() {
   }
   await saveFB('cb_prods',products);
   await saveFB('cb_stock',stock);
+  logAction('Gestion produit', 'Produit ' + name + ' ' + (editProdId?'modifie':'cree') + ' par ' + currentUser.name);
   closeModal('modalProd');
   renderAdmin();
   renderProds();
@@ -2244,10 +2351,12 @@ async function saveProd() {
 
 async function delProd(id) {
   if (!confirm('Supprimer ce produit definitivement ?')) return;
+  const p = products.find(x=>x.id===id);
   products=products.filter(p=>p.id!==id);
   delete stock[id];
   await saveFB('cb_prods',products);
   await saveFB('cb_stock',stock);
+  logAction('Gestion produit', 'Produit ' + p?.name + ' supprime par ' + currentUser.name);
   renderAdmin();
   renderProds();
   toast('Produit supprime');
@@ -2272,6 +2381,7 @@ async function doChangePwd() {
   const u = users.find(x=>x.id===currentUser.id);
   if (u) { u.pass=nw; currentUser.pass=nw; }
   await saveFB('cb_users',users);
+  logAction('Changement mot de passe', 'Utilisateur ' + currentUser.name + ' a change son mot de passe');
   closeModal('modalPwd');
   toast('Mot de passe modifie');
 }
