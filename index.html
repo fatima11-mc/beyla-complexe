@@ -127,48 +127,307 @@ input,select,textarea,button{font-family:inherit;}
 }
 .pwd-btn:hover{background:rgba(255,255,255,.15);}
 
+/* ===== MENU HAMBURGER MOBILE ===== */
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,.8);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: .15s;
+  line-height: 1;
+}
+.hamburger:hover {
+  background: rgba(255,255,255,.1);
+}
+
+.mobile-menu-overlay {
+  position: fixed;
+  top: var(--nav-h);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 99;
+  display: none;
+  animation: fadeIn .25s ease;
+}
+.mobile-menu-overlay.open {
+  display: block;
+}
+
+.mobile-menu-panel {
+  position: fixed;
+  top: var(--nav-h);
+  right: 0;
+  bottom: 0;
+  width: 280px;
+  max-width: 80%;
+  background: linear-gradient(180deg, #0d1b2a, #1a2e4a);
+  padding: 0.5rem 0;
+  overflow-y: auto;
+  z-index: 100;
+  transform: translateX(100%);
+  transition: transform .3s cubic-bezier(.4,0,.2,1);
+  box-shadow: -4px 0 20px rgba(0,0,0,.3);
+}
+.mobile-menu-panel.open {
+  transform: translateX(0);
+}
+
+.mobile-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+  border: none;
+  background: none;
+  color: rgba(255,255,255,.65);
+  font-size: .9rem;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: .15s;
+  border-left: 3px solid transparent;
+}
+.mobile-menu-item:hover,
+.mobile-menu-item:active {
+  background: rgba(255,255,255,.08);
+  color: #fff;
+}
+.mobile-menu-item.act {
+  color: #fff;
+  background: rgba(184,74,26,.2);
+  border-left-color: var(--accent);
+}
+.mobile-menu-item .mm-icon {
+  width: 28px;
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+  color: rgba(255,255,255,.4);
+}
+.mobile-menu-item.act .mm-icon {
+  color: var(--accent);
+}
+
+.mobile-menu-footer {
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255,255,255,.08);
+  margin-top: 8px;
+}
+.mobile-menu-user {
+  color: rgba(255,255,255,.5);
+  font-size: .75rem;
+  margin-bottom: 8px;
+}
+.mobile-menu-user strong {
+  color: #fff;
+}
+.mobile-menu-footer .mobile-menu-item {
+  padding: 10px 16px;
+  font-size: .8rem;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ===== BOTTOM NAV AMÉLIORÉE ===== */
+.bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--bottom-h);
+  background: linear-gradient(0deg, #0d1b2a, #1a2e4a);
+  border-top: 1px solid rgba(255,255,255,.08);
+  z-index: 100;
+  align-items: stretch;
+  padding: 0 2px;
+  box-shadow: 0 -4px 20px rgba(0,0,0,.3);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  gap: 0;
+}
+.bottom-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.bottom-nav-scroll-indicator {
+  display: none;
+  position: fixed;
+  bottom: var(--bottom-h);
+  right: 8px;
+  z-index: 101;
+  background: rgba(184,74,26,.9);
+  color: #fff;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: .7rem;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,.3);
+  pointer-events: none;
+  opacity: .7;
+  animation: pulse 2s infinite;
+}
+.bottom-nav-scroll-indicator.show {
+  display: flex;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: .7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+.bn-item {
+  flex: 0 0 auto;
+  min-width: 56px;
+  max-width: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  border: none;
+  background: none;
+  color: rgba(255,255,255,.45);
+  cursor: pointer;
+  padding: 6px 8px;
+  font-size: .5rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  transition: .15s;
+  position: relative;
+  border-radius: 8px;
+  scroll-snap-align: start;
+}
+.bn-item.act {
+  color: #fff;
+}
+.bn-item.act .bn-icon {
+  background: rgba(184,74,26,.25);
+  border-radius: 8px;
+  padding: 2px 6px;
+}
+.bn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: .15s;
+}
+.bn-icon svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+}
+
+.bn-logout {
+  flex: 0 0 auto;
+  min-width: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  border: none;
+  background: transparent;
+  color: rgba(255,100,80,.8);
+  cursor: pointer;
+  padding: 6px 6px;
+  font-size: .5rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  transition: .15s;
+  border-radius: 8px;
+  margin: 0 1px;
+  position: sticky;
+  right: 0;
+  background: #1a2e4a;
+  border-left: 1px solid rgba(255,255,255,.06);
+}
+.bn-logout:hover {
+  background: rgba(184,74,26,.2);
+}
+.bn-logout .bn-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width: 768px) {
+  .hamburger {
+    display: block;
+  }
+  .h-nav {
+    display: none !important;
+  }
+  .h-actions .pwd-btn,
+  .h-actions .logout-btn {
+    display: none;
+  }
+  .bottom-nav {
+    display: flex !important;
+  }
+  .bn-item {
+    min-width: 48px;
+    font-size: .45rem;
+    padding: 4px 6px;
+  }
+  .bn-item .bn-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+  .bn-logout {
+    min-width: 40px;
+    padding: 4px 4px;
+  }
+  .bottom-nav-scroll-indicator.show {
+    display: flex;
+  }
+}
+
+@media(min-width: 769px) {
+  .h-nav {
+    display: flex !important;
+  }
+  .hamburger {
+    display: none !important;
+  }
+  .mobile-menu-overlay,
+  .mobile-menu-panel {
+    display: none !important;
+  }
+  .bottom-nav-scroll-indicator {
+    display: none !important;
+  }
+}
+
+.bottom-nav:has(> :nth-child(-n+5):last-child) {
+  justify-content: space-around;
+}
+.bottom-nav:has(> :nth-child(-n+5):last-child) .bn-item {
+  flex: 1;
+  min-width: 44px;
+}
+
 /* ===== SYNC DOT ===== */
 .sync-dot{width:8px;height:8px;border-radius:50%;background:#555;display:inline-block;flex-shrink:0;}
 .sync-dot.online{background:#22c55e;box-shadow:0 0 6px rgba(34,197,94,.5);}
 .sync-dot.offline{background:#f59e0b;box-shadow:0 0 6px rgba(245,158,11,.4);}
-
-/* ===== BOTTOM NAV ===== */
-.bottom-nav{
-  display:none;position:fixed;bottom:0;left:0;right:0;height:var(--bottom-h);
-  background:linear-gradient(0deg,#0d1b2a,#1a2e4a);
-  border-top:1px solid rgba(255,255,255,.08);z-index:100;
-  align-items:center;padding:0 2px;
-  box-shadow:0 -4px 20px rgba(0,0,0,.3);
-  overflow-x:auto;scrollbar-width:none;justify-content:flex-start;
-}
-.bottom-nav::-webkit-scrollbar{display:none;}
-.bottom-nav:has(> :nth-child(-n+5):last-child){justify-content:space-around;}
-.bn-item{
-  flex:1 0 64px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:2px;border:none;background:none;color:rgba(255,255,255,.45);cursor:pointer;
-  padding:8px 4px;font-size:.58rem;font-weight:700;text-transform:uppercase;
-  letter-spacing:.04em;transition:.15s;position:relative;border-radius:10px;
-  scroll-snap-align:start;
-}
-.bn-item.act{color:#fff;}
-.bn-item.act .bn-icon{
-  background:rgba(184,74,26,.3);border-radius:8px;padding:4px 8px;
-}
-.bn-icon{display:flex;align-items:center;justify-content:center;line-height:1;transition:.15s;}
-.bn-icon svg{display:block;}
-.bn-notif{
-  position:absolute;top:4px;right:calc(50% - 18px);width:8px;height:8px;
-  border-radius:50%;background:#f59e0b;border:1.5px solid #1a2e4a;
-}
-.bn-logout{
-  flex:0 0 auto;width:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:2px;border:none;background:#1a2e4a;color:rgba(255,100,80,.9);cursor:pointer;
-  padding:8px 4px;font-size:.58rem;font-weight:700;text-transform:uppercase;
-  letter-spacing:.04em;transition:.15s;border-radius:10px;margin:0 2px;
-  border:1px solid rgba(184,74,26,.3);
-  position:sticky;right:2px;
-}
-.pending-badge{background:var(--amber);color:#fff;border-radius:10px;font-size:.6rem;font-weight:700;padding:1px 5px;margin-left:4px;}
 
 /* ===== PAGES ===== */
 .page{display:none;}
@@ -671,6 +930,7 @@ tbody td{padding:9px 10px;}
   <div class="h-space"></div>
   <div class="h-nav" id="hNav"></div>
   <div class="h-user" id="hUser"></div>
+  <button class="hamburger" id="hamburgerBtn" onclick="toggleMobileMenu()" aria-label="Menu">☰</button>
   <div class="h-actions">
     <span class="sync-dot" id="headerSyncDot"></span>
     <button class="pwd-btn" onclick="openChangePwd()" title="Modifier mot de passe">MDP</button>
@@ -678,6 +938,29 @@ tbody td{padding:9px 10px;}
     <button class="logout-btn" onclick="doLogout()">Deconnexion</button>
   </div>
 </header>
+
+<!-- Menu mobile -->
+<div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="closeMobileMenu()"></div>
+<div class="mobile-menu-panel" id="mobileMenuPanel">
+  <div id="mobileMenuItems"></div>
+  <div class="mobile-menu-footer">
+    <div class="mobile-menu-user">
+      <strong id="mobileUserName">Utilisateur</strong><br>
+      <span id="mobileUserRole">Rôle</span>
+    </div>
+    <button class="mobile-menu-item" onclick="openChangePwd();closeMobileMenu();" style="border-left-color:transparent;">
+      <span class="mm-icon">${icon('key', 20)}</span>
+      Changer mot de passe
+    </button>
+    <button class="mobile-menu-item" onclick="doLogout();closeMobileMenu();" style="border-left-color:transparent;color:rgba(255,100,80,.8);">
+      <span class="mm-icon">${icon('logout', 20)}</span>
+      Déconnexion
+    </button>
+  </div>
+</div>
+
+<!-- Indicateur de scroll pour la bottom nav -->
+<div class="bottom-nav-scroll-indicator" id="scrollIndicator">→</div>
 
 <!-- ========== ACCUEIL ========== -->
 <div id="pg-accueil" class="page">
@@ -1512,7 +1795,6 @@ tbody td{padding:9px 10px;}
 
 // ========== UTILISATEURS PAR DÉFAUT ==========
 // SEUL L'ADMINISTRATEUR EST CRÉÉ PAR DÉFAUT
-// TOUS LES AUTRES COMPTES SERONT CRÉÉS DEPUIS L'ADMIN
 const DEFAULT_USERS = [
   {id: 1, name: 'Administrateur', login: 'admin', pass: 'admin123', role: 'admin', kiosque: null, catAccess: ['Tous']}
 ];
@@ -1531,20 +1813,15 @@ let stockMvts = JSON.parse(localStorage.getItem('cb_stock_mvts')) || [];
 let journalActions = JSON.parse(localStorage.getItem('cb_journal_actions')) || [];
 let verifs = JSON.parse(localStorage.getItem('cb_verifs')) || {};
 
-// Grand Stock Central
 let grandStock = JSON.parse(localStorage.getItem('cb_grand_stock')) || {
   farine: 0, fromage: 0, creme: 0, mais: 0, huile: 0,
   sucre: 0, cacao: 0, viande: 0, poulet: 0, legumes: 0
 };
 let grandStockMvts = JSON.parse(localStorage.getItem('cb_grand_stock_mvts')) || [];
 
-// Cremerie
 let cremerieMouvements = JSON.parse(localStorage.getItem('cb_cremerie_mouvements')) || [];
-
-// Popcorn
 let popcornMouvements = JSON.parse(localStorage.getItem('cb_popcorn_mouvements')) || [];
 
-// Parking
 let parkingVehicles = JSON.parse(localStorage.getItem('cb_parking_vehicles')) || [];
 let parkingHistory = JSON.parse(localStorage.getItem('cb_parking_history')) || [];
 
@@ -1579,34 +1856,14 @@ const STOCK_SEUILS = {
   sucre: 2, cacao: 1, viande: 5, poulet: 5, legumes: 3
 };
 
-// ========== CHARGEMENT DES PRODUITS DEPUIS LE STOCKAGE ==========
 function loadProducts() {
   const saved = localStorage.getItem('cb_prods');
-  if (saved) {
-    products = JSON.parse(saved);
-  } else {
-    products = [];
-    localStorage.setItem('cb_prods', JSON.stringify(products));
-  }
-  
+  if (saved) { products = JSON.parse(saved); } else { products = []; }
   const savedCrem = localStorage.getItem('cb_cremerie_produits');
-  if (savedCrem) {
-    CREMERIE_PRODUITS = JSON.parse(savedCrem);
-  } else {
-    CREMERIE_PRODUITS = [];
-    localStorage.setItem('cb_cremerie_produits', JSON.stringify(CREMERIE_PRODUITS));
-  }
-  
+  if (savedCrem) { CREMERIE_PRODUITS = JSON.parse(savedCrem); } else { CREMERIE_PRODUITS = []; }
   const savedPop = localStorage.getItem('cb_popcorn_produits');
-  if (savedPop) {
-    POPCORN_PRODUITS = JSON.parse(savedPop);
-  } else {
-    POPCORN_PRODUITS = [];
-    localStorage.setItem('cb_popcorn_produits', JSON.stringify(POPCORN_PRODUITS));
-  }
+  if (savedPop) { POPCORN_PRODUITS = JSON.parse(savedPop); } else { POPCORN_PRODUITS = []; }
 }
-
-// Charger les produits au démarrage
 loadProducts();
 </script>
 <script>
@@ -1901,6 +2158,68 @@ const NAV_MAP = {
   vendeur: [{id:'accueil', label:'Accueil'}, {id:'caisse', label:'Caisse'}, {id:'journal', label:'Journal'}, {id:'queue', label:'Validations'}, {id:'stock', label:'Mon stock'}],
 };
 
+// ---- Menu mobile ----
+function toggleMobileMenu() {
+  const overlay = document.getElementById('mobileMenuOverlay');
+  const panel = document.getElementById('mobileMenuPanel');
+  const isOpen = overlay.classList.contains('open');
+  
+  if (isOpen) {
+    closeMobileMenu();
+  } else {
+    overlay.classList.add('open');
+    panel.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeMobileMenu() {
+  const overlay = document.getElementById('mobileMenuOverlay');
+  const panel = document.getElementById('mobileMenuPanel');
+  overlay.classList.remove('open');
+  panel.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function renderMobileMenu() {
+  const container = document.getElementById('mobileMenuItems');
+  const navs = NAV_MAP[currentUser.role] || [];
+  
+  document.getElementById('mobileUserName').textContent = currentUser.name;
+  const roleLabels = { admin:'Administrateur', stockmanager:'Stock Manager', cuisiniere:'Cuisiniere', vendeur:'Kiosque', serveur:'Serveur', parking:'Parking' };
+  document.getElementById('mobileUserRole').textContent = roleLabels[currentUser.role] || currentUser.role;
+  
+  container.innerHTML = navs.map(n => `
+    <button class="mobile-menu-item ${n.id === currentPage ? 'act' : ''}" onclick="showPage('${n.id}');closeMobileMenu();">
+      <span class="mm-icon">${icon(NAV_ICONS[n.id] || 'box', 20)}</span>
+      ${n.label}
+    </button>
+  `).join('');
+}
+
+function checkScrollIndicator() {
+  const nav = document.getElementById('bottomNav');
+  const indicator = document.getElementById('scrollIndicator');
+  if (!nav || !indicator) return;
+  
+  const isScrollable = nav.scrollWidth > nav.clientWidth;
+  indicator.classList.toggle('show', isScrollable);
+  
+  if (isScrollable) {
+    nav.addEventListener('scroll', function() {
+      const maxScroll = this.scrollWidth - this.clientWidth;
+      const currentScroll = this.scrollLeft;
+      if (currentScroll >= maxScroll - 10) {
+        indicator.textContent = '←';
+      } else if (currentScroll <= 10) {
+        indicator.textContent = '→';
+      } else {
+        indicator.textContent = '↔';
+      }
+    });
+  }
+}
+
 function initApp() {
   const roleLabels = { admin:'Administrateur', stockmanager:'Stock Manager', cuisiniere:'Cuisiniere', vendeur:'Kiosque', serveur:'Serveur', parking:'Parking' };
   document.getElementById('hRole').textContent = roleLabels[currentUser.role] || currentUser.role;
@@ -1909,13 +2228,17 @@ function initApp() {
   document.getElementById('dashWelcomeSub').textContent = new Date().toLocaleDateString('fr-FR', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
 
   const navs = NAV_MAP[currentUser.role] || [];
+  
   document.getElementById('hNav').innerHTML = navs.map(n =>
     `<button class="hn" id="hn-${n.id}" onclick="showPage('${n.id}')">${icon(NAV_ICONS[n.id] || 'box', 15)}<span>${n.label}</span></button>`
   ).join('');
 
+  renderMobileMenu();
+
   let bottomHTML = navs.map(n =>
     `<button class="bn-item" id="bn-${n.id}" onclick="showPage('${n.id}')">
-      <span class="bn-icon">${icon(NAV_ICONS[n.id] || 'box', 20)}</span>${n.label}
+      <span class="bn-icon">${icon(NAV_ICONS[n.id] || 'box', 20)}</span>
+      <span>${n.label}</span>
     </button>`
   ).join('');
 
@@ -1924,16 +2247,27 @@ function initApp() {
       <span class="bn-icon">${icon('key', 20)}</span>MDP
     </button>`;
   }
-  bottomHTML += `<button class="bn-logout" onclick="doLogout()" title="Deconnexion">
-    <span class="bn-icon">${icon('logout', 20)}</span>Deco.
+  bottomHTML += `<button class="bn-logout" onclick="doLogout()" title="Déconnexion">
+    <span class="bn-icon">${icon('logout', 20)}</span>
+    <span>Deco.</span>
   </button>`;
 
   document.getElementById('bottomNav').innerHTML = bottomHTML;
 
+  setTimeout(checkScrollIndicator, 100);
+
   populateKiosqueSource();
   listenOrders();
   showPage(navs[0]?.id || 'accueil');
+  closeMobileMenu();
 }
+
+// Surcharger showPage pour vérifier l'indicateur de scroll
+const originalShowPage = window.showPage;
+showPage = function(id) {
+  if (originalShowPage) originalShowPage(id);
+  setTimeout(checkScrollIndicator, 200);
+};
 
 function populateKiosqueSource() {
   const sel = document.getElementById('kiosqueSourceSel');
@@ -2005,6 +2339,8 @@ function showPage(id) {
 
   const fv = document.getElementById('floatingValidate');
   if (fv) fv.style.display = (id==='caisse' && window.innerWidth <= 640) ? 'block' : 'none';
+  
+  setTimeout(checkScrollIndicator, 200);
 }
 
 function refreshCurrentPage() { if (currentPage) showPage(currentPage); }
@@ -2018,6 +2354,7 @@ window.addEventListener('resize', () => {
     if (cat) cat.style.display='';
     if (cmd) cmd.style.display='';
   }
+  setTimeout(checkScrollIndicator, 200);
 });
 
 function updateQueueBadge() {
@@ -2038,7 +2375,7 @@ function updateQueueBadge() {
 <script>
 // ---- 06-dashboard.js ----
 // ================================================================
-// 06-DASHBOARD.JS -- Page "Accueil" (KPI, alertes, dernières cmds)
+// 06-DASHBOARD.JS -- Page "Accueil"
 // ================================================================
 
 function renderDashboard() {
@@ -2479,7 +2816,7 @@ setInterval(updateClock, 1000);
 <script>
 // ---- 08-journal.js ----
 // ================================================================
-// 08-JOURNAL.JS -- Page Journal : historique des commandes du jour
+// 08-JOURNAL.JS -- Page Journal
 // ================================================================
 
 function populateVendeurFilter() {
@@ -2588,7 +2925,7 @@ function exportExcel() {
 <script>
 // ---- 09-orders-modal.js ----
 // ================================================================
-// 09-ORDERS-MODAL.JS -- Détail commande, impression, annulation
+// 09-ORDERS-MODAL.JS -- Détail commande
 // ================================================================
 
 function viewOrder(id) {
@@ -2851,7 +3188,7 @@ async function setOrderStatus(id, status) {
 <script>
 // ---- 11-stock.js ----
 // ================================================================
-// 11-STOCK.JS -- Page Stock : gestion des stocks par kiosque
+// 11-STOCK.JS -- Page Stock
 // ================================================================
 
 function renderStock() {
@@ -3039,7 +3376,7 @@ function adjustStockKiosque(kiosque, prodId, mode) {
 const ADMIN_CATEGORIES = ['Nourriture', 'Boissons', 'Chicha', 'Cremerie', 'Popcorn'];
 
 function renderAdmin() {
-  // Afficher la liste des utilisateurs
+  // Utilisateurs
   document.getElementById('userList').innerHTML = users.map(u=>{
     const roleLabels = { admin:'Admin', stockmanager:'Stock Manager', cuisiniere:'Cuisiniere', vendeur:'Kiosque', serveur:'Serveur', parking:'Parking' };
     return `<div class="user-row">
@@ -3057,7 +3394,7 @@ function renderAdmin() {
     </div>`;
   }).join('');
 
-  // Afficher les produits
+  // Produits
   const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
   if (allProducts.length === 0) {
     document.getElementById('prodMgmtGrid').innerHTML = '<div style="color:var(--muted);padding:1rem;text-align:center;">Aucun produit. Cliquez sur + Ajouter pour commencer.</div>';
@@ -3434,7 +3771,7 @@ async function saveParkingConfig() {
 <script>
 // ---- 13-password.js ----
 // ================================================================
-// 13-PASSWORD.JS -- Changement de mot de passe utilisateur
+// 13-PASSWORD.JS -- Changement de mot de passe
 // ================================================================
 
 function openChangePwd() {
@@ -3463,7 +3800,7 @@ async function doChangePwd() {
 <script>
 // ---- 14-grand-stock.js ----
 // ================================================================
-// 14-GRAND-STOCK.JS -- Gestion du grand stock central
+// 14-GRAND-STOCK.JS -- Gestion du grand stock
 // ================================================================
 
 function renderGrandStock() {
