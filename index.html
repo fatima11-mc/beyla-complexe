@@ -456,6 +456,32 @@ tbody td{padding:9px 10px;}
 .pm-cat{font-size:.7rem;color:var(--muted);}
 .pm-price{font-weight:700;color:var(--accent);font-size:.88rem;}
 
+/* ===== CONFIG TABS ===== */
+.config-tab-btn {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  font-size: .78rem;
+  font-weight: 600;
+  background: var(--surface);
+  color: var(--muted);
+  transition: .15s;
+}
+.config-tab-btn.act {
+  background: linear-gradient(135deg, #0d1b2a, #1a2e4a);
+  color: #fff;
+  border-color: transparent;
+}
+.config-panel {
+  background: var(--surface2);
+  border-radius: var(--r-lg);
+  padding: 1.2rem;
+}
+.config-panel .form-group {
+  margin-bottom: 8px;
+}
+
 /* ===== MODALS ===== */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(2px);}
 .overlay.open{display:flex;}
@@ -817,7 +843,7 @@ tbody td{padding:9px 10px;}
     <div class="pg-header">
       <div>
         <div class="pg-title">Cremerie</div>
-        <div class="pg-sub">Gestion des glaces - Rendement : 600 000 GNF/kg</div>
+        <div class="pg-sub" id="cremerieSub">Gestion des glaces</div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <span style="font-size:.8rem;background:var(--surface2);padding:6px 14px;border-radius:20px;">
@@ -850,7 +876,7 @@ tbody td{padding:9px 10px;}
     <div class="pg-header">
       <div>
         <div class="pg-title">Popcorn</div>
-        <div class="pg-sub">Gestion des popcorns - Rendement : 200 000 GNF/kg</div>
+        <div class="pg-sub" id="popcornSub">Gestion des popcorns</div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <span style="font-size:.8rem;background:var(--surface2);padding:6px 14px;border-radius:20px;">
@@ -882,11 +908,11 @@ tbody td{padding:9px 10px;}
     <div class="pg-header">
       <div>
         <div class="pg-title">Parking</div>
-        <div class="pg-sub">Gestion des places de stationnement</div>
+        <div class="pg-sub" id="parkingSub">Gestion des places de stationnement</div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <span style="font-size:.8rem;background:var(--surface2);padding:6px 14px;border-radius:20px;">
-          Places libres : <strong id="placesLibres">0</strong>/50
+          Places libres : <strong id="placesLibres">0</strong>/<span id="totalPlaces">50</span>
         </span>
         <span style="font-size:.8rem;background:var(--surface2);padding:6px 14px;border-radius:20px;">
           Recette : <strong id="parkingRecette">0 GNF</strong>
@@ -896,7 +922,7 @@ tbody td{padding:9px 10px;}
     </div>
     <div class="stats-grid" id="parkingStats">
       <div class="stat-c"><div class="stat-l">Places occupees</div><div class="stat-v" id="parkingOccupees">0</div></div>
-      <div class="stat-c"><div class="stat-l">Places libres</div><div class="stat-v g" id="parkingLibres">50</div></div>
+      <div class="stat-c"><div class="stat-l">Places libres</div><div class="stat-v g" id="parkingLibres2">50</div></div>
       <div class="stat-c"><div class="stat-l">Vehicules aujourd'hui</div><div class="stat-v a" id="parkingTotal">0</div></div>
       <div class="stat-c"><div class="stat-l">Recette aujourd'hui</div><div class="stat-v g" id="parkingRecetteTotal">0 GNF</div></div>
     </div>
@@ -940,6 +966,90 @@ tbody td{padding:9px 10px;}
       <div class="admin-card" style="grid-column:1/-1;">
         <div class="admin-card-title">Journal des actions sensibles</div>
         <div id="journalActions" style="max-height:300px;overflow-y:auto;font-size:.8rem;"></div>
+      </div>
+      <!-- ===== CONFIGURATION ===== -->
+      <div class="admin-card" style="grid-column:1/-1;">
+        <div class="admin-card-title">⚙️ Configuration des prix et tarifs</div>
+        
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem;">
+          <button class="config-tab-btn act" onclick="switchConfigTab('cremerie')">Cremerie</button>
+          <button class="config-tab-btn" onclick="switchConfigTab('popcorn')">Popcorn</button>
+          <button class="config-tab-btn" onclick="switchConfigTab('parking')">Parking</button>
+        </div>
+        
+        <!-- Panel Cremerie -->
+        <div id="configCremerie" class="config-panel">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="form-group">
+              <label class="form-label">Rendement (GNF/kg)</label>
+              <input class="form-in" id="cfgCremerieRendement" type="number" step="1000">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Prix petit pot (GNF)</label>
+              <input class="form-in" id="cfgCremeriePetit" type="number" step="100">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Prix grand pot (GNF)</label>
+              <input class="form-in" id="cfgCremerieGrand" type="number" step="100">
+            </div>
+            <div style="display:flex;align-items:flex-end;">
+              <button class="btn btn-ok" onclick="saveCremerieConfig()">Sauvegarder</button>
+            </div>
+          </div>
+          <div style="margin-top:8px;font-size:.8rem;color:var(--muted);">
+            💡 Le rendement est le prix de vente attendu par kg de crème. 
+            <span id="cremerieRendementCalc"></span>
+          </div>
+        </div>
+        
+        <!-- Panel Popcorn -->
+        <div id="configPopcorn" class="config-panel" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="form-group">
+              <label class="form-label">Rendement (GNF/kg)</label>
+              <input class="form-in" id="cfgPopcornRendement" type="number" step="1000">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Prix boîte (GNF)</label>
+              <input class="form-in" id="cfgPopcornBoite" type="number" step="100">
+            </div>
+            <div style="display:flex;align-items:flex-end;">
+              <button class="btn btn-ok" onclick="savePopcornConfig()">Sauvegarder</button>
+            </div>
+          </div>
+          <div style="margin-top:8px;font-size:.8rem;color:var(--muted);">
+            💡 Le rendement est le prix de vente attendu par kg de maïs.
+            <span id="popcornRendementCalc"></span>
+          </div>
+        </div>
+        
+        <!-- Panel Parking -->
+        <div id="configParking" class="config-panel" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="form-group">
+              <label class="form-label">Nombre total de places</label>
+              <input class="form-in" id="cfgParkingPlaces" type="number">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tarif horaire (GNF/h)</label>
+              <input class="form-in" id="cfgParkingHoraire" type="number" step="100">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Forfait journée (GNF)</label>
+              <input class="form-in" id="cfgParkingJour" type="number" step="500">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Forfait nuit (GNF)</label>
+              <input class="form-in" id="cfgParkingNuit" type="number" step="500">
+            </div>
+            <div style="display:flex;align-items:flex-end;">
+              <button class="btn btn-ok" onclick="saveParkingConfig()">Sauvegarder</button>
+            </div>
+          </div>
+          <div style="margin-top:8px;font-size:.8rem;color:var(--muted);">
+            💡 Les tarifs s'appliquent aux nouvelles entrées uniquement.
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1226,7 +1336,7 @@ tbody td{padding:9px 10px;}
       <input class="form-in" id="cremReceptionPar" value="">
     </div>
     <div style="font-size:.8rem;color:var(--muted);padding:8px;background:var(--bg);border-radius:8px;margin-bottom:10px;">
-      Ce kg de creme devra rapporter 600 000 GNF
+      Ce kg de creme devra rapporter <span id="cremReceptionRendement">0</span> GNF
     </div>
     <div class="modal-acts">
       <button class="btn btn-ghost" onclick="closeModal('modalCremerieReception')">Annuler</button>
@@ -1244,11 +1354,11 @@ tbody td{padding:9px 10px;}
       <input class="form-in" id="cremVenteKg" type="number" step="0.1" placeholder="ex: 2" oninput="calcCremerieRecette()">
     </div>
     <div class="form-group">
-      <label class="form-label">Petits pots vendus (5 000 GNF)</label>
+      <label class="form-label">Petits pots vendus (<span id="labelPrixPetitPot">0</span> GNF)</label>
       <input class="form-in" id="cremVentePetits" type="number" placeholder="ex: 80" oninput="calcCremerieRecette()">
     </div>
     <div class="form-group">
-      <label class="form-label">Grands pots vendus (10 000 GNF)</label>
+      <label class="form-label">Grands pots vendus (<span id="labelPrixGrandPot">0</span> GNF)</label>
       <input class="form-in" id="cremVenteGrands" type="number" placeholder="ex: 20" oninput="calcCremerieRecette()">
     </div>
     <div class="form-group">
@@ -1261,7 +1371,7 @@ tbody td{padding:9px 10px;}
         <strong id="cremVenteRecetteCalc">0 GNF</strong>
       </div>
       <div style="display:flex;justify-content:space-between;font-size:.9rem;border-top:1px solid var(--border);padding-top:8px;margin-top:8px;">
-        <span>Attendu (kg x 600 000) :</span>
+        <span>Attendu (kg x <span id="cremVenteRendement">0</span>) :</span>
         <strong id="cremVenteAttendu">0 GNF</strong>
       </div>
       <div style="display:flex;justify-content:space-between;font-size:.9rem;font-weight:700;border-top:2px solid var(--border);padding-top:8px;margin-top:8px;">
@@ -1290,7 +1400,7 @@ tbody td{padding:9px 10px;}
       <input class="form-in" id="popReceptionPar" value="">
     </div>
     <div style="font-size:.8rem;color:var(--muted);padding:8px;background:var(--bg);border-radius:8px;margin-bottom:10px;">
-      Ce kg de mais devra rapporter 200 000 GNF
+      Ce kg de mais devra rapporter <span id="popReceptionRendement">0</span> GNF
     </div>
     <div class="modal-acts">
       <button class="btn btn-ghost" onclick="closeModal('modalPopcornReception')">Annuler</button>
@@ -1308,7 +1418,7 @@ tbody td{padding:9px 10px;}
       <input class="form-in" id="popVenteKg" type="number" step="0.1" placeholder="ex: 2" oninput="calcPopcornRecette()">
     </div>
     <div class="form-group">
-      <label class="form-label">Boites vendues (10 000 GNF)</label>
+      <label class="form-label">Boites vendues (<span id="labelPrixBoite">0</span> GNF)</label>
       <input class="form-in" id="popVenteBoites" type="number" placeholder="ex: 25" oninput="calcPopcornRecette()">
     </div>
     <div class="form-group">
@@ -1321,7 +1431,7 @@ tbody td{padding:9px 10px;}
         <strong id="popVenteRecetteCalc">0 GNF</strong>
       </div>
       <div style="display:flex;justify-content:space-between;font-size:.9rem;border-top:1px solid var(--border);padding-top:8px;margin-top:8px;">
-        <span>Attendu (kg x 200 000) :</span>
+        <span>Attendu (kg x <span id="popVenteRendement">0</span>) :</span>
         <strong id="popVenteAttendu">0 GNF</strong>
       </div>
       <div style="display:flex;justify-content:space-between;font-size:.9rem;font-weight:700;border-top:2px solid var(--border);padding-top:8px;margin-top:8px;">
@@ -1356,9 +1466,9 @@ tbody td{padding:9px 10px;}
     <div class="form-group">
       <label class="form-label">Tarif</label>
       <select class="form-in" id="parkingTarif">
-        <option value="horaire">A l'heure (2 000 GNF/h)</option>
-        <option value="forfait_jour">Forfait journee (15 000 GNF)</option>
-        <option value="forfait_nuit">Forfait nuit (10 000 GNF)</option>
+        <option value="horaire">A l'heure (<span id="tarifHoraireLabel">0</span> GNF/h)</option>
+        <option value="forfait_jour">Forfait journee (<span id="tarifJourLabel">0</span> GNF)</option>
+        <option value="forfait_nuit">Forfait nuit (<span id="tarifNuitLabel">0</span> GNF)</option>
       </select>
     </div>
     <div class="modal-acts">
@@ -1401,66 +1511,19 @@ tbody td{padding:9px 10px;}
 // ================================================================
 
 // ========== UTILISATEURS PAR DÉFAUT ==========
+// SEUL L'ADMINISTRATEUR EST CRÉÉ PAR DÉFAUT
+// TOUS LES AUTRES COMPTES SERONT CRÉÉS DEPUIS L'ADMIN
 const DEFAULT_USERS = [
-  {id: 1, name: 'Administrateur', login: 'admin', pass: 'admin123', role: 'admin', kiosque: null, catAccess: ['Tous']},
-  {id: 2, name: 'Administrateur', login: 'sema', pass: 'sema123', role: 'admin', kiosque: null, catAccess: ['Tous']},
-  {id: 3, name: 'Mohamed Sema', login: 'mohamed', pass: 'stock123', role: 'stockmanager', kiosque: null, catAccess: ['Tous']},
-  {id: 4, name: 'Cuisiniere Aminata', login: 'aminata', pass: 'cuisine123', role: 'cuisiniere', kiosque: null, catAccess: ['Nourriture']},
-  {id: 5, name: 'Serveur Ali', login: 'ali', pass: 'serveur123', role: 'serveur', kiosque: null, catAccess: ['Tous']},
-  {id: 6, name: 'Parking - Mamadou', login: 'parking', pass: 'parking123', role: 'parking', kiosque: 'Parking', catAccess: ['Parking']},
-  {id: 7, name: 'Kiosque Nourriture - Fatou', login: 'fatou', pass: 'fatou123', role: 'vendeur', kiosque: 'Kiosque Nourriture', catAccess: ['Nourriture']},
-  {id: 8, name: 'Kiosque Boissons - Zenab', login: 'zenab', pass: 'zenab123', role: 'vendeur', kiosque: 'Kiosque Boissons', catAccess: ['Boissons']},
-  {id: 9, name: 'Kiosque Chicha - Ibrahima', login: 'ibrahima', pass: 'ibrahima123', role: 'vendeur', kiosque: 'Kiosque Chicha', catAccess: ['Chicha']},
-  {id: 10, name: 'Kiosque Creme - Mamadou', login: 'creme', pass: 'creme123', role: 'vendeur', kiosque: 'Kiosque Creme', catAccess: ['Cremerie']},
-  {id: 11, name: 'Kiosque Popcorn - Oumar', login: 'popcorn', pass: 'pop123', role: 'vendeur', kiosque: 'Kiosque Popcorn', catAccess: ['Popcorn']},
+  {id: 1, name: 'Administrateur', login: 'admin', pass: 'admin123', role: 'admin', kiosque: null, catAccess: ['Tous']}
 ];
 
-// ========== PRODUITS STANDARDS ==========
-const DEFAULT_PRODUCTS = [
-  {id: 1, name: 'Riz Sauce Arachide', price: 25000, cat: 'Nourriture'},
-  {id: 2, name: 'Riz Sauce Gombo', price: 22000, cat: 'Nourriture'},
-  {id: 3, name: 'Riz Foutou', price: 20000, cat: 'Nourriture'},
-  {id: 4, name: 'Poulet Braise', price: 35000, cat: 'Nourriture'},
-  {id: 5, name: 'Poisson Braise', price: 30000, cat: 'Nourriture'},
-  {id: 6, name: 'Viande Sauce', price: 40000, cat: 'Nourriture'},
-  {id: 7, name: 'Omelette Pain', price: 15000, cat: 'Nourriture'},
-  {id: 8, name: 'Placali Sauce', price: 18000, cat: 'Nourriture'},
-  {id: 9, name: 'Eau Minerale', price: 5000, cat: 'Boissons'},
-  {id: 10, name: 'Jus Naturel Gingembre', price: 8000, cat: 'Boissons'},
-  {id: 11, name: 'Jus Naturel Bissap', price: 8000, cat: 'Boissons'},
-  {id: 12, name: 'Jus Naturel Ananas', price: 8000, cat: 'Boissons'},
-  {id: 13, name: 'Biere Castel', price: 10000, cat: 'Boissons'},
-  {id: 14, name: 'Soda Coca-Cola', price: 6000, cat: 'Boissons'},
-  {id: 15, name: 'Soda Fanta', price: 6000, cat: 'Boissons'},
-  {id: 16, name: 'Cafe', price: 5000, cat: 'Boissons'},
-  {id: 17, name: 'The Citron', price: 5000, cat: 'Boissons'},
-  {id: 18, name: 'Chicha Simple', price: 50000, cat: 'Chicha'},
-  {id: 19, name: 'Chicha Double Pomme', price: 80000, cat: 'Chicha'},
-  {id: 20, name: 'Chicha Fruits Mixtes', price: 70000, cat: 'Chicha'},
-  {id: 21, name: 'Chicha Menthe Fraiche', price: 60000, cat: 'Chicha'},
-];
+// ========== LISTES VIDE - À REMPLIR DEPUIS L'ADMIN ==========
+let products = [];
+let CREMERIE_PRODUITS = [];
+let POPCORN_PRODUITS = [];
 
-// ========== PRODUITS CREMERIE ==========
-const CREMERIE_PRODUITS = [
-  {id: 301, name: 'Glace Vanille (Petit)', cat: 'Cremerie', prix: 5000, taille: 'Petit', parfum: 'Vanille'},
-  {id: 302, name: 'Glace Vanille (Grand)', cat: 'Cremerie', prix: 10000, taille: 'Grand', parfum: 'Vanille'},
-  {id: 303, name: 'Glace Chocolat (Petit)', cat: 'Cremerie', prix: 5000, taille: 'Petit', parfum: 'Chocolat'},
-  {id: 304, name: 'Glace Chocolat (Grand)', cat: 'Cremerie', prix: 10000, taille: 'Grand', parfum: 'Chocolat'},
-  {id: 305, name: 'Glace Fraise (Petit)', cat: 'Cremerie', prix: 5000, taille: 'Petit', parfum: 'Fraise'},
-  {id: 306, name: 'Glace Fraise (Grand)', cat: 'Cremerie', prix: 10000, taille: 'Grand', parfum: 'Fraise'},
-];
-
-// ========== PRODUITS POPCORN ==========
-const POPCORN_PRODUITS = [
-  {id: 401, name: 'Popcorn Nature (Boite)', cat: 'Popcorn', prix: 10000, taille: 'Boite', type: 'Nature'},
-  {id: 402, name: 'Popcorn Sucre (Boite)', cat: 'Popcorn', prix: 10000, taille: 'Boite', type: 'Sucre'},
-  {id: 403, name: 'Popcorn Sale (Boite)', cat: 'Popcorn', prix: 10000, taille: 'Boite', type: 'Sale'},
-  {id: 404, name: 'Popcorn Caramel (Boite)', cat: 'Popcorn', prix: 12000, taille: 'Boite', type: 'Caramel'},
-];
-
-// ========== VARIABLES GLOBALES ==========
+// ========== AUTRES DONNÉES ==========
 let users = JSON.parse(localStorage.getItem('cb_users')) || DEFAULT_USERS;
-let products = JSON.parse(localStorage.getItem('cb_prods')) || DEFAULT_PRODUCTS;
 let orders = JSON.parse(localStorage.getItem('cb_orders')) || [];
 let dispo = JSON.parse(localStorage.getItem('cb_dispo')) || {};
 let stockVendeur = JSON.parse(localStorage.getItem('cb_stock_vendeur')) || {};
@@ -1477,21 +1540,23 @@ let grandStockMvts = JSON.parse(localStorage.getItem('cb_grand_stock_mvts')) || 
 
 // Cremerie
 let cremerieMouvements = JSON.parse(localStorage.getItem('cb_cremerie_mouvements')) || [];
-const CREMERIE_RENDEMENT = 600000;
 
 // Popcorn
 let popcornMouvements = JSON.parse(localStorage.getItem('cb_popcorn_mouvements')) || [];
-const POPCORN_RENDEMENT = 200000;
 
 // Parking
 let parkingVehicles = JSON.parse(localStorage.getItem('cb_parking_vehicles')) || [];
 let parkingHistory = JSON.parse(localStorage.getItem('cb_parking_history')) || [];
-const PARKING_CONFIG = {
-  totalPlaces: 50,
-  tarifHoraire: 2000,
-  tarifForfaitJour: 15000,
-  tarifForfaitNuit: 10000
+
+// ========== CONFIGURATION DES PRIX ==========
+const DEFAULT_CONFIG = {
+  cremerie: { rendement: 600000, prixPetitPot: 5000, prixGrandPot: 10000 },
+  popcorn: { rendement: 200000, prixBoite: 10000 },
+  parking: { totalPlaces: 50, tarifHoraire: 2000, tarifForfaitJour: 15000, tarifForfaitNuit: 10000 }
 };
+
+let appConfig = JSON.parse(localStorage.getItem('cb_app_config')) || DEFAULT_CONFIG;
+let PARKING_CONFIG = appConfig.parking;
 
 // ========== VARIABLES D'ETAT ==========
 let currentUser = null;
@@ -1513,6 +1578,36 @@ const STOCK_SEUILS = {
   farine: 10, fromage: 5, creme: 3, mais: 3, huile: 2,
   sucre: 2, cacao: 1, viande: 5, poulet: 5, legumes: 3
 };
+
+// ========== CHARGEMENT DES PRODUITS DEPUIS LE STOCKAGE ==========
+function loadProducts() {
+  const saved = localStorage.getItem('cb_prods');
+  if (saved) {
+    products = JSON.parse(saved);
+  } else {
+    products = [];
+    localStorage.setItem('cb_prods', JSON.stringify(products));
+  }
+  
+  const savedCrem = localStorage.getItem('cb_cremerie_produits');
+  if (savedCrem) {
+    CREMERIE_PRODUITS = JSON.parse(savedCrem);
+  } else {
+    CREMERIE_PRODUITS = [];
+    localStorage.setItem('cb_cremerie_produits', JSON.stringify(CREMERIE_PRODUITS));
+  }
+  
+  const savedPop = localStorage.getItem('cb_popcorn_produits');
+  if (savedPop) {
+    POPCORN_PRODUITS = JSON.parse(savedPop);
+  } else {
+    POPCORN_PRODUITS = [];
+    localStorage.setItem('cb_popcorn_produits', JSON.stringify(POPCORN_PRODUITS));
+  }
+}
+
+// Charger les produits au démarrage
+loadProducts();
 </script>
 <script>
 // ---- 02-firebase.js ----
@@ -1556,20 +1651,23 @@ function setSyncDot(online) {
 
 async function loadFB() {
   try {
-    const keys = ['cb_users','cb_prods','cb_orders','cb_dispo','cb_verifs','cb_stock_vendeur','cb_stock_mvts','cb_journal_actions'];
+    const keys = ['cb_users','cb_prods','cb_orders','cb_dispo','cb_verifs','cb_stock_vendeur','cb_stock_mvts','cb_journal_actions','cb_cremerie_produits','cb_popcorn_produits','cb_app_config'];
     for (const key of keys) {
       const snap = await db.ref('beyla/' + key).once('value');
       if (snap.exists()) {
         const val = snap.val();
         saveLS(key, val);
-        if (key==='cb_users')        users     = val;
-        if (key==='cb_prods')        products  = val;
-        if (key==='cb_orders')       orders    = val;
-        if (key==='cb_dispo')        dispo     = val;
-        if (key==='cb_verifs')       verifs    = val;
+        if (key==='cb_users')        users = val;
+        if (key==='cb_prods')        { products = val; localStorage.setItem('cb_prods', JSON.stringify(products)); }
+        if (key==='cb_orders')       orders = val;
+        if (key==='cb_dispo')        dispo = val;
+        if (key==='cb_verifs')       verifs = val;
         if (key==='cb_stock_vendeur') stockVendeur = val;
         if (key==='cb_stock_mvts')   stockMvts = Array.isArray(val) ? val : Object.values(val);
         if (key==='cb_journal_actions') journalActions = Array.isArray(val) ? val : Object.values(val);
+        if (key==='cb_cremerie_produits') { CREMERIE_PRODUITS = val; localStorage.setItem('cb_cremerie_produits', JSON.stringify(CREMERIE_PRODUITS)); }
+        if (key==='cb_popcorn_produits') { POPCORN_PRODUITS = val; localStorage.setItem('cb_popcorn_produits', JSON.stringify(POPCORN_PRODUITS)); }
+        if (key==='cb_app_config') { appConfig = val; PARKING_CONFIG = appConfig.parking; localStorage.setItem('cb_app_config', JSON.stringify(appConfig)); }
       }
     }
     setSyncDot(true);
@@ -1718,6 +1816,14 @@ async function logAction(action, details) {
   journalActions.unshift(entry);
   if (journalActions.length > 500) journalActions = journalActions.slice(0,500);
   await saveFB('cb_journal_actions', journalActions);
+}
+
+async function saveConfig(config) {
+  appConfig = config;
+  PARKING_CONFIG = config.parking;
+  localStorage.setItem('cb_app_config', JSON.stringify(config));
+  await saveFB('cb_app_config', config);
+  toast('Configuration sauvegardée');
 }
 </script>
 <script>
@@ -2073,11 +2179,7 @@ function renderProds() {
   const allowedCats = currentUser.catAccess || [];
   const hasAllAccess = allowedCats.length === 0 || allowedCats.includes('Tous');
   
-  const allProducts = [
-    ...products,
-    ...CREMERIE_PRODUITS,
-    ...POPCORN_PRODUITS
-  ];
+  const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
   
   let produitsFiltres = hasAllAccess 
     ? allProducts 
@@ -2937,6 +3039,7 @@ function adjustStockKiosque(kiosque, prodId, mode) {
 const ADMIN_CATEGORIES = ['Nourriture', 'Boissons', 'Chicha', 'Cremerie', 'Popcorn'];
 
 function renderAdmin() {
+  // Afficher la liste des utilisateurs
   document.getElementById('userList').innerHTML = users.map(u=>{
     const roleLabels = { admin:'Admin', stockmanager:'Stock Manager', cuisiniere:'Cuisiniere', vendeur:'Kiosque', serveur:'Serveur', parking:'Parking' };
     return `<div class="user-row">
@@ -2954,24 +3057,30 @@ function renderAdmin() {
     </div>`;
   }).join('');
 
+  // Afficher les produits
   const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
-  document.getElementById('prodMgmtGrid').innerHTML = allProducts.map(p=>{
-    const totalQty = Object.values(stockVendeur).reduce((acc, k) => acc + (k[p.id]||0), 0);
-    const qty = (p.cat === 'Cremerie' || p.cat === 'Popcorn') ? '--' : (isFood(p) ? '∞' : totalQty);
-    const stCls = (p.cat === 'Cremerie' || p.cat === 'Popcorn') ? 'inf' : (isFood(p) ? 'inf' : getStockClass(totalQty));
-    return `<div class="pm-card">
-      <div class="pm-info">
-        <div class="pm-name">${getCatIcon(p.cat)} ${p.name}</div>
-        <div class="pm-cat">${p.cat}</div>
-        <div class="pm-price">${fmt(p.prix || p.price)} -- <span class="sc-stock ${stCls}" style="font-size:.72rem">${qty}</span></div>
-      </div>
-      <button class="icon-btn" onclick="editProdModal(${p.id})" title="Modifier">${icon('edit')}</button>
-      <button class="icon-btn icon-btn-danger" onclick="delProd(${p.id})" style="margin-left:4px" title="Supprimer">${icon('trash')}</button>
-    </div>`;
-  }).join('');
+  if (allProducts.length === 0) {
+    document.getElementById('prodMgmtGrid').innerHTML = '<div style="color:var(--muted);padding:1rem;text-align:center;">Aucun produit. Cliquez sur + Ajouter pour commencer.</div>';
+  } else {
+    document.getElementById('prodMgmtGrid').innerHTML = allProducts.map(p=>{
+      const totalQty = Object.values(stockVendeur).reduce((acc, k) => acc + (k[p.id]||0), 0);
+      const qty = (p.cat === 'Cremerie' || p.cat === 'Popcorn') ? '--' : (isFood(p) ? '∞' : totalQty);
+      const stCls = (p.cat === 'Cremerie' || p.cat === 'Popcorn') ? 'inf' : (isFood(p) ? 'inf' : getStockClass(totalQty));
+      return `<div class="pm-card">
+        <div class="pm-info">
+          <div class="pm-name">${getCatIcon(p.cat)} ${p.name}</div>
+          <div class="pm-cat">${p.cat}</div>
+          <div class="pm-price">${fmt(p.prix || p.price)} -- <span class="sc-stock ${stCls}" style="font-size:.72rem">${qty}</span></div>
+        </div>
+        <button class="icon-btn" onclick="editProdModal(${p.id})" title="Modifier">${icon('edit')}</button>
+        <button class="icon-btn icon-btn-danger" onclick="delProd(${p.id})" style="margin-left:4px" title="Supprimer">${icon('trash')}</button>
+      </div>`;
+    }).join('');
+  }
 
   renderVentesVendeur();
   renderJournalActions();
+  loadConfigValues(currentConfigTab || 'cremerie');
 }
 
 function renderVentesVendeur() {
@@ -3189,6 +3298,8 @@ async function saveProd() {
   }
   
   await saveFB('cb_prods',products);
+  await saveFB('cb_cremerie_produits', CREMERIE_PRODUITS);
+  await saveFB('cb_popcorn_produits', POPCORN_PRODUITS);
   logAction('Gestion produit', 'Produit ' + name + ' ' + (editProdId?'modifie':'cree') + ' par ' + currentUser.name);
   closeModal('modalProd');
   renderAdmin();
@@ -3215,6 +3326,109 @@ async function delProd(id) {
   renderAdmin();
   renderProds();
   toast('Produit supprime');
+}
+
+// ---- GESTION DE LA CONFIGURATION ----
+let currentConfigTab = 'cremerie';
+
+function switchConfigTab(tab) {
+  currentConfigTab = tab;
+  document.querySelectorAll('.config-tab-btn').forEach(b => b.classList.remove('act'));
+  document.querySelectorAll('.config-panel').forEach(p => p.style.display = 'none');
+  
+  document.querySelector(`.config-tab-btn[onclick*="${tab}"]`)?.classList.add('act');
+  document.getElementById('config' + tab.charAt(0).toUpperCase() + tab.slice(1)).style.display = 'block';
+  
+  loadConfigValues(tab);
+}
+
+function loadConfigValues(tab) {
+  if (tab === 'cremerie') {
+    document.getElementById('cfgCremerieRendement').value = appConfig.cremerie.rendement;
+    document.getElementById('cfgCremeriePetit').value = appConfig.cremerie.prixPetitPot;
+    document.getElementById('cfgCremerieGrand').value = appConfig.cremerie.prixGrandPot;
+    document.getElementById('cremerieRendementCalc').textContent = 
+      `💰 ${fmt(appConfig.cremerie.rendement)} / kg → ${fmt(appConfig.cremerie.rendement / 2)} le demi-kg`;
+  } else if (tab === 'popcorn') {
+    document.getElementById('cfgPopcornRendement').value = appConfig.popcorn.rendement;
+    document.getElementById('cfgPopcornBoite').value = appConfig.popcorn.prixBoite;
+    document.getElementById('popcornRendementCalc').textContent = 
+      `💰 ${fmt(appConfig.popcorn.rendement)} / kg → ${fmt(appConfig.popcorn.rendement / 2)} le demi-kg`;
+  } else if (tab === 'parking') {
+    document.getElementById('cfgParkingPlaces').value = appConfig.parking.totalPlaces;
+    document.getElementById('cfgParkingHoraire').value = appConfig.parking.tarifHoraire;
+    document.getElementById('cfgParkingJour').value = appConfig.parking.tarifForfaitJour;
+    document.getElementById('cfgParkingNuit').value = appConfig.parking.tarifForfaitNuit;
+  }
+}
+
+async function saveCremerieConfig() {
+  const rendement = parseInt(document.getElementById('cfgCremerieRendement').value);
+  const petit = parseInt(document.getElementById('cfgCremeriePetit').value);
+  const grand = parseInt(document.getElementById('cfgCremerieGrand').value);
+  
+  if (!rendement || rendement <= 0 || !petit || petit <= 0 || !grand || grand <= 0) {
+    toast('Veuillez entrer des valeurs valides');
+    return;
+  }
+  
+  appConfig.cremerie.rendement = rendement;
+  appConfig.cremerie.prixPetitPot = petit;
+  appConfig.cremerie.prixGrandPot = grand;
+  
+  await saveConfig(appConfig);
+  logAction('Configuration', 'Mise à jour des prix Crèmerie: rendement=' + rendement + ', petit=' + petit + ', grand=' + grand);
+  loadConfigValues('cremerie');
+  toast('Configuration Crèmerie sauvegardée');
+}
+
+async function savePopcornConfig() {
+  const rendement = parseInt(document.getElementById('cfgPopcornRendement').value);
+  const boite = parseInt(document.getElementById('cfgPopcornBoite').value);
+  
+  if (!rendement || rendement <= 0 || !boite || boite <= 0) {
+    toast('Veuillez entrer des valeurs valides');
+    return;
+  }
+  
+  appConfig.popcorn.rendement = rendement;
+  appConfig.popcorn.prixBoite = boite;
+  
+  await saveConfig(appConfig);
+  logAction('Configuration', 'Mise à jour des prix Popcorn: rendement=' + rendement + ', boite=' + boite);
+  loadConfigValues('popcorn');
+  toast('Configuration Popcorn sauvegardée');
+}
+
+async function saveParkingConfig() {
+  const places = parseInt(document.getElementById('cfgParkingPlaces').value);
+  const horaire = parseInt(document.getElementById('cfgParkingHoraire').value);
+  const jour = parseInt(document.getElementById('cfgParkingJour').value);
+  const nuit = parseInt(document.getElementById('cfgParkingNuit').value);
+  
+  if (!places || places <= 0 || !horaire || horaire <= 0 || !jour || jour <= 0 || !nuit || nuit <= 0) {
+    toast('Veuillez entrer des valeurs valides');
+    return;
+  }
+  
+  const placesOccupees = parkingVehicles.filter(v => v.statut === 'stationne').length;
+  if (places < placesOccupees) {
+    toast('Impossible de réduire en dessous des places occupées (' + placesOccupees + ')');
+    return;
+  }
+  
+  appConfig.parking.totalPlaces = places;
+  appConfig.parking.tarifHoraire = horaire;
+  appConfig.parking.tarifForfaitJour = jour;
+  appConfig.parking.tarifForfaitNuit = nuit;
+  PARKING_CONFIG = appConfig.parking;
+  
+  await saveConfig(appConfig);
+  logAction('Configuration', 'Mise à jour des tarifs Parking: places=' + places + ', horaire=' + horaire + ', jour=' + jour + ', nuit=' + nuit);
+  loadConfigValues('parking');
+  
+  if (currentPage === 'parking') renderParking();
+  toast('Configuration Parking sauvegardée');
 }
 </script>
 <script>
@@ -3405,7 +3619,18 @@ async function saveStockAjustement() {
 // 15-CREMERIE.JS -- Gestion de la cremerie
 // ================================================================
 
+function getCremerieConfig() {
+  return {
+    rendement: appConfig.cremerie.rendement || 600000,
+    prixPetitPot: appConfig.cremerie.prixPetitPot || 5000,
+    prixGrandPot: appConfig.cremerie.prixGrandPot || 10000
+  };
+}
+
 function renderCremerie() {
+  const config = getCremerieConfig();
+  document.getElementById('cremerieSub').textContent = 
+    `Gestion des glaces - Prix: petit ${fmt(config.prixPetitPot)}, grand ${fmt(config.prixGrandPot)} - Rendement: ${fmt(config.rendement)}/kg`;
   document.getElementById('cremerieStock').textContent = grandStock.creme || 0;
   
   const todayStr = today();
@@ -3416,7 +3641,7 @@ function renderCremerie() {
   const totalPetits = ventesJour.reduce((s, m) => s + (m.petitsPots || 0), 0);
   const totalGrands = ventesJour.reduce((s, m) => s + (m.grandsPots || 0), 0);
   const recette = ventesJour.reduce((s, m) => s + (m.recette || 0), 0);
-  const attendu = totalKg * CREMERIE_RENDEMENT;
+  const attendu = totalKg * config.rendement;
   const ecart = attendu - recette;
   
   document.getElementById('cremKg').textContent = totalKg + ' kg';
@@ -3454,8 +3679,10 @@ function renderCremerie() {
 }
 
 function openReceptionCremerie() {
+  const config = getCremerieConfig();
   document.getElementById('cremReceptionKg').value = '';
   document.getElementById('cremReceptionPar').value = currentUser.name;
+  document.getElementById('cremReceptionRendement').textContent = fmt(config.rendement);
   openModal('modalCremerieReception');
 }
 
@@ -3465,10 +3692,11 @@ async function saveReceptionCremerie() {
   if (!kg || kg <= 0) { toast('Entrer une quantite valide'); return; }
   if (!grandStock.creme) grandStock.creme = 0;
   grandStock.creme += kg;
+  const config = getCremerieConfig();
   const mouvement = {
     id: 'CREM-REC-' + Date.now().toString(36).toUpperCase(),
     date: today(), type: 'reception', kg: kg,
-    recette: 0, attendu: kg * CREMERIE_RENDEMENT,
+    recette: 0, attendu: kg * config.rendement,
     par: par, commentaire: 'Reception de creme'
   };
   cremerieMouvements.unshift(mouvement);
@@ -3482,10 +3710,14 @@ async function saveReceptionCremerie() {
 }
 
 function openVenteCremerie() {
+  const config = getCremerieConfig();
   document.getElementById('cremVenteKg').value = '';
   document.getElementById('cremVentePetits').value = '';
   document.getElementById('cremVenteGrands').value = '';
   document.getElementById('cremVentePar').value = currentUser.name;
+  document.getElementById('labelPrixPetitPot').textContent = fmt(config.prixPetitPot);
+  document.getElementById('labelPrixGrandPot').textContent = fmt(config.prixGrandPot);
+  document.getElementById('cremVenteRendement').textContent = fmt(config.rendement);
   document.getElementById('cremVenteRecetteCalc').textContent = '0 GNF';
   document.getElementById('cremVenteAttendu').textContent = '0 GNF';
   document.getElementById('cremVenteEcart').textContent = '0 GNF';
@@ -3494,11 +3726,12 @@ function openVenteCremerie() {
 }
 
 function calcCremerieRecette() {
+  const config = getCremerieConfig();
   const kg = parseFloat(document.getElementById('cremVenteKg').value) || 0;
   const petits = parseInt(document.getElementById('cremVentePetits').value) || 0;
   const grands = parseInt(document.getElementById('cremVenteGrands').value) || 0;
-  const recette = (petits * 5000) + (grands * 10000);
-  const attendu = kg * CREMERIE_RENDEMENT;
+  const recette = (petits * config.prixPetitPot) + (grands * config.prixGrandPot);
+  const attendu = kg * config.rendement;
   const ecart = attendu - recette;
   document.getElementById('cremVenteRecetteCalc').textContent = fmt(recette);
   document.getElementById('cremVenteAttendu').textContent = fmt(attendu);
@@ -3508,6 +3741,7 @@ function calcCremerieRecette() {
 }
 
 async function saveVenteCremerie() {
+  const config = getCremerieConfig();
   const kg = parseFloat(document.getElementById('cremVenteKg').value);
   const petits = parseInt(document.getElementById('cremVentePetits').value) || 0;
   const grands = parseInt(document.getElementById('cremVenteGrands').value) || 0;
@@ -3515,8 +3749,8 @@ async function saveVenteCremerie() {
   if (!kg || kg <= 0) { toast('Entrer une quantite de kg valide'); return; }
   if (petits === 0 && grands === 0) { toast('Entrer au moins un pot vendu'); return; }
   if ((grandStock.creme || 0) < kg) { toast('Stock insuffisant (disponible: ' + grandStock.creme + ' kg)'); return; }
-  const recette = (petits * 5000) + (grands * 10000);
-  const attendu = kg * CREMERIE_RENDEMENT;
+  const recette = (petits * config.prixPetitPot) + (grands * config.prixGrandPot);
+  const attendu = kg * config.rendement;
   const ecart = attendu - recette;
   grandStock.creme -= kg;
   const mouvement = {
@@ -3544,7 +3778,17 @@ async function saveVenteCremerie() {
 // 16-POPCORN.JS -- Gestion du popcorn
 // ================================================================
 
+function getPopcornConfig() {
+  return {
+    rendement: appConfig.popcorn.rendement || 200000,
+    prixBoite: appConfig.popcorn.prixBoite || 10000
+  };
+}
+
 function renderPopcorn() {
+  const config = getPopcornConfig();
+  document.getElementById('popcornSub').textContent = 
+    `Gestion des popcorns - Prix: ${fmt(config.prixBoite)}/boîte - Rendement: ${fmt(config.rendement)}/kg`;
   document.getElementById('popcornStock').textContent = grandStock.mais || 0;
   
   const todayStr = today();
@@ -3554,7 +3798,7 @@ function renderPopcorn() {
   const totalKg = ventesJour.reduce((s, m) => s + m.kg, 0);
   const totalBoites = ventesJour.reduce((s, m) => s + (m.boites || 0), 0);
   const recette = ventesJour.reduce((s, m) => s + (m.recette || 0), 0);
-  const attendu = totalKg * POPCORN_RENDEMENT;
+  const attendu = totalKg * config.rendement;
   const ecart = attendu - recette;
   
   document.getElementById('popKg').textContent = totalKg + ' kg';
@@ -3590,8 +3834,10 @@ function renderPopcorn() {
 }
 
 function openReceptionPopcorn() {
+  const config = getPopcornConfig();
   document.getElementById('popReceptionKg').value = '';
   document.getElementById('popReceptionPar').value = currentUser.name;
+  document.getElementById('popReceptionRendement').textContent = fmt(config.rendement);
   openModal('modalPopcornReception');
 }
 
@@ -3601,10 +3847,11 @@ async function saveReceptionPopcorn() {
   if (!kg || kg <= 0) { toast('Entrer une quantite valide'); return; }
   if (!grandStock.mais) grandStock.mais = 0;
   grandStock.mais += kg;
+  const config = getPopcornConfig();
   const mouvement = {
     id: 'POP-REC-' + Date.now().toString(36).toUpperCase(),
     date: today(), type: 'reception', kg: kg,
-    recette: 0, attendu: kg * POPCORN_RENDEMENT,
+    recette: 0, attendu: kg * config.rendement,
     par: par, commentaire: 'Reception de mais'
   };
   popcornMouvements.unshift(mouvement);
@@ -3618,9 +3865,12 @@ async function saveReceptionPopcorn() {
 }
 
 function openVentePopcorn() {
+  const config = getPopcornConfig();
   document.getElementById('popVenteKg').value = '';
   document.getElementById('popVenteBoites').value = '';
   document.getElementById('popVentePar').value = currentUser.name;
+  document.getElementById('labelPrixBoite').textContent = fmt(config.prixBoite);
+  document.getElementById('popVenteRendement').textContent = fmt(config.rendement);
   document.getElementById('popVenteRecetteCalc').textContent = '0 GNF';
   document.getElementById('popVenteAttendu').textContent = '0 GNF';
   document.getElementById('popVenteEcart').textContent = '0 GNF';
@@ -3629,10 +3879,11 @@ function openVentePopcorn() {
 }
 
 function calcPopcornRecette() {
+  const config = getPopcornConfig();
   const kg = parseFloat(document.getElementById('popVenteKg').value) || 0;
   const boites = parseInt(document.getElementById('popVenteBoites').value) || 0;
-  const recette = boites * 10000;
-  const attendu = kg * POPCORN_RENDEMENT;
+  const recette = boites * config.prixBoite;
+  const attendu = kg * config.rendement;
   const ecart = attendu - recette;
   document.getElementById('popVenteRecetteCalc').textContent = fmt(recette);
   document.getElementById('popVenteAttendu').textContent = fmt(attendu);
@@ -3642,14 +3893,15 @@ function calcPopcornRecette() {
 }
 
 async function saveVentePopcorn() {
+  const config = getPopcornConfig();
   const kg = parseFloat(document.getElementById('popVenteKg').value);
   const boites = parseInt(document.getElementById('popVenteBoites').value) || 0;
   const par = document.getElementById('popVentePar').value || currentUser.name;
   if (!kg || kg <= 0) { toast('Entrer une quantite de kg valide'); return; }
   if (boites === 0) { toast('Entrer au moins une boite vendue'); return; }
   if ((grandStock.mais || 0) < kg) { toast('Stock insuffisant (disponible: ' + grandStock.mais + ' kg)'); return; }
-  const recette = boites * 10000;
-  const attendu = kg * POPCORN_RENDEMENT;
+  const recette = boites * config.prixBoite;
+  const attendu = kg * config.rendement;
   const ecart = attendu - recette;
   grandStock.mais -= kg;
   const mouvement = {
@@ -3683,12 +3935,15 @@ function renderParking() {
   const sortiesAujourdhui = parkingHistory.filter(h => h.date === todayStr);
   const recetteAujourdhui = sortiesAujourdhui.reduce((s, h) => s + (h.montant || 0), 0);
   
+  document.getElementById('totalPlaces').textContent = PARKING_CONFIG.totalPlaces;
   document.getElementById('placesLibres').textContent = placesLibres;
   document.getElementById('parkingRecette').textContent = fmt(recetteAujourdhui);
   document.getElementById('parkingOccupees').textContent = placesOccupees;
-  document.getElementById('parkingLibres').textContent = placesLibres;
+  document.getElementById('parkingLibres2').textContent = placesLibres;
   document.getElementById('parkingTotal').textContent = parkingVehicles.length + sortiesAujourdhui.length;
   document.getElementById('parkingRecetteTotal').textContent = fmt(recetteAujourdhui);
+  document.getElementById('parkingSub').textContent = 
+    `Gestion des places - Tarif: ${fmt(PARKING_CONFIG.tarifHoraire)}/h, Jour: ${fmt(PARKING_CONFIG.tarifForfaitJour)}, Nuit: ${fmt(PARKING_CONFIG.tarifForfaitNuit)}`;
   
   const grid = document.getElementById('parkingGrid');
   const vehiclesStationnes = parkingVehicles.filter(v => v.statut === 'stationne');
@@ -3751,6 +4006,9 @@ function openParkingEntry() {
   document.getElementById('parkingPlaque').value = '';
   document.getElementById('parkingType').value = 'voiture';
   document.getElementById('parkingTarif').value = 'horaire';
+  document.getElementById('tarifHoraireLabel').textContent = fmt(PARKING_CONFIG.tarifHoraire);
+  document.getElementById('tarifJourLabel').textContent = fmt(PARKING_CONFIG.tarifForfaitJour);
+  document.getElementById('tarifNuitLabel').textContent = fmt(PARKING_CONFIG.tarifForfaitNuit);
   openModal('modalParkingEntry');
 }
 
