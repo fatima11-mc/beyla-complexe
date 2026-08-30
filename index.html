@@ -143,7 +143,6 @@ input,select,textarea,button{font-family:inherit;}
 .hamburger:hover {
   background: rgba(255,255,255,.1);
 }
-
 .mobile-menu-overlay {
   position: fixed;
   top: var(--nav-h);
@@ -158,7 +157,6 @@ input,select,textarea,button{font-family:inherit;}
 .mobile-menu-overlay.open {
   display: block;
 }
-
 .mobile-menu-panel {
   position: fixed;
   top: var(--nav-h);
@@ -177,7 +175,6 @@ input,select,textarea,button{font-family:inherit;}
 .mobile-menu-panel.open {
   transform: translateX(0);
 }
-
 .mobile-menu-item {
   display: flex;
   align-items: center;
@@ -214,7 +211,6 @@ input,select,textarea,button{font-family:inherit;}
 .mobile-menu-item.act .mm-icon {
   color: var(--accent);
 }
-
 .mobile-menu-footer {
   padding: 16px 20px;
   border-top: 1px solid rgba(255,255,255,.08);
@@ -232,7 +228,6 @@ input,select,textarea,button{font-family:inherit;}
   padding: 10px 16px;
   font-size: .8rem;
 }
-
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -261,7 +256,6 @@ input,select,textarea,button{font-family:inherit;}
 .bottom-nav::-webkit-scrollbar {
   display: none;
 }
-
 .bottom-nav-scroll-indicator {
   display: none;
   position: fixed;
@@ -284,12 +278,10 @@ input,select,textarea,button{font-family:inherit;}
 .bottom-nav-scroll-indicator.show {
   display: flex;
 }
-
 @keyframes pulse {
   0%, 100% { opacity: .7; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.05); }
 }
-
 .bn-item {
   flex: 0 0 auto;
   min-width: 56px;
@@ -333,7 +325,6 @@ input,select,textarea,button{font-family:inherit;}
   width: 20px;
   height: 20px;
 }
-
 .bn-logout {
   flex: 0 0 auto;
   min-width: 44px;
@@ -399,7 +390,6 @@ input,select,textarea,button{font-family:inherit;}
     display: flex;
   }
 }
-
 @media(min-width: 769px) {
   .h-nav {
     display: flex !important;
@@ -415,7 +405,6 @@ input,select,textarea,button{font-family:inherit;}
     display: none !important;
   }
 }
-
 .bottom-nav:has(> :nth-child(-n+5):last-child) {
   justify-content: space-around;
 }
@@ -1794,7 +1783,6 @@ tbody td{padding:9px 10px;}
 // ================================================================
 
 // ========== UTILISATEURS PAR DÉFAUT ==========
-// SEUL L'ADMINISTRATEUR EST CRÉÉ PAR DÉFAUT
 const DEFAULT_USERS = [
   {id: 1, name: 'Administrateur', login: 'admin', pass: 'admin123', role: 'admin', kiosque: null, catAccess: ['Tous']}
 ];
@@ -3370,7 +3358,7 @@ function adjustStockKiosque(kiosque, prodId, mode) {
 <script>
 // ---- 12-admin.js ----
 // ================================================================
-// 12-ADMIN.JS -- Page Admin
+// 12-ADMIN.JS -- Page Admin avec gestion des produits corrigée
 // ================================================================
 
 const ADMIN_CATEGORIES = ['Nourriture', 'Boissons', 'Chicha', 'Cremerie', 'Popcorn'];
@@ -3394,7 +3382,7 @@ function renderAdmin() {
     </div>`;
   }).join('');
 
-  // Produits
+  // Produits - Version corrigée
   const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
   if (allProducts.length === 0) {
     document.getElementById('prodMgmtGrid').innerHTML = '<div style="color:var(--muted);padding:1rem;text-align:center;">Aucun produit. Cliquez sur + Ajouter pour commencer.</div>';
@@ -3478,6 +3466,7 @@ function exportVentesVendeur() {
   toast('Fichier exporte');
 }
 
+// ===== GESTION DES UTILISATEURS =====
 function openAddUser() {
   editUserId=null;
   document.getElementById('modalUserTitle').textContent='Nouveau compte';
@@ -3582,22 +3571,26 @@ async function delUser(id) {
   toast('Compte supprime');
 }
 
+// ===== GESTION DES PRODUITS - VERSION CORRIGÉE =====
 function openAddProd() {
-  editProdId=null;
-  document.getElementById('modalProdTitle').textContent='Nouveau produit';
-  document.getElementById('pName').value='';
-  document.getElementById('pPrice').value='';
-  document.getElementById('pCat').value='Nourriture';
-  document.getElementById('pPhoto').value='';
+  editProdId = null;
+  document.getElementById('modalProdTitle').textContent = 'Nouveau produit';
+  document.getElementById('pName').value = '';
+  document.getElementById('pPrice').value = '';
+  document.getElementById('pCat').value = 'Nourriture';
+  document.getElementById('pPhoto').value = '';
   openModal('modalProd');
 }
 
 function editProdModal(id) {
-  const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
-  const p = allProducts.find(x=>x.id===id);
-  if (!p) return;
-  editProdId=id;
-  document.getElementById('modalProdTitle').textContent='Modifier produit';
+  let p = products.find(x => x.id === id);
+  if (!p) p = CREMERIE_PRODUITS.find(x => x.id === id);
+  if (!p) p = POPCORN_PRODUITS.find(x => x.id === id);
+  
+  if (!p) { toast('Produit non trouvé'); return; }
+  
+  editProdId = id;
+  document.getElementById('modalProdTitle').textContent = 'Modifier produit';
   document.getElementById('pName').value = p.name;
   document.getElementById('pPrice').value = p.prix || p.price;
   document.getElementById('pCat').value = p.cat;
@@ -3610,59 +3603,164 @@ async function saveProd() {
   const price = parseFloat(document.getElementById('pPrice').value);
   const cat = document.getElementById('pCat').value;
   const photo = document.getElementById('pPhoto').value.trim();
-  if (!name||!price) { toast('Remplir nom et prix'); return; }
   
-  if (editProdId) {
-    const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
-    const p = allProducts.find(x=>x.id===editProdId);
-    if (p) { p.name=name; p.price=price; p.prix=price; p.cat=cat; p.photo=photo; }
-    if (cat === 'Cremerie') {
-      const idx = CREMERIE_PRODUITS.findIndex(x=>x.id===editProdId);
-      if (idx !== -1) CREMERIE_PRODUITS[idx] = {id:editProdId, name, prix:price, cat, photo};
-    } else if (cat === 'Popcorn') {
-      const idx = POPCORN_PRODUITS.findIndex(x=>x.id===editProdId);
-      if (idx !== -1) POPCORN_PRODUITS[idx] = {id:editProdId, name, prix:price, cat, photo};
+  if (!name) { toast('Veuillez entrer un nom de produit'); return; }
+  if (!price || price <= 0) { toast('Veuillez entrer un prix valide'); return; }
+  
+  // Générer un nouvel ID si nécessaire
+  const allIds = [
+    ...products.map(p => p.id), 
+    ...CREMERIE_PRODUITS.map(p => p.id), 
+    ...POPCORN_PRODUITS.map(p => p.id)
+  ];
+  const maxId = allIds.length > 0 ? Math.max(...allIds) : 0;
+  const newId = maxId + 1;
+  
+  try {
+    if (editProdId) {
+      // ===== MODIFICATION =====
+      let found = false;
+      
+      // Chercher dans products
+      let idx = products.findIndex(p => p.id === editProdId);
+      if (idx !== -1) {
+        if (cat === 'Cremerie') {
+          const p = products.splice(idx, 1)[0];
+          CREMERIE_PRODUITS.push({id: p.id, name, prix: price, cat: 'Cremerie', photo});
+        } else if (cat === 'Popcorn') {
+          const p = products.splice(idx, 1)[0];
+          POPCORN_PRODUITS.push({id: p.id, name, prix: price, cat: 'Popcorn', photo});
+        } else {
+          products[idx] = {id: editProdId, name, price, cat, photo};
+        }
+        found = true;
+      }
+      
+      if (!found) {
+        // Chercher dans CREMERIE_PRODUITS
+        idx = CREMERIE_PRODUITS.findIndex(p => p.id === editProdId);
+        if (idx !== -1) {
+          if (cat === 'Cremerie') {
+            CREMERIE_PRODUITS[idx] = {id: editProdId, name, prix: price, cat, photo};
+          } else if (cat === 'Popcorn') {
+            const p = CREMERIE_PRODUITS.splice(idx, 1)[0];
+            POPCORN_PRODUITS.push({id: p.id, name, prix: price, cat: 'Popcorn', photo});
+          } else {
+            const p = CREMERIE_PRODUITS.splice(idx, 1)[0];
+            products.push({id: p.id, name, price, cat, photo});
+          }
+          found = true;
+        }
+      }
+      
+      if (!found) {
+        // Chercher dans POPCORN_PRODUITS
+        idx = POPCORN_PRODUITS.findIndex(p => p.id === editProdId);
+        if (idx !== -1) {
+          if (cat === 'Popcorn') {
+            POPCORN_PRODUITS[idx] = {id: editProdId, name, prix: price, cat, photo};
+          } else if (cat === 'Cremerie') {
+            const p = POPCORN_PRODUITS.splice(idx, 1)[0];
+            CREMERIE_PRODUITS.push({id: p.id, name, prix: price, cat: 'Cremerie', photo});
+          } else {
+            const p = POPCORN_PRODUITS.splice(idx, 1)[0];
+            products.push({id: p.id, name, price, cat, photo});
+          }
+          found = true;
+        }
+      }
+      
+      if (!found) {
+        toast('Erreur: Produit non trouvé');
+        return;
+      }
+      
+      logAction('Gestion produit', 'Produit ' + name + ' modifié par ' + currentUser.name);
+      
     } else {
-      const idx = products.findIndex(x=>x.id===editProdId);
-      if (idx !== -1) products[idx] = {id:editProdId, name, price, cat, photo};
+      // ===== CRÉATION =====
+      if (cat === 'Cremerie') {
+        CREMERIE_PRODUITS.push({id: newId, name, prix: price, cat: 'Cremerie', photo});
+      } else if (cat === 'Popcorn') {
+        POPCORN_PRODUITS.push({id: newId, name, prix: price, cat: 'Popcorn', photo});
+      } else {
+        products.push({id: newId, name, price, cat, photo});
+      }
+      
+      logAction('Gestion produit', 'Produit ' + name + ' créé par ' + currentUser.name);
     }
-  } else {
-    const mx = Math.max(...products.map(p=>p.id), ...CREMERIE_PRODUITS.map(p=>p.id), ...POPCORN_PRODUITS.map(p=>p.id));
-    const newId = mx+1;
-    if (cat === 'Cremerie') CREMERIE_PRODUITS.push({id:newId, name, prix:price, cat, photo});
-    else if (cat === 'Popcorn') POPCORN_PRODUITS.push({id:newId, name, prix:price, cat, photo});
-    else products.push({id:newId, name, price, cat, photo});
+    
+    // ===== SAUVEGARDE =====
+    await saveFB('cb_prods', products);
+    await saveFB('cb_cremerie_produits', CREMERIE_PRODUITS);
+    await saveFB('cb_popcorn_produits', POPCORN_PRODUITS);
+    
+    localStorage.setItem('cb_prods', JSON.stringify(products));
+    localStorage.setItem('cb_cremerie_produits', JSON.stringify(CREMERIE_PRODUITS));
+    localStorage.setItem('cb_popcorn_produits', JSON.stringify(POPCORN_PRODUITS));
+    
+    closeModal('modalProd');
+    renderAdmin();
+    renderProds();
+    toast(editProdId ? '✅ Produit modifié avec succès' : '✅ Produit ajouté avec succès');
+    editProdId = null;
+    
+  } catch (error) {
+    console.error('Erreur dans saveProd:', error);
+    toast('❌ Erreur lors de la sauvegarde: ' + error.message);
   }
-  
-  await saveFB('cb_prods',products);
-  await saveFB('cb_cremerie_produits', CREMERIE_PRODUITS);
-  await saveFB('cb_popcorn_produits', POPCORN_PRODUITS);
-  logAction('Gestion produit', 'Produit ' + name + ' ' + (editProdId?'modifie':'cree') + ' par ' + currentUser.name);
-  closeModal('modalProd');
-  renderAdmin();
-  renderProds();
-  toast('Produit enregistre');
 }
 
 async function delProd(id) {
   if (!confirm('Supprimer ce produit definitivement ?')) return;
-  let p = products.find(x=>x.id===id);
-  if (p) products=products.filter(x=>x.id!==id);
-  else {
-    p = CREMERIE_PRODUITS.find(x=>x.id===id);
-    if (p) { const idx = CREMERIE_PRODUITS.indexOf(p); CREMERIE_PRODUITS.splice(idx, 1); }
-    else {
-      p = POPCORN_PRODUITS.find(x=>x.id===id);
-      if (p) { const idx = POPCORN_PRODUITS.indexOf(p); POPCORN_PRODUITS.splice(idx, 1); }
+  
+  let p = null;
+  
+  // Chercher dans products
+  let idx = products.findIndex(x => x.id === id);
+  if (idx !== -1) {
+    p = products.splice(idx, 1)[0];
+  } else {
+    // Chercher dans CREMERIE_PRODUITS
+    idx = CREMERIE_PRODUITS.findIndex(x => x.id === id);
+    if (idx !== -1) {
+      p = CREMERIE_PRODUITS.splice(idx, 1)[0];
+    } else {
+      // Chercher dans POPCORN_PRODUITS
+      idx = POPCORN_PRODUITS.findIndex(x => x.id === id);
+      if (idx !== -1) {
+        p = POPCORN_PRODUITS.splice(idx, 1)[0];
+      }
     }
   }
-  Object.keys(stockVendeur).forEach(k => delete stockVendeur[k][id]);
-  await saveFB('cb_prods',products);
-  await saveFB('cb_stock_vendeur',stockVendeur);
-  logAction('Gestion produit', 'Produit ' + p?.name + ' supprime par ' + currentUser.name);
-  renderAdmin();
-  renderProds();
-  toast('Produit supprime');
+  
+  if (!p) { toast('Produit non trouvé'); return; }
+  
+  // Supprimer le stock associé
+  Object.keys(stockVendeur).forEach(k => {
+    if (stockVendeur[k] && stockVendeur[k][id] !== undefined) {
+      delete stockVendeur[k][id];
+    }
+  });
+  
+  try {
+    await saveFB('cb_prods', products);
+    await saveFB('cb_cremerie_produits', CREMERIE_PRODUITS);
+    await saveFB('cb_popcorn_produits', POPCORN_PRODUITS);
+    await saveFB('cb_stock_vendeur', stockVendeur);
+    
+    localStorage.setItem('cb_prods', JSON.stringify(products));
+    localStorage.setItem('cb_cremerie_produits', JSON.stringify(CREMERIE_PRODUITS));
+    localStorage.setItem('cb_popcorn_produits', JSON.stringify(POPCORN_PRODUITS));
+    
+    logAction('Gestion produit', 'Produit ' + p.name + ' supprimé par ' + currentUser.name);
+    renderAdmin();
+    renderProds();
+    toast('✅ Produit supprimé');
+  } catch (error) {
+    console.error('Erreur dans delProd:', error);
+    toast('❌ Erreur lors de la suppression: ' + error.message);
+  }
 }
 
 // ---- GESTION DE LA CONFIGURATION ----
