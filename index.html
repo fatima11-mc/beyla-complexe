@@ -139,7 +139,6 @@ input,select,textarea,button{font-family:inherit;}
   border-top:1px solid rgba(255,255,255,.08);z-index:100;
   align-items:center;padding:0 2px;
   box-shadow:0 -4px 20px rgba(0,0,0,.3);
-  /* Defile horizontalement plutot que d'ecraser les onglets quand il y en a beaucoup (role admin) */
   overflow-x:auto;scrollbar-width:none;justify-content:flex-start;
 }
 .bottom-nav::-webkit-scrollbar{display:none;}
@@ -167,7 +166,6 @@ input,select,textarea,button{font-family:inherit;}
   padding:8px 4px;font-size:.58rem;font-weight:700;text-transform:uppercase;
   letter-spacing:.04em;transition:.15s;border-radius:10px;margin:0 2px;
   border:1px solid rgba(184,74,26,.3);
-  /* Reste accessible meme quand la nav defile a cause d'un role avec beaucoup d'onglets */
   position:sticky;right:2px;
 }
 .pending-badge{background:var(--amber);color:#fff;border-radius:10px;font-size:.6rem;font-weight:700;padding:1px 5px;margin-left:4px;}
@@ -554,10 +552,8 @@ tbody td{padding:9px 10px;}
   .h-role{display:none;}
   .h-user{display:none;}
   .bottom-nav{display:flex;}
-  /* Empeche le zoom automatique d'iOS au focus (police min 16px) */
   .login-input,.form-in,.tbl-row select,.tbl-row input[type=text],
   .date-in,.filter-select,.s-box input{font-size:16px;}
-  /* Zones tactiles plus larges pour une utilisation au doigt */
   .icon-btn{width:40px;height:40px;}
   .qb{width:40px;height:40px;}
   .cat-btn,.cmt-btn,.qc-filter-btn{padding:9px 16px;}
@@ -1406,23 +1402,12 @@ tbody td{padding:9px 10px;}
 
 // ========== UTILISATEURS PAR DÉFAUT ==========
 const DEFAULT_USERS = [
-  // Administrateurs (max 2)
   {id: 1, name: 'Administrateur', login: 'admin', pass: 'admin123', role: 'admin', kiosque: null, catAccess: ['Tous']},
   {id: 2, name: 'Administrateur', login: 'sema', pass: 'sema123', role: 'admin', kiosque: null, catAccess: ['Tous']},
-  
-  // Stock Manager (Mohamed)
   {id: 3, name: 'Mohamed Sema', login: 'mohamed', pass: 'stock123', role: 'stockmanager', kiosque: null, catAccess: ['Tous']},
-  
-  // Cuisiniere
   {id: 4, name: 'Cuisiniere Aminata', login: 'aminata', pass: 'cuisine123', role: 'cuisiniere', kiosque: null, catAccess: ['Nourriture']},
-  
-  // Serveur
   {id: 5, name: 'Serveur Ali', login: 'ali', pass: 'serveur123', role: 'serveur', kiosque: null, catAccess: ['Tous']},
-  
-  // Parking
   {id: 6, name: 'Parking - Mamadou', login: 'parking', pass: 'parking123', role: 'parking', kiosque: 'Parking', catAccess: ['Parking']},
-  
-  // Vendeurs par kiosque
   {id: 7, name: 'Kiosque Nourriture - Fatou', login: 'fatou', pass: 'fatou123', role: 'vendeur', kiosque: 'Kiosque Nourriture', catAccess: ['Nourriture']},
   {id: 8, name: 'Kiosque Boissons - Zenab', login: 'zenab', pass: 'zenab123', role: 'vendeur', kiosque: 'Kiosque Boissons', catAccess: ['Boissons']},
   {id: 9, name: 'Kiosque Chicha - Ibrahima', login: 'ibrahima', pass: 'ibrahima123', role: 'vendeur', kiosque: 'Kiosque Chicha', catAccess: ['Chicha']},
@@ -1432,7 +1417,6 @@ const DEFAULT_USERS = [
 
 // ========== PRODUITS STANDARDS ==========
 const DEFAULT_PRODUCTS = [
-  // Nourriture
   {id: 1, name: 'Riz Sauce Arachide', price: 25000, cat: 'Nourriture'},
   {id: 2, name: 'Riz Sauce Gombo', price: 22000, cat: 'Nourriture'},
   {id: 3, name: 'Riz Foutou', price: 20000, cat: 'Nourriture'},
@@ -1441,8 +1425,6 @@ const DEFAULT_PRODUCTS = [
   {id: 6, name: 'Viande Sauce', price: 40000, cat: 'Nourriture'},
   {id: 7, name: 'Omelette Pain', price: 15000, cat: 'Nourriture'},
   {id: 8, name: 'Placali Sauce', price: 18000, cat: 'Nourriture'},
-  
-  // Boissons
   {id: 9, name: 'Eau Minerale', price: 5000, cat: 'Boissons'},
   {id: 10, name: 'Jus Naturel Gingembre', price: 8000, cat: 'Boissons'},
   {id: 11, name: 'Jus Naturel Bissap', price: 8000, cat: 'Boissons'},
@@ -1452,8 +1434,6 @@ const DEFAULT_PRODUCTS = [
   {id: 15, name: 'Soda Fanta', price: 6000, cat: 'Boissons'},
   {id: 16, name: 'Cafe', price: 5000, cat: 'Boissons'},
   {id: 17, name: 'The Citron', price: 5000, cat: 'Boissons'},
-  
-  // Chicha
   {id: 18, name: 'Chicha Simple', price: 50000, cat: 'Chicha'},
   {id: 19, name: 'Chicha Double Pomme', price: 80000, cat: 'Chicha'},
   {id: 20, name: 'Chicha Fruits Mixtes', price: 70000, cat: 'Chicha'},
@@ -1486,20 +1466,12 @@ let dispo = JSON.parse(localStorage.getItem('cb_dispo')) || {};
 let stockVendeur = JSON.parse(localStorage.getItem('cb_stock_vendeur')) || {};
 let stockMvts = JSON.parse(localStorage.getItem('cb_stock_mvts')) || [];
 let journalActions = JSON.parse(localStorage.getItem('cb_journal_actions')) || [];
+let verifs = JSON.parse(localStorage.getItem('cb_verifs')) || {};
 
-// ========== NOUVELLES STRUCTURES ==========
 // Grand Stock Central
 let grandStock = JSON.parse(localStorage.getItem('cb_grand_stock')) || {
-  farine: 0,
-  fromage: 0,
-  creme: 0,
-  mais: 0,
-  huile: 0,
-  sucre: 0,
-  cacao: 0,
-  viande: 0,
-  poulet: 0,
-  legumes: 0
+  farine: 0, fromage: 0, creme: 0, mais: 0, huile: 0,
+  sucre: 0, cacao: 0, viande: 0, poulet: 0, legumes: 0
 };
 let grandStockMvts = JSON.parse(localStorage.getItem('cb_grand_stock_mvts')) || [];
 
@@ -1537,26 +1509,15 @@ let currentKiosqueSource = '';
 const ALL_CATEGORIES = ['Nourriture', 'Boissons', 'Chicha', 'Cremerie', 'Popcorn'];
 const ALL_STOCK_CATS = ['Nourriture', 'Boissons', 'Chicha', 'Cremerie', 'Popcorn'];
 
-// Seuils d'alerte du grand stock
 const STOCK_SEUILS = {
-  farine: 10,
-  fromage: 5,
-  creme: 3,
-  mais: 3,
-  huile: 2,
-  sucre: 2,
-  cacao: 1,
-  viande: 5,
-  poulet: 5,
-  legumes: 3
+  farine: 10, fromage: 5, creme: 3, mais: 3, huile: 2,
+  sucre: 2, cacao: 1, viande: 5, poulet: 5, legumes: 3
 };
 </script>
 <script>
 // ---- 02-firebase.js ----
 // ================================================================
 // 02-FIREBASE.JS -- Configuration & synchronisation Firebase
-// C'est ICI que se trouve la config Firebase (fbConfig) et toutes
-// les fonctions de sauvegarde/chargement/synchronisation en ligne.
 // ================================================================
 
 const fbConfig = {
@@ -1656,7 +1617,6 @@ function listenOrders() {
     }
   });
 }
-
 </script>
 <script>
 // ---- 03-utils.js ----
@@ -1664,8 +1624,6 @@ function listenOrders() {
 // 03-UTILS.JS -- Fonctions utilitaires
 // ================================================================
 
-// ---- Bibliotheque d'icones SVG (remplace les emojis / lettres) ----
-// Traits fins, style coherent, couleur = currentColor (herite du bouton/texte parent)
 const ICON_PATHS = {
   home:        '<path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1H9v-5.5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1V20h2.5a1 1 0 0 0 1-1v-9"/>',
   cart:        '<circle cx="9.5" cy="20" r="1.4"/><circle cx="17.5" cy="20" r="1.4"/><path d="M3.5 4h2l2 12.2a1.5 1.5 0 0 0 1.5 1.3h8.6a1.5 1.5 0 0 0 1.48-1.24L21 8H6.2"/>',
@@ -1778,12 +1736,19 @@ async function doLogin() {
   const loginVal = document.getElementById('loginUser').value.trim();
   const passVal  = document.getElementById('loginPass').value;
   document.getElementById('loginErr').textContent = '';
+  
   await loadFB();
+  
   const u = users.find(x => x.login === loginVal && x.pass === passVal && x.role === selRoleVal);
-  if (!u) { document.getElementById('loginErr').textContent = 'Identifiants incorrects.'; return; }
+  if (!u) { 
+    document.getElementById('loginErr').textContent = 'Identifiants incorrects.'; 
+    return; 
+  }
+  
   currentUser = u;
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
+  
   logAction('Connexion', 'Utilisateur ' + u.name + ' connecte');
   initApp();
 }
@@ -1798,7 +1763,6 @@ function doLogout() {
   document.getElementById('loginPass').value = '';
 }
 document.getElementById('loginPass').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
-
 </script>
 <script>
 // ---- 05-navigation.js ----
@@ -1806,7 +1770,6 @@ document.getElementById('loginPass').addEventListener('keydown', e => { if (e.ke
 // 05-NAVIGATION.JS -- Menu par rôle, initialisation
 // ================================================================
 
-// Icone associee a chaque page (utilisee dans la nav haute et basse)
 const NAV_ICONS = {
   accueil:'home', caisse:'cart', journal:'list', queue:'clock',
   stock:'box', 'grand-stock':'warehouse', cremerie:'icecream',
@@ -1815,63 +1778,25 @@ const NAV_ICONS = {
 
 const NAV_MAP = {
   admin: [
-    {id:'accueil', label:'Accueil'},
-    {id:'caisse',  label:'Caisse'},
-    {id:'journal', label:'Journal'},
-    {id:'queue',   label:'Cuisine'},
-    {id:'stock',   label:'Stock'},
-    {id:'grand-stock', label:'Grand Stock'},
-    {id:'cremerie', label:'Cremerie'},
-    {id:'popcorn', label:'Popcorn'},
-    {id:'parking', label:'Parking'},
-    {id:'admin',   label:'Admin'},
+    {id:'accueil', label:'Accueil'}, {id:'caisse', label:'Caisse'},
+    {id:'journal', label:'Journal'}, {id:'queue', label:'Cuisine'},
+    {id:'stock', label:'Stock'}, {id:'grand-stock', label:'Grand Stock'},
+    {id:'cremerie', label:'Cremerie'}, {id:'popcorn', label:'Popcorn'},
+    {id:'parking', label:'Parking'}, {id:'admin', label:'Admin'}
   ],
-  
   stockmanager: [
-    {id:'accueil', label:'Accueil'},
-    {id:'grand-stock', label:'Grand Stock'},
-    {id:'stock',   label:'Stocks kiosques'},
-    {id:'journal', label:'Journal des stocks'},
-    {id:'cremerie', label:'Cremerie'},
-    {id:'popcorn', label:'Popcorn'},
+    {id:'accueil', label:'Accueil'}, {id:'grand-stock', label:'Grand Stock'},
+    {id:'stock', label:'Stocks kiosques'}, {id:'journal', label:'Journal des stocks'},
+    {id:'cremerie', label:'Cremerie'}, {id:'popcorn', label:'Popcorn'}
   ],
-  
-  cuisiniere: [
-    {id:'queue',   label:'Commandes'},
-    {id:'stock',   label:'Stock cuisine'},
-  ],
-  
-  serveur: [
-    {id:'accueil', label:'Accueil'},
-    {id:'caisse',  label:'Caisse'},
-    {id:'journal', label:'Journal'},
-    {id:'queue',   label:'Suivi commandes'},
-  ],
-  
-  parking: [
-    {id:'accueil', label:'Accueil'},
-    {id:'parking', label:'Parking'},
-    {id:'journal', label:'Journal'},
-  ],
-  
-  vendeur: [
-    {id:'accueil', label:'Accueil'},
-    {id:'caisse',  label:'Caisse'},
-    {id:'journal', label:'Journal'},
-    {id:'queue',   label:'Validations'},
-    {id:'stock',   label:'Mon stock'},
-  ],
+  cuisiniere: [{id:'queue', label:'Commandes'}, {id:'stock', label:'Stock cuisine'}],
+  serveur: [{id:'accueil', label:'Accueil'}, {id:'caisse', label:'Caisse'}, {id:'journal', label:'Journal'}, {id:'queue', label:'Suivi commandes'}],
+  parking: [{id:'accueil', label:'Accueil'}, {id:'parking', label:'Parking'}, {id:'journal', label:'Journal'}],
+  vendeur: [{id:'accueil', label:'Accueil'}, {id:'caisse', label:'Caisse'}, {id:'journal', label:'Journal'}, {id:'queue', label:'Validations'}, {id:'stock', label:'Mon stock'}],
 };
 
 function initApp() {
-  const roleLabels = {
-    admin:'Administrateur', 
-    stockmanager:'Stock Manager',
-    cuisiniere:'Cuisiniere', 
-    vendeur:'Kiosque', 
-    serveur:'Serveur',
-    parking:'Parking'
-  };
+  const roleLabels = { admin:'Administrateur', stockmanager:'Stock Manager', cuisiniere:'Cuisiniere', vendeur:'Kiosque', serveur:'Serveur', parking:'Parking' };
   document.getElementById('hRole').textContent = roleLabels[currentUser.role] || currentUser.role;
   document.getElementById('hUser').textContent = currentUser.name;
   document.getElementById('dashWelcomeTitle').textContent = 'Bonjour, ' + currentUser.name.split(' ')[0];
@@ -1901,7 +1826,7 @@ function initApp() {
 
   populateKiosqueSource();
   listenOrders();
-  showPage(navs[0].id);
+  showPage(navs[0]?.id || 'accueil');
 }
 
 function populateKiosqueSource() {
@@ -1919,37 +1844,21 @@ function updateKiosqueSourceVisibility() {
   if (currentUser.role === 'vendeur') {
     row.style.display = 'none';
     currentKiosqueSource = currentUser.kiosque || '';
-    if (currentKiosqueSource) {
-      sel.value = currentKiosqueSource;
-    }
+    if (currentKiosqueSource) sel.value = currentKiosqueSource;
   } else if (currentUser.role === 'serveur') {
     row.style.display = 'flex';
     if (!currentKiosqueSource || !sel.querySelector(`option[value="${currentKiosqueSource}"]`)) {
       const firstOption = sel.querySelector('option:not([value=""])');
-      if (firstOption) {
-        sel.value = firstOption.value;
-        currentKiosqueSource = firstOption.value;
-      } else {
-        sel.value = '';
-        currentKiosqueSource = '';
-      }
-    } else {
-      sel.value = currentKiosqueSource;
-    }
-  } else if (currentUser.role === 'admin' || currentUser.role === 'stockmanager' || currentUser.role === 'comptable') {
+      if (firstOption) { sel.value = firstOption.value; currentKiosqueSource = firstOption.value; }
+      else { sel.value = ''; currentKiosqueSource = ''; }
+    } else sel.value = currentKiosqueSource;
+  } else if (currentUser.role === 'admin' || currentUser.role === 'stockmanager') {
     row.style.display = 'flex';
     if (!currentKiosqueSource || !sel.querySelector(`option[value="${currentKiosqueSource}"]`)) {
       const firstOption = sel.querySelector('option:not([value=""])');
-      if (firstOption) {
-        sel.value = firstOption.value;
-        currentKiosqueSource = firstOption.value;
-      } else {
-        sel.value = '';
-        currentKiosqueSource = '';
-      }
-    } else {
-      sel.value = currentKiosqueSource;
-    }
+      if (firstOption) { sel.value = firstOption.value; currentKiosqueSource = firstOption.value; }
+      else { sel.value = ''; currentKiosqueSource = ''; }
+    } else sel.value = currentKiosqueSource;
   } else {
     row.style.display = 'none';
     currentKiosqueSource = '';
@@ -1979,11 +1888,7 @@ function showPage(id) {
 
   if (id==='accueil') renderDashboard();
   if (id==='caisse') { initCaisse(); updateKiosqueSourceVisibility(); }
-  if (id==='journal') { 
-    document.getElementById('jDate').value = today();
-    populateVendeurFilter();
-    renderJournal(); 
-  }
+  if (id==='journal') { document.getElementById('jDate').value = today(); populateVendeurFilter(); renderJournal(); }
   if (id==='queue') renderQueue();
   if (id==='stock') renderStock();
   if (id==='grand-stock') renderGrandStock();
@@ -2039,8 +1944,6 @@ function renderDashboard() {
     myOrders = todayOrders.filter(o => o.vendeur === vend || o.kiosqueSource === vend);
   } else if (currentUser.role === 'serveur') {
     myOrders = todayOrders.filter(o => o.vendeur === currentUser.name);
-  } else if (currentUser.role === 'comptable') {
-    myOrders = todayOrders.filter(o => o.caissier === currentUser.name);
   }
   
   let totalJour = myOrders.reduce((s,o) => s+(o.total||0), 0);
@@ -2049,14 +1952,12 @@ function renderDashboard() {
   let enAttente = myOrders.filter(o => o.status==='attente').length;
   let enPrep = myOrders.filter(o => o.status==='preparation').length;
 
-  // ===== FILTRAGE DES PRODUITS PAR CATEGORIE AUTORISEE =====
   const allowedCats = currentUser.catAccess || [];
   const hasAllAccess = allowedCats.length === 0 || allowedCats.includes('Tous');
   
   let rupture = 0, stockBas = 0;
   if (currentUser.role === 'admin' || currentUser.role === 'vendeur') {
     const kiosques = currentUser.role === 'vendeur' ? [currentUser.kiosque] : users.filter(u => u.role === 'vendeur' && u.kiosque).map(u => u.kiosque);
-    // Filtrer les produits par catégories autorisées
     const productsToCheck = hasAllAccess ? products : products.filter(p => allowedCats.includes(p.cat));
     productsToCheck.forEach(p => {
       if (isFood(p)) return;
@@ -2069,53 +1970,32 @@ function renderDashboard() {
   }
 
   let kpiHtml = '';
-  if (currentUser.role === 'vendeur' || currentUser.role === 'serveur' || currentUser.role === 'comptable') {
+  if (currentUser.role === 'vendeur' || currentUser.role === 'serveur') {
     kpiHtml = `
-      <div class="kpi-card green">
-        <div class="kpi-icon">${icon('wallet',22)}</div>
-        <div class="kpi-val">${fmt(totalJour)}</div>
-        <div class="kpi-label">Mes recettes du jour</div>
-      </div>
-      <div class="kpi-card blue">
-        <div class="kpi-icon">${icon('receipt',22)}</div>
-        <div class="kpi-val">${nbCommandes}</div>
-        <div class="kpi-label">Mes commandes</div>
-      </div>
-      <div class="kpi-card ${enAttentePaiement>0?'orange':'amber'}">
-        <div class="kpi-icon">${icon('clock',22)}</div>
+      <div class="kpi-card green"><div class="kpi-icon">${icon('wallet',22)}</div>
+        <div class="kpi-val">${fmt(totalJour)}</div><div class="kpi-label">Mes recettes du jour</div></div>
+      <div class="kpi-card blue"><div class="kpi-icon">${icon('receipt',22)}</div>
+        <div class="kpi-val">${nbCommandes}</div><div class="kpi-label">Mes commandes</div></div>
+      <div class="kpi-card ${enAttentePaiement>0?'orange':'amber'}"><div class="kpi-icon">${icon('clock',22)}</div>
         <div class="kpi-val">${enAttentePaiement+enAttente+enPrep}</div>
-        <div class="kpi-label">${enAttentePaiement>0?'À valider':'En cours'}</div>
-      </div>
-      <div class="kpi-card ${rupture>0?'red':stockBas>0?'amber':'green'}">
-        <div class="kpi-icon">${icon('alert',22)}</div>
+        <div class="kpi-label">${enAttentePaiement>0?'À valider':'En cours'}</div></div>
+      <div class="kpi-card ${rupture>0?'red':stockBas>0?'amber':'green'}"><div class="kpi-icon">${icon('alert',22)}</div>
         <div class="kpi-val">${rupture>0?rupture:stockBas}</div>
-        <div class="kpi-label">${rupture>0?'Ruptures de stock':stockBas>0?'Stock bas':'Stock OK'}</div>
-      </div>`;
+        <div class="kpi-label">${rupture>0?'Ruptures de stock':stockBas>0?'Stock bas':'Stock OK'}</div></div>`;
   } else {
     const allEnAttentePaiement = todayOrders.filter(o => o.status==='en_attente').length;
     const allEnAttente = todayOrders.filter(o => o.status==='attente').length;
     const allEnPrep = todayOrders.filter(o => o.status==='preparation').length;
     kpiHtml = `
-      <div class="kpi-card green">
-        <div class="kpi-icon">${icon('wallet',22)}</div>
-        <div class="kpi-val">${fmt(totalJour)}</div>
-        <div class="kpi-label">Recettes du jour</div>
-      </div>
-      <div class="kpi-card blue">
-        <div class="kpi-icon">${icon('receipt',22)}</div>
-        <div class="kpi-val">${todayOrders.length}</div>
-        <div class="kpi-label">Commandes aujourd'hui</div>
-      </div>
-      <div class="kpi-card orange">
-        <div class="kpi-icon">${icon('clock',22)}</div>
-        <div class="kpi-val">${allEnAttentePaiement}</div>
-        <div class="kpi-label">En attente de validation</div>
-      </div>
-      <div class="kpi-card ${rupture>0?'red':stockBas>0?'amber':'green'}">
-        <div class="kpi-icon">${icon('alert',22)}</div>
+      <div class="kpi-card green"><div class="kpi-icon">${icon('wallet',22)}</div>
+        <div class="kpi-val">${fmt(totalJour)}</div><div class="kpi-label">Recettes du jour</div></div>
+      <div class="kpi-card blue"><div class="kpi-icon">${icon('receipt',22)}</div>
+        <div class="kpi-val">${todayOrders.length}</div><div class="kpi-label">Commandes aujourd'hui</div></div>
+      <div class="kpi-card orange"><div class="kpi-icon">${icon('clock',22)}</div>
+        <div class="kpi-val">${allEnAttentePaiement}</div><div class="kpi-label">En attente de validation</div></div>
+      <div class="kpi-card ${rupture>0?'red':stockBas>0?'amber':'green'}"><div class="kpi-icon">${icon('alert',22)}</div>
         <div class="kpi-val">${rupture>0?rupture:stockBas}</div>
-        <div class="kpi-label">${rupture>0?'Ruptures de stock':stockBas>0?'Stock bas':'Stock OK'}</div>
-      </div>`;
+        <div class="kpi-label">${rupture>0?'Ruptures de stock':stockBas>0?'Stock bas':'Stock OK'}</div></div>`;
   }
   document.getElementById('dashKpi').innerHTML = kpiHtml;
 
@@ -2193,11 +2073,10 @@ function renderProds() {
   const allowedCats = currentUser.catAccess || [];
   const hasAllAccess = allowedCats.length === 0 || allowedCats.includes('Tous');
   
-  // Tous les produits (standards + cremerie + popcorn)
   const allProducts = [
     ...products,
-    ...(typeof CREMERIE_PRODUITS !== 'undefined' ? CREMERIE_PRODUITS : []),
-    ...(typeof POPCORN_PRODUITS !== 'undefined' ? POPCORN_PRODUITS : [])
+    ...CREMERIE_PRODUITS,
+    ...POPCORN_PRODUITS
   ];
   
   let produitsFiltres = hasAllAccess 
@@ -2264,7 +2143,7 @@ function renderProds() {
       <div class="prod-dispo ${avail&&!noStock?'':'off'}"></div>
       <div class="prod-name">${p.name}</div>
       <div class="prod-cat">${getCatIcon(p.cat)}</div>
-      <div class="prod-price">${fmt(p.price)}</div>
+      <div class="prod-price">${fmt(p.prix || p.price)}</div>
       <div class="prod-stock ${stockCls}">${stockMsg}</div>
       ${!avail ? '<div class="prod-na">Indisponible</div>' : ''}
       ${hasStock && kiosqueAffiche && !isServeur ? `<div style="font-size:.6rem;color:var(--muted);margin-top:2px;">${kiosqueAffiche}</div>` : ''}
@@ -2273,11 +2152,7 @@ function renderProds() {
 }
 
 function addToCart(id) {
-  const allProducts = [
-    ...products,
-    ...(typeof CREMERIE_PRODUITS !== 'undefined' ? CREMERIE_PRODUITS : []),
-    ...(typeof POPCORN_PRODUITS !== 'undefined' ? POPCORN_PRODUITS : [])
-  ];
+  const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
   const p = allProducts.find(x => x.id === id);
   if (!p) return;
   
@@ -2304,7 +2179,7 @@ function addToCart(id) {
   }
   const ex = cart.find(c => c.id === id);
   if (ex) ex.qty++;
-  else cart.push({id, name:p.name, price:p.price || p.prix, qty:1});
+  else cart.push({id, name:p.name, price:p.prix || p.price, qty:1});
   renderCart(); renderProds();
   if (window.innerWidth<=640) switchCaisseTab('commande');
 }
@@ -2312,11 +2187,7 @@ function addToCart(id) {
 function chgQty(id, d) {
   const item = cart.find(c=>c.id===id);
   if (!item) return;
-  const allProducts = [
-    ...products,
-    ...(typeof CREMERIE_PRODUITS !== 'undefined' ? CREMERIE_PRODUITS : []),
-    ...(typeof POPCORN_PRODUITS !== 'undefined' ? POPCORN_PRODUITS : [])
-  ];
+  const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
   const p = allProducts.find(x=>x.id===id);
   if (!p) return;
   if (d > 0 && !isFood(p) && p.cat !== 'Cremerie' && p.cat !== 'Popcorn' && currentUser.role !== 'serveur') {
@@ -2350,11 +2221,7 @@ function renderCart() {
     return;
   }
   el.innerHTML = cart.map(c => {
-    const allProducts = [
-      ...products,
-      ...(typeof CREMERIE_PRODUITS !== 'undefined' ? CREMERIE_PRODUITS : []),
-      ...(typeof POPCORN_PRODUITS !== 'undefined' ? POPCORN_PRODUITS : [])
-    ];
+    const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
     const p = allProducts.find(x=>x.id===c.id);
     const hasStock = p && !isFood(p) && p.cat !== 'Cremerie' && p.cat !== 'Popcorn' && currentUser.role !== 'serveur';
     let stockRestant = 0;
@@ -2388,11 +2255,7 @@ function renderCart() {
   document.getElementById('totalT').textContent = fmt(tot);
 }
 
-function clearCart() {
-  cart=[];
-  renderCart(); renderProds();
-  updateKiosqueSourceVisibility();
-}
+function clearCart() { cart=[]; renderCart(); renderProds(); updateKiosqueSourceVisibility(); }
 
 async function confirmOrder() {
   if (isProcessing) return;
@@ -2407,16 +2270,11 @@ async function confirmOrder() {
   if (!kiosqueSource) { toast('Selectionner un kiosque source'); return; }
 
   isProcessing = true;
-
   const isVendeur = currentUser.role === 'vendeur';
   
   if (isVendeur) {
     for (const item of cart) {
-      const allProducts = [
-        ...products,
-        ...(typeof CREMERIE_PRODUITS !== 'undefined' ? CREMERIE_PRODUITS : []),
-        ...(typeof POPCORN_PRODUITS !== 'undefined' ? POPCORN_PRODUITS : [])
-      ];
+      const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
       const p = allProducts.find(x=>x.id===item.id);
       if (!p || isFood(p) || p.cat === 'Cremerie' || p.cat === 'Popcorn') continue;
       const qtyStock = (stockVendeur[kiosqueSource] && stockVendeur[kiosqueSource][item.id]) || 0;
@@ -2430,11 +2288,7 @@ async function confirmOrder() {
 
   if (isVendeur) {
     for (const item of cart) {
-      const allProducts = [
-        ...products,
-        ...(typeof CREMERIE_PRODUITS !== 'undefined' ? CREMERIE_PRODUITS : []),
-        ...(typeof POPCORN_PRODUITS !== 'undefined' ? POPCORN_PRODUITS : [])
-      ];
+      const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
       const p = allProducts.find(x=>x.id===item.id);
       if (!p || isFood(p) || p.cat === 'Cremerie' || p.cat === 'Popcorn') continue;
       if (!stockVendeur[kiosqueSource]) stockVendeur[kiosqueSource] = {};
@@ -2443,22 +2297,13 @@ async function confirmOrder() {
     }
   }
 
+  const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
   const hasFood = cart.some(item => {
-    const allProducts = [
-      ...products,
-      ...(typeof CREMERIE_PRODUITS !== 'undefined' ? CREMERIE_PRODUITS : []),
-      ...(typeof POPCORN_PRODUITS !== 'undefined' ? POPCORN_PRODUITS : [])
-    ];
     const p = allProducts.find(x=>x.id===item.id);
     return p && isFood(p);
   });
 
-  let orderStatus = '';
-  if (isVendeur) {
-    orderStatus = hasFood ? 'attente' : 'servie';
-  } else {
-    orderStatus = 'en_attente';
-  }
+  let orderStatus = isVendeur ? (hasFood ? 'attente' : 'servie') : 'en_attente';
 
   const order = {
     id: genId(),
@@ -2474,16 +2319,10 @@ async function confirmOrder() {
 
   orders.push(order);
   await saveFB('cb_orders', orders);
-  if (isVendeur) {
-    await saveFB('cb_stock_vendeur', stockVendeur);
-  }
+  if (isVendeur) await saveFB('cb_stock_vendeur', stockVendeur);
   logAction('Commande', 'Commande ' + order.id + ' - Kiosque: ' + kiosqueSource + ' - Total ' + fmt(order.total) + ' - Statut: ' + orderStatus + ' - Pris par: ' + currentUser.role);
   
-  if (isVendeur) {
-    toast(orderStatus === 'attente' ? 'Commande '+order.id+' envoyee en cuisine' : 'Commande '+order.id+' servie directement');
-  } else {
-    toast('Commande '+order.id+' en attente de validation par le kiosque');
-  }
+  toast(isVendeur ? (orderStatus==='attente' ? 'Commande '+order.id+' envoyee en cuisine' : 'Commande '+order.id+' servie directement') : 'Commande '+order.id+' en attente de validation par le kiosque');
   clearCart();
   updateQueueBadge();
   isProcessing = false;
@@ -2493,42 +2332,22 @@ async function validatePayment(id) {
   const o = orders.find(x=>x.id===id);
   if (!o) return;
   if (o.status !== 'en_attente') { toast('Cette commande ne peut pas etre validee'); return; }
-  
-  if (currentUser.role !== 'vendeur') {
-    toast('Seul l\'agent du kiosque peut valider cette commande');
-    return;
-  }
-  
+  if (currentUser.role !== 'vendeur') { toast('Seul l\'agent du kiosque peut valider cette commande'); return; }
   const kiosque = o.kiosqueSource;
   if (!kiosque) { toast('Kiosque source manquant'); return; }
+  if (currentUser.kiosque !== kiosque) { toast('Vous ne pouvez valider que les commandes de votre kiosque'); return; }
   
-  if (currentUser.kiosque !== kiosque) {
-    toast('Vous ne pouvez valider que les commandes de votre kiosque');
-    return;
-  }
-  
+  const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
   for (const item of o.items) {
-    const allProducts = [
-      ...products,
-      ...(typeof CREMERIE_PRODUITS !== 'undefined' ? CREMERIE_PRODUITS : []),
-      ...(typeof POPCORN_PRODUITS !== 'undefined' ? POPCORN_PRODUITS : [])
-    ];
     const p = allProducts.find(x=>x.id===item.id);
     if (!p || isFood(p) || p.cat === 'Cremerie' || p.cat === 'Popcorn') continue;
     const qtyStock = (stockVendeur[kiosque] && stockVendeur[kiosque][item.id]) || 0;
-    if (qtyStock < item.qty) {
-      toast('Stock insuffisant pour : '+item.name+' dans le kiosque '+kiosque);
-      return;
-    }
+    if (qtyStock < item.qty) { toast('Stock insuffisant pour : '+item.name+' dans le kiosque '+kiosque); return; }
   }
   
   for (const item of o.items) {
-    const allProducts = [
-      ...products,
-      ...(typeof CREMERIE_PRODUITS !== 'undefined' ? CREMERIE_PRODUITS : []),
-      ...(typeof POPCORN_PRODUITS !== 'undefined' ? POPCORN_PRODUITS : [])
-    ];
-    const p = allProducts.find(x=>x.id===item.id);
+    const allProducts2 = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
+    const p = allProducts2.find(x=>x.id===item.id);
     if (!p || isFood(p) || p.cat === 'Cremerie' || p.cat === 'Popcorn') continue;
     if (!stockVendeur[kiosque]) stockVendeur[kiosque] = {};
     stockVendeur[kiosque][item.id] = Math.max(0, (stockVendeur[kiosque][item.id]||0) - item.qty);
@@ -2536,15 +2355,9 @@ async function validatePayment(id) {
   }
   
   const hasFood = o.items.some(item => {
-    const allProducts = [
-      ...products,
-      ...(typeof CREMERIE_PRODUITS !== 'undefined' ? CREMERIE_PRODUITS : []),
-      ...(typeof POPCORN_PRODUITS !== 'undefined' ? POPCORN_PRODUITS : [])
-    ];
     const p = allProducts.find(x=>x.id===item.id);
     return p && isFood(p);
   });
-  
   o.status = hasFood ? 'attente' : 'servie';
   await saveFB('cb_orders', orders);
   await saveFB('cb_stock_vendeur', stockVendeur);
@@ -2582,11 +2395,8 @@ function populateVendeurFilter() {
 
 function renderJournal() {
   const dateInput = document.getElementById('jDate');
-  let dateVal = dateInput.value;
-  if (!dateVal) {
-    dateVal = today();
-    dateInput.value = dateVal;
-  }
+  let dateVal = dateInput.value || today();
+  dateInput.value = dateVal;
  
   let day = orders.filter(o => o.date === dateVal);
  
@@ -2595,8 +2405,6 @@ function renderJournal() {
     day = day.filter(o => o.vendeur === vend || o.kiosqueSource === vend);
   } else if (currentUser.role === 'serveur') {
     day = day.filter(o => o.vendeur === currentUser.name);
-  } else if (currentUser.role === 'comptable') {
-    day = day.filter(o => o.caissier === currentUser.name);
   } else if (currentUser.role === 'admin') {
     const filter = document.getElementById('jVendeurFilter');
     if (filter && filter.value && filter.value !== 'tous') {
@@ -2615,7 +2423,7 @@ function renderJournal() {
  
   const tb = document.getElementById('jTable');
   if (!day.length) {
-    tb.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--muted)">Aucune commande ce jour</td></tr>';
+    tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--muted)">Aucune commande ce jour</td></tr>';
     return;
   }
  
@@ -2631,8 +2439,6 @@ function renderJournal() {
     return `<tr>
       <td><strong style="color:var(--accent)">${o.id}</strong></td>
       <td>${o.time}</td>
-      <td>${o.caissier || '--'}</td>
-      <td>${o.vendeur || '--'}</td>
       <td>${o.kiosqueSource || '--'}</td>
       <td style="font-size:.75rem;max-width:200px;white-space:normal;word-break:break-word;">${articles || '--'}</td>
       <td><strong>${fmt(o.total || 0)}</strong></td>
@@ -2658,156 +2464,29 @@ function exportExcel() {
     day = day.filter(o => o.vendeur === vend || o.kiosqueSource === vend);
   } else if (currentUser.role === 'serveur') {
     day = day.filter(o => o.vendeur === currentUser.name);
-  } else if (currentUser.role === 'comptable') {
-    day = day.filter(o => o.caissier === currentUser.name);
   }
   if (!day.length) { toast('Aucune donnée à exporter'); return; }
   const wb = XLSX.utils.book_new();
-  const rows = [
-    ['COMPLEXE BEYLA -- JOURNAL DU ' + date],[],
-    ['N° Commande','Date','Heure','Caissier','Vendeur','Kiosque source','Articles','Statut','Total (GNF)']
-  ];
+  const rows = [['COMPLEXE BEYLA -- JOURNAL DU ' + date],[],['N° Commande','Date','Heure','Kiosque source','Articles','Statut','Total (GNF)']];
   day.forEach(o => {
     const articles = o.items.map(i => {
       const p = products.find(p => p.id === i.id);
       return p ? `${p.name} x${i.qty}` : `${i.name} x${i.qty}`;
     }).join('; ');
-    rows.push([
-      o.id, o.date, o.time, o.caissier||'--', o.vendeur||'--', o.kiosqueSource||'--',
-      articles,
-      o.status||'attente',
-      o.total
-    ]);
+    rows.push([o.id, o.date, o.time, o.kiosqueSource||'--', articles, o.status||'attente', o.total]);
   });
-  rows.push([],['','','','','','','TOTAL JOUR',day.reduce((s,o)=>s+(o.total||0),0)]);
+  rows.push([],['','','','','TOTAL JOUR',day.reduce((s,o)=>s+(o.total||0),0)]);
   const ws = XLSX.utils.aoa_to_sheet(rows);
-  ws['!cols'] = [{wch:16},{wch:12},{wch:8},{wch:18},{wch:18},{wch:16},{wch:40},{wch:14},{wch:16}];
+  ws['!cols'] = [{wch:16},{wch:12},{wch:8},{wch:16},{wch:40},{wch:14},{wch:16}];
   XLSX.utils.book_append_sheet(wb,ws,'Journal');
   XLSX.writeFile(wb,'Beyla_Journal_'+date+'.xlsx');
   toast('Fichier Excel exporté');
 }
 </script>
 <script>
-// ---- 09-verification.js ----
+// ---- 09-orders-modal.js ----
 // ================================================================
-// 09-VERIFICATION.JS -- Page Vérification : rapprochement de caisse
-// ================================================================
-
-function renderVerif() {
-  const dateInput = document.getElementById('vDate');
-  let dateVal = dateInput.value;
-  if (!dateVal) {
-    dateVal = today();
-    dateInput.value = dateVal;
-  }
- 
-  let day = orders.filter(o => o.date === dateVal);
- 
-  if (currentUser.role === 'vendeur') {
-    const vend = currentUser.kiosque || currentUser.name;
-    day = day.filter(o => o.vendeur === vend || o.kiosqueSource === vend);
-  } else if (currentUser.role === 'serveur') {
-    day = day.filter(o => o.vendeur === currentUser.name);
-  } else if (currentUser.role === 'comptable') {
-    day = day.filter(o => o.caissier === currentUser.name);
-  }
- 
-  const sysTotal = day.reduce((s, o) => s + (o.total || 0), 0);
-  const bycat = {};
-  day.forEach(o => (o.items || []).forEach(i => {
-    const p = products.find(x => x.id === i.id);
-    const c = p ? p.cat : 'Autre';
-    bycat[c] = (bycat[c] || 0) + (i.price || 0) * (i.qty || 0);
-  }));
- 
-  const byCaissier = {};
-  day.forEach(o => {
-    const c = o.caissier || '--';
-    if (!byCaissier[c]) byCaissier[c] = { n: 0, total: 0 };
-    byCaissier[c].n++; byCaissier[c].total += (o.total || 0);
-  });
- 
-  const byStatus = { en_attente: 0, attente: 0, preparation: 0, servie: 0 };
-  day.forEach(o => { byStatus[o.status || 'attente']++; });
-  const saved = verifs[dateVal] || {};
- 
-  document.getElementById('verifGrid').innerHTML = `
-    <div>
-      <div class="verif-card">
-        <div class="verif-title">Récapitulatif système</div>
-        <div class="verif-row"><span>Commandes enregistrées</span><strong>${day.length}</strong></div>
-        <div class="verif-row"><span>Servies</span><strong style="color:var(--green)">${byStatus.servie}</strong></div>
-        <div class="verif-row"><span>En attente de validation</span><strong style="color:var(--orange)">${byStatus.en_attente}</strong></div>
-        <div class="verif-row"><span>En cuisine/prep.</span><strong style="color:var(--amber)">${byStatus.attente + byStatus.preparation}</strong></div>
-        ${ALL_STOCK_CATS.map(cat => `
-          <div class="verif-row"><span>${getCatIcon(cat)}</span><strong>${fmt(bycat[cat] || 0)}</strong></div>`
-        ).join('')}
-        <div class="verif-total">
-          <span>Total attendu</span>
-          <span style="color:var(--green);font-size:1.1rem">${fmt(sysTotal)}</span>
-        </div>
-      </div>
-      <div class="verif-card" style="margin-top:1.2rem;">
-        <div class="verif-title">Par caissier / vendeur</div>
-        ${Object.entries(byCaissier).map(([c, v]) => `
-          <div class="verif-row"><span>${c}</span>
-            <div style="text-align:right">
-              <strong>${fmt(v.total)}</strong><br>
-              <span style="font-size:.72rem;color:var(--muted)">${v.n} cmd</span>
-            </div>
-          </div>`).join('') || '<div style="color:var(--muted);padding:.5rem 0">Aucune commande</div>'}
-      </div>
-    </div>
-    <div class="verif-card">
-      <div class="verif-title">Vérification physique</div>
-      <div class="verif-row">
-        <span>Argent compté (GNF)</span>
-        <input type="number" class="big-in" id="vCash" placeholder="0"
-          value="${saved.cash || ''}" oninput="calcEcart(${sysTotal})">
-      </div>
-      <div class="verif-total" id="vEcartRow">
-        <span>Écart de caisse</span><span id="vEcart" style="font-size:1.1rem">--</span>
-      </div>
-      <div id="verifAlert"></div>
-      <textarea class="note-in" id="vNote" rows="2" placeholder="Observations...">${saved.note || ''}</textarea>
-      <button class="btn btn-green" style="width:100%;margin-top:6px" onclick="saveVerif('${dateVal}',${sysTotal})">
-        Enregistrer la vérification
-      </button>
-      ${saved.savedAt ? `<div style="font-size:.72rem;margin-top:8px;text-align:center;color:var(--muted)">Sauvegarde : ${saved.savedAt}</div>` : ''}
-    </div>`;
-  if (saved.cash !== undefined) calcEcart(sysTotal);
-}
-
-function calcEcart(sysTotal) {
-  const cash  = parseFloat(document.getElementById('vCash')?.value)||0;
-  const ecart = cash - sysTotal;
-  const eEl   = document.getElementById('vEcart');
-  if (eEl) {
-    eEl.textContent = (ecart>=0?'+':'')+fmt(Math.abs(ecart));
-    eEl.style.color = ecart===0?'var(--green)':'var(--red)';
-  }
-  const al = document.getElementById('verifAlert');
-  if (al&&cash>0) al.innerHTML = ecart===0
-    ? '<div class="verif-alert alert-ok">La caisse est correcte -- aucun écart</div>'
-    : '<div class="verif-alert alert-bad">Anomalie de caisse -- vérifier les transactions</div>';
-}
-
-async function saveVerif(date, sysTotal) {
-  const cash = parseFloat(document.getElementById('vCash').value)||0;
-  const note = document.getElementById('vNote').value;
-  verifs[date] = {cash,note,sysTotal,savedAt:new Date().toLocaleString('fr-FR')};
-  await saveFB('cb_verifs', verifs);
-  logAction('Vérification', 'Vérification du ' + date + ' - Écart: ' + fmt(cash - sysTotal));
-  toast('Vérification enregistrée');
-  renderVerif();
-}
-
-</script>
-<script>
-// ---- 10-orders-modal.js ----
-// ================================================================
-// 10-ORDERS-MODAL.JS -- Détail commande, impression bon cuisine,
-// et annulation de commande (avec restauration du stock)
+// 09-ORDERS-MODAL.JS -- Détail commande, impression, annulation
 // ================================================================
 
 function viewOrder(id) {
@@ -2822,7 +2501,6 @@ function viewOrder(id) {
       <div><strong>N° :</strong> ${o.id}</div>
       <div><strong>Date :</strong> ${o.date} à ${o.time}</div>
       <div><strong>Caissier :</strong> ${o.caissier||'--'}</div>
-      <div><strong>Vendeur :</strong> ${o.vendeur||'--'}</div>
       <div><strong>Kiosque source :</strong> ${o.kiosqueSource||'--'}</div>
       <div><strong>Statut :</strong> <span class="badge ${stCls[st]||'bg-a'}">${stLabel[st]||'Attente'}</span></div>
       <hr style="margin:.6rem 0;border-color:var(--border);">
@@ -2837,7 +2515,6 @@ function viewOrder(id) {
       <div style="display:flex;justify-content:space-between;font-size:1rem">
         <strong>TOTAL</strong><strong style="color:var(--accent)">${fmt(o.total)}</strong>
       </div>
-      <!-- NOTE SUPPRIMÉE -->
     </div>`;
   const actsEl = document.getElementById('modalOrderActs');
   if (currentUser.role === 'admin') {
@@ -2900,7 +2577,6 @@ function printBon(id) {
     <div style="font-size:10px;border-bottom:1px dashed #000;padding-bottom:6px;margin-bottom:8px;">
       <div><b>N° :</b> ${order.id}</div>
       <div><b>Date :</b> ${order.date} ${order.time}</div>
-      ${order.vendeur?`<div><b>Vendeur :</b> ${order.vendeur}</div>`:''}
       ${order.kiosqueSource?`<div><b>Kiosque :</b> ${order.kiosqueSource}</div>`:''}
     </div>
     <div style="margin-bottom:8px;">
@@ -2910,7 +2586,6 @@ function printBon(id) {
           <span style="font-size:14px;font-weight:bold;background:#000;color:#fff;padding:1px 7px;border-radius:3px;">x${i.qty}</span>
         </div>`).join('')}
     </div>
-    <!-- NOTE SUPPRIMÉE -->
     <div style="text-align:center;margin-top:10px;font-size:9px;border-top:1px dashed #000;padding-top:4px;color:#666;">Imprimé ${order.date} à ${order.time}</div>
   </div>`;
   const w = window.open('','','width=420,height=600');
@@ -2923,9 +2598,9 @@ function printBon(id) {
 }
 </script>
 <script>
-// ---- 11-cuisine-queue.js ----
+// ---- 10-cuisine-queue.js ----
 // ================================================================
-// 11-CUISINE-QUEUE.JS -- File d'attente cuisine
+// 10-CUISINE-QUEUE.JS -- File d'attente cuisine
 // ================================================================
 
 function setQueueFilter(f) {
@@ -2989,14 +2664,8 @@ function renderQueue() {
       const st = o.status||'attente';
       const isEnAttente = st === 'en_attente';
       return `<div class="caissier-status-card" style="border-color:${isEnAttente ? 'var(--orange)' : 'var(--border)'};">
-        <div>
-          <div class="csc-id">${o.id}</div>
-          <div style="font-size:.7rem;color:var(--muted);margin-top:2px">${o.time}</div>
-        </div>
-        <div class="csc-info">
-          <div style="font-size:.75rem;">${o.items.length} article(s)</div>
-          <div style="font-size:.7rem;color:var(--muted);">${o.kiosqueSource || o.vendeur}</div>
-        </div>
+        <div><div class="csc-id">${o.id}</div><div style="font-size:.7rem;color:var(--muted);margin-top:2px">${o.time}</div></div>
+        <div class="csc-info"><div style="font-size:.75rem;">${o.items.length} article(s)</div></div>
         <span class="badge ${stMap[st]||'bg-a'}">${stLabel[st]||'Attente'}</span>
         ${isEnAttente ? `<button class="qc-btn qc-btn-validate" onclick="validatePayment('${o.id}')">Valider paiement</button>` : ''}
       </div>`;
@@ -3009,13 +2678,8 @@ function renderQueue() {
     grid.innerHTML = filtered.map(o => {
       const st = o.status||'attente';
       return `<div class="caissier-status-card">
-        <div>
-          <div class="csc-id">${o.id}</div>
-          <div style="font-size:.7rem;color:var(--muted);margin-top:2px">${o.time}</div>
-        </div>
-        <div class="csc-info">
-          <div style="font-size:.75rem;">${o.items.length} article(s) - ${o.kiosqueSource||''}</div>
-        </div>
+        <div><div class="csc-id">${o.id}</div><div style="font-size:.7rem;color:var(--muted);margin-top:2px">${o.time}</div></div>
+        <div class="csc-info"><div style="font-size:.75rem;">${o.items.length} article(s) - ${o.kiosqueSource||''}</div></div>
         <span class="badge ${stMap[st]||'bg-a'}">${stLabel[st]||'Attente'}</span>
       </div>`;
     }).join('');
@@ -3028,14 +2692,8 @@ function renderQueue() {
       const st = o.status||'attente';
       const isEnAttente = st === 'en_attente';
       return `<div class="caissier-status-card" style="border-color:${isEnAttente ? 'var(--orange)' : 'var(--border)'};">
-        <div>
-          <div class="csc-id">${o.id}</div>
-          <div style="font-size:.7rem;color:var(--muted);margin-top:2px">${o.time}</div>
-        </div>
-        <div class="csc-info">
-          <div style="font-size:.75rem;">${o.items.length} article(s) - ${o.kiosqueSource||''}</div>
-          <div style="font-size:.7rem;color:var(--muted);">${o.vendeur}</div>
-        </div>
+        <div><div class="csc-id">${o.id}</div><div style="font-size:.7rem;color:var(--muted);margin-top:2px">${o.time}</div></div>
+        <div class="csc-info"><div style="font-size:.75rem;">${o.items.length} article(s) - ${o.kiosqueSource||''}</div></div>
         <span class="badge ${stMap[st]||'bg-a'}">${stLabel[st]||'Attente'}</span>
         ${isEnAttente ? `<span style="font-size:.7rem;color:var(--muted);">Seul le kiosque peut valider</span>` : ''}
       </div>`;
@@ -3058,17 +2716,9 @@ function renderQueue() {
       <div style="font-size:.78rem;color:var(--muted);margin-bottom:.5rem;">Kiosque : ${o.kiosqueSource||'--'}</div>
       <div class="qc-items">
         ${o.items.map(i => {
-          const allProducts = [
-            ...products,
-            ...(typeof CREMERIE_PRODUITS !== 'undefined' ? CREMERIE_PRODUITS : []),
-            ...(typeof POPCORN_PRODUITS !== 'undefined' ? POPCORN_PRODUITS : [])
-          ];
+          const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
           const p = allProducts.find(prod => prod.id === i.id);
-          const icon = p?.photo || '';
-          return `<div class="qc-item-line">
-            <span>${icon} ${i.name}</span>
-            <strong style="background:var(--text);color:#fff;padding:1px 7px;border-radius:4px;font-size:.78rem">x${i.qty}</strong>
-          </div>`;
+          return `<div class="qc-item-line"><span>${i.name}</span><strong style="background:var(--text);color:#fff;padding:1px 7px;border-radius:4px;font-size:.78rem">x${i.qty}</strong></div>`;
         }).join('')}
       </div>
       <div class="qc-actions">
@@ -3088,10 +2738,7 @@ function renderQueue() {
 async function setOrderStatus(id, status) {
   const o = orders.find(x=>x.id===id);
   if (!o) return;
-  if (o.status === 'en_attente') {
-    toast('Cette commande doit d\'abord etre validee par le kiosque');
-    return;
-  }
+  if (o.status === 'en_attente') { toast('Cette commande doit d\'abord etre validee par le kiosque'); return; }
   o.status = status;
   await saveFB('cb_orders', orders);
   logAction('Changement statut', 'Commande ' + id + ' passe à ' + status);
@@ -3100,9 +2747,9 @@ async function setOrderStatus(id, status) {
 }
 </script>
 <script>
-// ---- 12-stock.js ----
+// ---- 11-stock.js ----
 // ================================================================
-// 12-STOCK.JS -- Page Stock : gestion des stocks par kiosque
+// 11-STOCK.JS -- Page Stock : gestion des stocks par kiosque
 // ================================================================
 
 function renderStock() {
@@ -3149,11 +2796,7 @@ function renderStockContent(tab) {
   const allowedCats = currentUser.catAccess || [];
   const hasAllAccess = allowedCats.length === 0 || allowedCats.includes('Tous');
   
-  const allProducts = [
-    ...products,
-    ...(typeof CREMERIE_PRODUITS !== 'undefined' ? CREMERIE_PRODUITS : []),
-    ...(typeof POPCORN_PRODUITS !== 'undefined' ? POPCORN_PRODUITS : [])
-  ];
+  const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
   const productsToShow = hasAllAccess ? allProducts : allProducts.filter(p => allowedCats.includes(p.cat));
 
   let html = '';
@@ -3169,9 +2812,7 @@ function renderStockContent(tab) {
         html = '<div style="color:var(--muted);padding:.5rem;">Aucun kiosque enregistre</div>';
       } else {
         let tableHtml = `<div class="tbl-wrap"><table><thead><tr><th>Produit</th>`;
-        uniqueKiosques.forEach(k => {
-          tableHtml += `<th>${k}</th>`;
-        });
+        uniqueKiosques.forEach(k => tableHtml += `<th>${k}</th>`);
         if (isAdmin) tableHtml += `<th>Actions</th>`;
         tableHtml += `</tr></thead><tbody>`;
         productsAStock.forEach(p => {
@@ -3179,22 +2820,15 @@ function renderStockContent(tab) {
           uniqueKiosques.forEach(k => {
             const qty = (stockVendeur[k] && stockVendeur[k][p.id]) || 0;
             const cls = getStockClass(qty);
-            tableHtml += `<td><span class="sc-stock ${cls}">${qty}</span> ${qty<=0?'X':qty<=5?'!':''}</td>`;
+            tableHtml += `<td><span class="sc-stock ${cls}">${qty}</span></td>`;
           });
           if (isAdmin) {
-            tableHtml += `<td>
-              <button class="icon-btn" onclick="openAdjustStock('${p.id}')" title="Ajuster">${icon('sliders')}</button>
-            </td>`;
+            tableHtml += `<td><button class="icon-btn" onclick="openAdjustStock('${p.id}')" title="Ajuster">${icon('sliders')}</button></td>`;
           }
           tableHtml += `</tr>`;
         });
         tableHtml += `</tbody></table></div>`;
         html = tableHtml;
-        if (isAdmin) {
-          html += `<div style="margin-top:1rem;">
-            <p style="font-size:.8rem;color:var(--muted);">Utilisez la vue par kiosque pour ajuster les quantites.</p>
-          </div>`;
-        }
       }
     }
   } else {
@@ -3209,7 +2843,7 @@ function renderStockContent(tab) {
         return `<div class="stock-card ${qty<=0?'out':qty<=5?'low':''}" data-prod="${p.id}" data-kiosque="${kiosque}">
           <div class="sc-info">
             <div class="sc-name">${getCatIcon(p.cat)} ${p.name}</div>
-            <div class="sc-cat">${p.cat} -- ${fmt(p.price)}</div>
+            <div class="sc-cat">${p.cat} -- ${fmt(p.prix || p.price)}</div>
             <div class="sc-stock ${cls}">${qty} unite(s) -- ${getStockLabel(qty)}</div>
           </div>
           ${isAdmin ? `
@@ -3257,9 +2891,7 @@ function renderStockMvt() {
   }
 }
 
-function openAdjustStock(prodId) {
-  toast('Utilisez la vue par kiosque pour ajuster');
-}
+function openAdjustStock(prodId) { toast('Utilisez la vue par kiosque pour ajuster'); }
 
 function adjustStockKiosque(kiosque, prodId, mode) {
   if (currentUser.role !== 'admin' && currentUser.role !== 'stockmanager') { toast('Reserve a l\'admin ou stock manager'); return; }
@@ -3297,31 +2929,23 @@ function adjustStockKiosque(kiosque, prodId, mode) {
 }
 </script>
 <script>
-// ---- 13-admin.js ----
+// ---- 12-admin.js ----
 // ================================================================
-// 13-ADMIN.JS -- Page Admin
+// 12-ADMIN.JS -- Page Admin
 // ================================================================
 
 const ADMIN_CATEGORIES = ['Nourriture', 'Boissons', 'Chicha', 'Cremerie', 'Popcorn'];
 
 function renderAdmin() {
   document.getElementById('userList').innerHTML = users.map(u=>{
-    const roleLabels = {
-      admin:'Admin', 
-      stockmanager:'Stock Manager',
-      cuisiniere:'Cuisiniere', 
-      vendeur:'Kiosque', 
-      serveur:'Serveur',
-      parking:'Parking'
-    };
+    const roleLabels = { admin:'Admin', stockmanager:'Stock Manager', cuisiniere:'Cuisiniere', vendeur:'Kiosque', serveur:'Serveur', parking:'Parking' };
     return `<div class="user-row">
       <div class="user-avatar">${u.name.split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase()}</div>
       <div style="flex:1">
         <div class="user-name">${u.name}</div>
         <div class="user-role">${roleLabels[u.role]||u.role} -- @${u.login}${u.kiosque?' -- '+u.kiosque:''}
         ${u.catAccess && u.catAccess.length && u.catAccess[0] !== 'Tous' ? ' -- '+u.catAccess.join(', ') : ''}
-        ${u.catAccess && u.catAccess.includes('Tous') ? ' -- Tous' : ''}
-        </div>
+        ${u.catAccess && u.catAccess.includes('Tous') ? ' -- Tous' : ''}</div>
       </div>
       ${u.id!==1?`
         <button class="icon-btn" onclick="editUserModal(${u.id})" title="Modifier">${icon('edit')}</button>
@@ -3330,22 +2954,16 @@ function renderAdmin() {
     </div>`;
   }).join('');
 
-  const allProducts = [
-    ...products,
-    ...(typeof CREMERIE_PRODUITS !== 'undefined' ? CREMERIE_PRODUITS : []),
-    ...(typeof POPCORN_PRODUITS !== 'undefined' ? POPCORN_PRODUITS : [])
-  ];
-  
+  const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
   document.getElementById('prodMgmtGrid').innerHTML = allProducts.map(p=>{
     const totalQty = Object.values(stockVendeur).reduce((acc, k) => acc + (k[p.id]||0), 0);
     const qty = (p.cat === 'Cremerie' || p.cat === 'Popcorn') ? '--' : (isFood(p) ? '∞' : totalQty);
     const stCls = (p.cat === 'Cremerie' || p.cat === 'Popcorn') ? 'inf' : (isFood(p) ? 'inf' : getStockClass(totalQty));
-    const label = (p.cat === 'Cremerie' || p.cat === 'Popcorn') ? 'Gestion speciale' : (isFood(p) ? 'Illimite' : (totalQty <=0 ? 'Rupture' : (totalQty <=5 ? 'Stock bas' : 'En stock')));
     return `<div class="pm-card">
       <div class="pm-info">
         <div class="pm-name">${getCatIcon(p.cat)} ${p.name}</div>
         <div class="pm-cat">${p.cat}</div>
-        <div class="pm-price">${fmt(p.price)} -- <span class="sc-stock ${stCls}" style="font-size:.72rem">${qty} ${(p.cat !== 'Cremerie' && p.cat !== 'Popcorn') ? (isFood(p) ? '' : '(total)') : ''}</span></div>
+        <div class="pm-price">${fmt(p.prix || p.price)} -- <span class="sc-stock ${stCls}" style="font-size:.72rem">${qty}</span></div>
       </div>
       <button class="icon-btn" onclick="editProdModal(${p.id})" title="Modifier">${icon('edit')}</button>
       <button class="icon-btn icon-btn-danger" onclick="delProd(${p.id})" style="margin-left:4px" title="Supprimer">${icon('trash')}</button>
@@ -3398,10 +3016,7 @@ function exportVentesVendeur() {
   const day = orders.filter(o=>o.date===date);
   if (!day.length) { toast('Aucune donnee a exporter'); return; }
   const wb = XLSX.utils.book_new();
-  const rows = [
-    ['COMPLEXE BEYLA -- VENTES PAR KIOSQUE - ' + date],[],
-    ['Kiosque','Nb commandes','Articles vendus','Total (GNF)']
-  ];
+  const rows = [['COMPLEXE BEYLA -- VENTES PAR KIOSQUE - ' + date],[],['Kiosque','Nb commandes','Articles vendus','Total (GNF)']];
   const stats = {};
   day.forEach(o => {
     const v = o.kiosqueSource || o.vendeur || 'Non defini';
@@ -3410,9 +3025,7 @@ function exportVentesVendeur() {
     stats[v].items += o.items.reduce((s,i)=>s+i.qty,0);
     stats[v].total += o.total||0;
   });
-  for (const [v, s] of Object.entries(stats)) {
-    rows.push([v, s.nb, s.items, s.total]);
-  }
+  for (const [v, s] of Object.entries(stats)) rows.push([v, s.nb, s.items, s.total]);
   const ws = XLSX.utils.aoa_to_sheet(rows);
   XLSX.utils.book_append_sheet(wb, ws, 'Ventes par kiosque');
   XLSX.writeFile(wb, 'Beyla_Ventes_Kiosque_'+date+'.xlsx');
@@ -3453,22 +3066,12 @@ function editUserModal(id) {
 
 function toggleKiosqueField() {
   const role = document.getElementById('uRole').value;
-  const group = document.getElementById('kiosqueGroup');
-  if (role === 'vendeur') {
-    group.style.display = 'block';
-  } else {
-    group.style.display = 'none';
-  }
+  document.getElementById('kiosqueGroup').style.display = role === 'vendeur' ? 'block' : 'none';
 }
 
 function toggleCategoryFields() {
   const role = document.getElementById('uRole').value;
-  const group = document.getElementById('categoriesGroup');
-  if (role === 'vendeur' || role === 'admin' || role === 'stockmanager') {
-    group.style.display = 'block';
-  } else {
-    group.style.display = 'none';
-  }
+  document.getElementById('categoriesGroup').style.display = (role === 'vendeur' || role === 'admin' || role === 'stockmanager') ? 'block' : 'none';
 }
 
 function toggleAllCategories(checked) {
@@ -3495,9 +3098,7 @@ async function saveUser() {
   document.querySelectorAll('.cat-check input[type="checkbox"]:checked').forEach(cb => {
     selectedCats.push(cb.value);
   });
-  if (document.getElementById('catTous').checked) {
-    selectedCats.push('Tous');
-  }
+  if (document.getElementById('catTous').checked) selectedCats.push('Tous');
   
   if (!name||!login) { toast('Remplir nom et login'); return; }
   if (!editUserId&&!pass) { toast('Mot de passe requis'); return; }
@@ -3505,18 +3106,12 @@ async function saveUser() {
   
   if (role === 'admin') {
     const adminCount = users.filter(u => u.role === 'admin' && u.id !== editUserId).length;
-    if (adminCount >= 2) {
-      toast('Limite de 2 administrateurs atteinte');
-      return;
-    }
+    if (adminCount >= 2) { toast('Limite de 2 administrateurs atteinte'); return; }
   }
   
   if (editUserId) {
     const u = users.find(x=>x.id===editUserId);
-    if (u) { 
-      u.name=name; u.login=login; if (pass) u.pass=pass; u.role=role; u.kiosque=kiosque;
-      u.catAccess = selectedCats.length ? selectedCats : null;
-    }
+    if (u) { u.name=name; u.login=login; if (pass) u.pass=pass; u.role=role; u.kiosque=kiosque; u.catAccess = selectedCats.length ? selectedCats : null; }
   } else {
     const mx = Math.max(...users.map(u=>u.id),0);
     users.push({id:mx+1, name, login, pass, role, kiosque, catAccess: selectedCats.length ? selectedCats : null});
@@ -3552,11 +3147,7 @@ function openAddProd() {
 }
 
 function editProdModal(id) {
-  const allProducts = [
-    ...products,
-    ...(typeof CREMERIE_PRODUITS !== 'undefined' ? CREMERIE_PRODUITS : []),
-    ...(typeof POPCORN_PRODUITS !== 'undefined' ? POPCORN_PRODUITS : [])
-  ];
+  const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
   const p = allProducts.find(x=>x.id===id);
   if (!p) return;
   editProdId=id;
@@ -3576,41 +3167,28 @@ async function saveProd() {
   if (!name||!price) { toast('Remplir nom et prix'); return; }
   
   if (editProdId) {
-    const allProducts = [
-      ...products,
-      ...(typeof CREMERIE_PRODUITS !== 'undefined' ? CREMERIE_PRODUITS : []),
-      ...(typeof POPCORN_PRODUITS !== 'undefined' ? POPCORN_PRODUITS : [])
-    ];
+    const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
     const p = allProducts.find(x=>x.id===editProdId);
     if (p) { p.name=name; p.price=price; p.prix=price; p.cat=cat; p.photo=photo; }
-    
-    // Mettre à jour dans la bonne liste
-    if (cat === 'Cremerie' && typeof CREMERIE_PRODUITS !== 'undefined') {
+    if (cat === 'Cremerie') {
       const idx = CREMERIE_PRODUITS.findIndex(x=>x.id===editProdId);
-      if (idx !== -1) { CREMERIE_PRODUITS[idx] = {id:editProdId, name, prix:price, cat, photo}; }
-    } else if (cat === 'Popcorn' && typeof POPCORN_PRODUITS !== 'undefined') {
+      if (idx !== -1) CREMERIE_PRODUITS[idx] = {id:editProdId, name, prix:price, cat, photo};
+    } else if (cat === 'Popcorn') {
       const idx = POPCORN_PRODUITS.findIndex(x=>x.id===editProdId);
-      if (idx !== -1) { POPCORN_PRODUITS[idx] = {id:editProdId, name, prix:price, cat, photo}; }
+      if (idx !== -1) POPCORN_PRODUITS[idx] = {id:editProdId, name, prix:price, cat, photo};
     } else {
       const idx = products.findIndex(x=>x.id===editProdId);
-      if (idx !== -1) { products[idx] = {id:editProdId, name, price, cat, photo}; }
+      if (idx !== -1) products[idx] = {id:editProdId, name, price, cat, photo};
     }
   } else {
-    const mx = Math.max(...products.map(p=>p.id), ...(typeof CREMERIE_PRODUITS !== 'undefined' ? CREMERIE_PRODUITS.map(p=>p.id) : []), ...(typeof POPCORN_PRODUITS !== 'undefined' ? POPCORN_PRODUITS.map(p=>p.id) : []));
+    const mx = Math.max(...products.map(p=>p.id), ...CREMERIE_PRODUITS.map(p=>p.id), ...POPCORN_PRODUITS.map(p=>p.id));
     const newId = mx+1;
-    if (cat === 'Cremerie' && typeof CREMERIE_PRODUITS !== 'undefined') {
-      CREMERIE_PRODUITS.push({id:newId, name, prix:price, cat, photo});
-    } else if (cat === 'Popcorn' && typeof POPCORN_PRODUITS !== 'undefined') {
-      POPCORN_PRODUITS.push({id:newId, name, prix:price, cat, photo});
-    } else {
-      products.push({id:newId, name, price, cat, photo});
-    }
+    if (cat === 'Cremerie') CREMERIE_PRODUITS.push({id:newId, name, prix:price, cat, photo});
+    else if (cat === 'Popcorn') POPCORN_PRODUITS.push({id:newId, name, prix:price, cat, photo});
+    else products.push({id:newId, name, price, cat, photo});
   }
   
   await saveFB('cb_prods',products);
-  if (typeof CREMERIE_PRODUITS !== 'undefined') await saveFB('cb_cremerie_produits', CREMERIE_PRODUITS);
-  if (typeof POPCORN_PRODUITS !== 'undefined') await saveFB('cb_popcorn_produits', POPCORN_PRODUITS);
-  
   logAction('Gestion produit', 'Produit ' + name + ' ' + (editProdId?'modifie':'cree') + ' par ' + currentUser.name);
   closeModal('modalProd');
   renderAdmin();
@@ -3620,28 +3198,17 @@ async function saveProd() {
 
 async function delProd(id) {
   if (!confirm('Supprimer ce produit definitivement ?')) return;
-  
-  // Chercher dans toutes les listes
   let p = products.find(x=>x.id===id);
-  if (p) {
-    products=products.filter(x=>x.id!==id);
-  } else if (typeof CREMERIE_PRODUITS !== 'undefined') {
+  if (p) products=products.filter(x=>x.id!==id);
+  else {
     p = CREMERIE_PRODUITS.find(x=>x.id===id);
-    if (p) {
-      const idx = CREMERIE_PRODUITS.indexOf(p);
-      CREMERIE_PRODUITS.splice(idx, 1);
-    }
-  } else if (typeof POPCORN_PRODUITS !== 'undefined') {
-    p = POPCORN_PRODUITS.find(x=>x.id===id);
-    if (p) {
-      const idx = POPCORN_PRODUITS.indexOf(p);
-      POPCORN_PRODUITS.splice(idx, 1);
+    if (p) { const idx = CREMERIE_PRODUITS.indexOf(p); CREMERIE_PRODUITS.splice(idx, 1); }
+    else {
+      p = POPCORN_PRODUITS.find(x=>x.id===id);
+      if (p) { const idx = POPCORN_PRODUITS.indexOf(p); POPCORN_PRODUITS.splice(idx, 1); }
     }
   }
-  
-  Object.keys(stockVendeur).forEach(k => {
-    delete stockVendeur[k][id];
-  });
+  Object.keys(stockVendeur).forEach(k => delete stockVendeur[k][id]);
   await saveFB('cb_prods',products);
   await saveFB('cb_stock_vendeur',stockVendeur);
   logAction('Gestion produit', 'Produit ' + p?.name + ' supprime par ' + currentUser.name);
@@ -3651,9 +3218,9 @@ async function delProd(id) {
 }
 </script>
 <script>
-// ---- 14-password.js ----
+// ---- 13-password.js ----
 // ================================================================
-// 14-PASSWORD.JS -- Changement de mot de passe utilisateur
+// 13-PASSWORD.JS -- Changement de mot de passe utilisateur
 // ================================================================
 
 function openChangePwd() {
@@ -3669,36 +3236,6 @@ async function doChangePwd() {
   const errEl = document.getElementById('pwdErr');
   if (!old||!nw||!conf) { errEl.textContent='Remplir tous les champs.'; return; }
   if (old!==currentUser.pass) { errEl.textContent='Ancien mot de passe incorrect.'; return; }
-  if (nw.length<4) { errEl.textContent='Minimum 4 caractères requis.'; return; }
-  if (nw!==conf) { errEl.textContent='Les mots de passe ne correspondent pas.'; return; }
-  const u = users.find(x=>x.id===currentUser.id);
-  if (u) { u.pass=nw; currentUser.pass=nw; }
-  await saveFB('cb_users',users);
-  logAction('Changement mot de passe', 'Utilisateur ' + currentUser.name + ' a changé son mot de passe');
-  closeModal('modalPwd');
-  toast('Mot de passe modifié');
-}
-
-</script>
-<script>
-// ---- 15-init.js ----
-// ================================================================
-// 14-PASSWORD.JS -- Changement de mot de passe
-// ================================================================
-
-function openChangePwd() {
-  ['pwdOld','pwdNew','pwdConf'].forEach(i=>document.getElementById(i).value='');
-  document.getElementById('pwdErr').textContent='';
-  openModal('modalPwd');
-}
-
-async function doChangePwd() {
-  const old = document.getElementById('pwdOld').value;
-  const nw = document.getElementById('pwdNew').value;
-  const conf = document.getElementById('pwdConf').value;
-  const errEl = document.getElementById('pwdErr');
-  if (!old||!nw||!conf) { errEl.textContent='Remplir tous les champs.'; return; }
-  if (old!==currentUser.pass) { errEl.textContent='Ancien mot de passe incorrect.'; return; }
   if (nw.length<4) { errEl.textContent='Minimum 4 caracteres requis.'; return; }
   if (nw!==conf) { errEl.textContent='Les mots de passe ne correspondent pas.'; return; }
   const u = users.find(x=>x.id===currentUser.id);
@@ -3710,22 +3247,171 @@ async function doChangePwd() {
 }
 </script>
 <script>
-// ---- 16-cremerie.js ----
+// ---- 14-grand-stock.js ----
 // ================================================================
-// 16-CREMERIE.JS -- Gestion de la cremerie
+// 14-GRAND-STOCK.JS -- Gestion du grand stock central
+// ================================================================
+
+function renderGrandStock() {
+  let totalProduits = 0;
+  let alertes = 0;
+  const table = document.getElementById('grandStockTable');
+  let html = '';
+  
+  for (const [produit, qte] of Object.entries(grandStock)) {
+    const seuil = STOCK_SEUILS[produit] || 5;
+    const statut = qte <= 0 ? 'rupture' : qte <= seuil ? 'alerte' : 'ok';
+    if (qte <= seuil) alertes++;
+    totalProduits += qte;
+    const info = getProduitInfo(produit);
+    const statutClass = statut === 'ok' ? 'bg-g' : statut === 'alerte' ? 'bg-a' : 'bg-r';
+    const statutLabel = statut === 'ok' ? 'OK' : statut === 'alerte' ? 'Stock bas' : 'Rupture';
+    html += `<tr>
+      <td><strong>${info.label}</strong></td>
+      <td>${info.categorie}</td>
+      <td><strong>${qte}</strong></td>
+      <td>${info.unite}</td>
+      <td>${seuil}</td>
+      <td><span class="badge ${statutClass}">${statutLabel}</span></td>
+      <td><button class="icon-btn" onclick="openStockAjustement('${produit}')" title="Ajuster">${icon('sliders')}</button></td>
+    </tr>`;
+  }
+  table.innerHTML = html;
+  document.getElementById('gsTotalProduits').textContent = totalProduits;
+  document.getElementById('gsAlertes').textContent = alertes;
+  document.getElementById('stockLastUpdate').textContent = nowFull();
+  
+  const mvtsJour = grandStockMvts.filter(m => m.date === today());
+  document.getElementById('gsMouvements').textContent = mvtsJour.length;
+  
+  renderGrandStockMvt();
+}
+
+function renderGrandStockMvt() {
+  const tb = document.getElementById('grandStockMvtTable');
+  if (!grandStockMvts.length) {
+    tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:var(--muted)">Aucun mouvement</td></tr>';
+    return;
+  }
+  const typeMap = { reception: 'bg-g', sortie: 'bg-r', ajustement: 'bg-b' };
+  const typeLabel = { reception: 'Reception', sortie: 'Sortie', ajustement: 'Ajustement' };
+  tb.innerHTML = grandStockMvts.slice(0, 50).map(m => {
+    const info = getProduitInfo(m.produit);
+    const signe = m.type === 'reception' ? '+' : '-';
+    const color = m.type === 'reception' ? 'var(--green)' : 'var(--red)';
+    return `<tr>
+      <td style="font-size:.75rem">${m.ts}</td>
+      <td><span class="badge ${typeMap[m.type] || 'bg-b'}">${typeLabel[m.type] || m.type}</span></td>
+      <td>${info.label}</td>
+      <td><strong style="color:${color}">${signe} ${m.qte}</strong></td>
+      <td>${m.stockApres}</td>
+      <td style="font-size:.75rem">${m.par}</td>
+      <td style="font-size:.75rem;color:var(--muted)">${m.commentaire || '--'}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function saveGrandStockMvt(produit, type, qte, commentaire = '') {
+  const stockAvant = grandStock[produit] || 0;
+  let stockApres = stockAvant;
+  if (type === 'reception') stockApres = stockAvant + qte;
+  else if (type === 'sortie') stockApres = Math.max(0, stockAvant - qte);
+  else if (type === 'ajustement') stockApres = qte;
+  grandStock[produit] = stockApres;
+  const mvt = {
+    id: 'STK-' + Date.now().toString(36).toUpperCase(),
+    date: today(), ts: nowFull(), produit: produit,
+    type: type, qte: qte, stockAvant: stockAvant, stockApres: stockApres,
+    par: currentUser ? currentUser.name : 'Systeme', commentaire: commentaire || ''
+  };
+  grandStockMvts.unshift(mvt);
+  if (grandStockMvts.length > 500) grandStockMvts = grandStockMvts.slice(0, 500);
+  await saveFB('cb_grand_stock', grandStock);
+  await saveFB('cb_grand_stock_mvts', grandStockMvts);
+  logAction('Grand Stock', type + ' - ' + produit + ' : ' + qte + ' (' + commentaire + ')');
+  renderGrandStock();
+}
+
+function openStockReception() {
+  document.getElementById('stockReceptionProduit').value = 'farine';
+  document.getElementById('stockReceptionQte').value = '';
+  document.getElementById('stockReceptionFournisseur').value = '';
+  document.getElementById('stockReceptionComment').value = '';
+  openModal('modalStockReception');
+}
+
+async function saveStockReception() {
+  const produit = document.getElementById('stockReceptionProduit').value;
+  const qte = parseFloat(document.getElementById('stockReceptionQte').value);
+  const fournisseur = document.getElementById('stockReceptionFournisseur').value.trim();
+  const comment = document.getElementById('stockReceptionComment').value.trim();
+  if (!qte || qte <= 0) { toast('Entrer une quantite valide'); return; }
+  await saveGrandStockMvt(produit, 'reception', qte, 'Fournisseur: ' + (fournisseur || '--') + (comment ? ' - ' + comment : ''));
+  closeModal('modalStockReception');
+  toast('Reception de ' + qte + ' ' + getProduitInfo(produit).unite + ' de ' + getProduitInfo(produit).label);
+}
+
+function openStockSortie() {
+  document.getElementById('stockSortieProduit').value = 'farine';
+  document.getElementById('stockSortieQte').value = '';
+  document.getElementById('stockSortieKiosque').value = 'Kiosque Nourriture';
+  document.getElementById('stockSortieComment').value = '';
+  openModal('modalStockSortie');
+}
+
+async function saveStockSortie() {
+  const produit = document.getElementById('stockSortieProduit').value;
+  const qte = parseFloat(document.getElementById('stockSortieQte').value);
+  const kiosque = document.getElementById('stockSortieKiosque').value;
+  const comment = document.getElementById('stockSortieComment').value.trim();
+  if (!qte || qte <= 0) { toast('Entrer une quantite valide'); return; }
+  if ((grandStock[produit] || 0) < qte) { toast('Stock insuffisant'); return; }
+  await saveGrandStockMvt(produit, 'sortie', qte, 'Vers ' + kiosque + (comment ? ' - ' + comment : ''));
+  if (!stockVendeur[kiosque]) stockVendeur[kiosque] = {};
+  stockVendeur[kiosque][produit] = (stockVendeur[kiosque][produit] || 0) + qte;
+  await saveFB('cb_stock_vendeur', stockVendeur);
+  closeModal('modalStockSortie');
+  toast('Sortie de ' + qte + ' ' + getProduitInfo(produit).unite + ' vers ' + kiosque);
+}
+
+function openStockAjustement(produit) {
+  if (produit) {
+    document.getElementById('stockAjustementProduit').value = produit;
+    document.getElementById('stockAjustementQte').value = grandStock[produit] || 0;
+  } else {
+    document.getElementById('stockAjustementProduit').value = 'farine';
+    document.getElementById('stockAjustementQte').value = '';
+  }
+  document.getElementById('stockAjustementRaison').value = '';
+  openModal('modalStockAjustement');
+}
+
+async function saveStockAjustement() {
+  const produit = document.getElementById('stockAjustementProduit').value;
+  const qte = parseFloat(document.getElementById('stockAjustementQte').value);
+  const raison = document.getElementById('stockAjustementRaison').value.trim();
+  if (qte < 0) { toast('La quantite ne peut pas etre negative'); return; }
+  const ancienneQte = grandStock[produit] || 0;
+  const difference = qte - ancienneQte;
+  if (difference === 0) { toast('Aucun changement'); closeModal('modalStockAjustement'); return; }
+  await saveGrandStockMvt(produit, 'ajustement', qte, (raison || 'Ajustement manuel') + ' (ancien: ' + ancienneQte + ')');
+  closeModal('modalStockAjustement');
+  toast('Stock de ' + getProduitInfo(produit).label + ' ajuste a ' + qte);
+}
+</script>
+<script>
+// ---- 15-cremerie.js ----
+// ================================================================
+// 15-CREMERIE.JS -- Gestion de la cremerie
 // ================================================================
 
 function renderCremerie() {
-  // Mise à jour du stock affiché
   document.getElementById('cremerieStock').textContent = grandStock.creme || 0;
   
-  // Récupérer les mouvements du jour
   const todayStr = today();
   const mouvementsJour = cremerieMouvements.filter(m => m.date === todayStr);
   const ventesJour = mouvementsJour.filter(m => m.type === 'vente');
-  const receptionsJour = mouvementsJour.filter(m => m.type === 'reception');
   
-  // Statistiques
   const totalKg = ventesJour.reduce((s, m) => s + m.kg, 0);
   const totalPetits = ventesJour.reduce((s, m) => s + (m.petitsPots || 0), 0);
   const totalGrands = ventesJour.reduce((s, m) => s + (m.grandsPots || 0), 0);
@@ -3743,7 +3429,6 @@ function renderCremerie() {
   ecartEl.textContent = (ecart >= 0 ? '+' : '') + fmt(Math.abs(ecart));
   ecartEl.style.color = ecart === 0 ? 'var(--green)' : 'var(--red)';
   
-  // Tableau des mouvements
   const tb = document.getElementById('cremerieTable');
   if (!cremerieMouvements.length) {
     tb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:1.5rem;color:var(--muted)">Aucun mouvement</td></tr>';
@@ -3752,7 +3437,6 @@ function renderCremerie() {
   
   const typeLabel = { reception: 'Reception', vente: 'Vente', perte: 'Perte' };
   const typeMap = { reception: 'bg-g', vente: 'bg-b', perte: 'bg-r' };
-  
   tb.innerHTML = cremerieMouvements.slice(0, 50).map(m => {
     const ecartMvt = (m.attendu || 0) - (m.recette || 0);
     return `<tr>
@@ -3769,7 +3453,6 @@ function renderCremerie() {
   }).join('');
 }
 
-// ===== RECEPTION CREME =====
 function openReceptionCremerie() {
   document.getElementById('cremReceptionKg').value = '';
   document.getElementById('cremReceptionPar').value = currentUser.name;
@@ -3779,39 +3462,25 @@ function openReceptionCremerie() {
 async function saveReceptionCremerie() {
   const kg = parseFloat(document.getElementById('cremReceptionKg').value);
   const par = document.getElementById('cremReceptionPar').value || currentUser.name;
-  
   if (!kg || kg <= 0) { toast('Entrer une quantite valide'); return; }
-  
-  // Ajouter au grand stock
   if (!grandStock.creme) grandStock.creme = 0;
   grandStock.creme += kg;
-  
-  // Enregistrer le mouvement
   const mouvement = {
     id: 'CREM-REC-' + Date.now().toString(36).toUpperCase(),
-    date: today(),
-    type: 'reception',
-    kg: kg,
-    recette: 0,
-    attendu: kg * CREMERIE_RENDEMENT,
-    par: par,
-    commentaire: 'Reception de creme'
+    date: today(), type: 'reception', kg: kg,
+    recette: 0, attendu: kg * CREMERIE_RENDEMENT,
+    par: par, commentaire: 'Reception de creme'
   };
-  
   cremerieMouvements.unshift(mouvement);
   if (cremerieMouvements.length > 500) cremerieMouvements = cremerieMouvements.slice(0, 500);
-  
   await saveFB('cb_cremerie_mouvements', cremerieMouvements);
   await saveFB('cb_grand_stock', grandStock);
-  
   logAction('Reception creme', 'Reception de ' + kg + ' kg de creme par ' + par);
-  
   closeModal('modalCremerieReception');
   renderCremerie();
   toast('Reception de ' + kg + ' kg de creme');
 }
 
-// ===== VENTE CREME =====
 function openVenteCremerie() {
   document.getElementById('cremVenteKg').value = '';
   document.getElementById('cremVentePetits').value = '';
@@ -3828,14 +3497,11 @@ function calcCremerieRecette() {
   const kg = parseFloat(document.getElementById('cremVenteKg').value) || 0;
   const petits = parseInt(document.getElementById('cremVentePetits').value) || 0;
   const grands = parseInt(document.getElementById('cremVenteGrands').value) || 0;
-  
   const recette = (petits * 5000) + (grands * 10000);
   const attendu = kg * CREMERIE_RENDEMENT;
   const ecart = attendu - recette;
-  
   document.getElementById('cremVenteRecetteCalc').textContent = fmt(recette);
   document.getElementById('cremVenteAttendu').textContent = fmt(attendu);
-  
   const ecartEl = document.getElementById('cremVenteEcart');
   ecartEl.textContent = (ecart >= 0 ? '+' : '') + fmt(Math.abs(ecart));
   ecartEl.style.color = ecart === 0 ? 'var(--green)' : 'var(--red)';
@@ -3846,74 +3512,45 @@ async function saveVenteCremerie() {
   const petits = parseInt(document.getElementById('cremVentePetits').value) || 0;
   const grands = parseInt(document.getElementById('cremVenteGrands').value) || 0;
   const par = document.getElementById('cremVentePar').value || currentUser.name;
-  
   if (!kg || kg <= 0) { toast('Entrer une quantite de kg valide'); return; }
   if (petits === 0 && grands === 0) { toast('Entrer au moins un pot vendu'); return; }
-  
-  // Verifier le stock
-  if ((grandStock.creme || 0) < kg) {
-    toast('Stock insuffisant (disponible: ' + grandStock.creme + ' kg)');
-    return;
-  }
-  
+  if ((grandStock.creme || 0) < kg) { toast('Stock insuffisant (disponible: ' + grandStock.creme + ' kg)'); return; }
   const recette = (petits * 5000) + (grands * 10000);
   const attendu = kg * CREMERIE_RENDEMENT;
   const ecart = attendu - recette;
-  
-  // Deduire du stock
   grandStock.creme -= kg;
-  
-  // Enregistrer le mouvement
   const mouvement = {
     id: 'CREM-VEN-' + Date.now().toString(36).toUpperCase(),
-    date: today(),
-    type: 'vente',
-    kg: kg,
-    petitsPots: petits,
-    grandsPots: grands,
-    recette: recette,
-    attendu: attendu,
-    ecart: ecart,
-    par: par,
-    commentaire: 'Vente du jour'
+    date: today(), type: 'vente', kg: kg,
+    petitsPots: petits, grandsPots: grands,
+    recette: recette, attendu: attendu, ecart: ecart,
+    par: par, commentaire: 'Vente du jour'
   };
-  
   cremerieMouvements.unshift(mouvement);
   if (cremerieMouvements.length > 500) cremerieMouvements = cremerieMouvements.slice(0, 500);
-  
   await saveFB('cb_cremerie_mouvements', cremerieMouvements);
   await saveFB('cb_grand_stock', grandStock);
-  
   logAction('Vente cremerie', kg + ' kg utilise - Recette: ' + fmt(recette) + ' - Ecart: ' + fmt(ecart));
-  
   closeModal('modalCremerieVente');
   renderCremerie();
-  
-  if (ecart === 0) {
-    toast('Vente OK - Recette conforme');
-  } else if (ecart > 0) {
-    toast('Ecart positif de ' + fmt(ecart) + ' (reversement superieur)');
-  } else {
-    toast('Ecart negatif de ' + fmt(Math.abs(ecart)) + ' (manque a gagner)');
-  }
+  if (ecart === 0) toast('Vente OK - Recette conforme');
+  else if (ecart > 0) toast('Ecart positif de ' + fmt(ecart) + ' (reversement superieur)');
+  else toast('Ecart negatif de ' + fmt(Math.abs(ecart)) + ' (manque a gagner)');
 }
 </script>
 <script>
-// ---- 17-popcorn.js ----
+// ---- 16-popcorn.js ----
 // ================================================================
-// 17-POPCORN.JS -- Gestion du popcorn
+// 16-POPCORN.JS -- Gestion du popcorn
 // ================================================================
 
 function renderPopcorn() {
-  // Mise à jour du stock affiché
   document.getElementById('popcornStock').textContent = grandStock.mais || 0;
   
-  // Récupérer les mouvements du jour
   const todayStr = today();
   const mouvementsJour = popcornMouvements.filter(m => m.date === todayStr);
   const ventesJour = mouvementsJour.filter(m => m.type === 'vente');
   
-  // Statistiques
   const totalKg = ventesJour.reduce((s, m) => s + m.kg, 0);
   const totalBoites = ventesJour.reduce((s, m) => s + (m.boites || 0), 0);
   const recette = ventesJour.reduce((s, m) => s + (m.recette || 0), 0);
@@ -3929,7 +3566,6 @@ function renderPopcorn() {
   ecartEl.textContent = (ecart >= 0 ? '+' : '') + fmt(Math.abs(ecart));
   ecartEl.style.color = ecart === 0 ? 'var(--green)' : 'var(--red)';
   
-  // Tableau des mouvements
   const tb = document.getElementById('popcornTable');
   if (!popcornMouvements.length) {
     tb.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:1.5rem;color:var(--muted)">Aucun mouvement</td></tr>';
@@ -3938,7 +3574,6 @@ function renderPopcorn() {
   
   const typeLabel = { reception: 'Reception', vente: 'Vente', perte: 'Perte' };
   const typeMap = { reception: 'bg-g', vente: 'bg-b', perte: 'bg-r' };
-  
   tb.innerHTML = popcornMouvements.slice(0, 50).map(m => {
     const ecartMvt = (m.attendu || 0) - (m.recette || 0);
     return `<tr>
@@ -3954,7 +3589,6 @@ function renderPopcorn() {
   }).join('');
 }
 
-// ===== RECEPTION MAIS =====
 function openReceptionPopcorn() {
   document.getElementById('popReceptionKg').value = '';
   document.getElementById('popReceptionPar').value = currentUser.name;
@@ -3964,39 +3598,25 @@ function openReceptionPopcorn() {
 async function saveReceptionPopcorn() {
   const kg = parseFloat(document.getElementById('popReceptionKg').value);
   const par = document.getElementById('popReceptionPar').value || currentUser.name;
-  
   if (!kg || kg <= 0) { toast('Entrer une quantite valide'); return; }
-  
-  // Ajouter au grand stock
   if (!grandStock.mais) grandStock.mais = 0;
   grandStock.mais += kg;
-  
-  // Enregistrer le mouvement
   const mouvement = {
     id: 'POP-REC-' + Date.now().toString(36).toUpperCase(),
-    date: today(),
-    type: 'reception',
-    kg: kg,
-    recette: 0,
-    attendu: kg * POPCORN_RENDEMENT,
-    par: par,
-    commentaire: 'Reception de mais'
+    date: today(), type: 'reception', kg: kg,
+    recette: 0, attendu: kg * POPCORN_RENDEMENT,
+    par: par, commentaire: 'Reception de mais'
   };
-  
   popcornMouvements.unshift(mouvement);
   if (popcornMouvements.length > 500) popcornMouvements = popcornMouvements.slice(0, 500);
-  
   await saveFB('cb_popcorn_mouvements', popcornMouvements);
   await saveFB('cb_grand_stock', grandStock);
-  
   logAction('Reception mais', 'Reception de ' + kg + ' kg de mais par ' + par);
-  
   closeModal('modalPopcornReception');
   renderPopcorn();
   toast('Reception de ' + kg + ' kg de mais');
 }
 
-// ===== VENTE POPCORN =====
 function openVentePopcorn() {
   document.getElementById('popVenteKg').value = '';
   document.getElementById('popVenteBoites').value = '';
@@ -4011,14 +3631,11 @@ function openVentePopcorn() {
 function calcPopcornRecette() {
   const kg = parseFloat(document.getElementById('popVenteKg').value) || 0;
   const boites = parseInt(document.getElementById('popVenteBoites').value) || 0;
-  
   const recette = boites * 10000;
   const attendu = kg * POPCORN_RENDEMENT;
   const ecart = attendu - recette;
-  
   document.getElementById('popVenteRecetteCalc').textContent = fmt(recette);
   document.getElementById('popVenteAttendu').textContent = fmt(attendu);
-  
   const ecartEl = document.getElementById('popVenteEcart');
   ecartEl.textContent = (ecart >= 0 ? '+' : '') + fmt(Math.abs(ecart));
   ecartEl.style.color = ecart === 0 ? 'var(--green)' : 'var(--red)';
@@ -4028,65 +3645,38 @@ async function saveVentePopcorn() {
   const kg = parseFloat(document.getElementById('popVenteKg').value);
   const boites = parseInt(document.getElementById('popVenteBoites').value) || 0;
   const par = document.getElementById('popVentePar').value || currentUser.name;
-  
   if (!kg || kg <= 0) { toast('Entrer une quantite de kg valide'); return; }
   if (boites === 0) { toast('Entrer au moins une boite vendue'); return; }
-  
-  // Verifier le stock
-  if ((grandStock.mais || 0) < kg) {
-    toast('Stock insuffisant (disponible: ' + grandStock.mais + ' kg)');
-    return;
-  }
-  
+  if ((grandStock.mais || 0) < kg) { toast('Stock insuffisant (disponible: ' + grandStock.mais + ' kg)'); return; }
   const recette = boites * 10000;
   const attendu = kg * POPCORN_RENDEMENT;
   const ecart = attendu - recette;
-  
-  // Deduire du stock
   grandStock.mais -= kg;
-  
-  // Enregistrer le mouvement
   const mouvement = {
     id: 'POP-VEN-' + Date.now().toString(36).toUpperCase(),
-    date: today(),
-    type: 'vente',
-    kg: kg,
-    boites: boites,
-    recette: recette,
-    attendu: attendu,
-    ecart: ecart,
-    par: par,
-    commentaire: 'Vente du jour'
+    date: today(), type: 'vente', kg: kg, boites: boites,
+    recette: recette, attendu: attendu, ecart: ecart,
+    par: par, commentaire: 'Vente du jour'
   };
-  
   popcornMouvements.unshift(mouvement);
   if (popcornMouvements.length > 500) popcornMouvements = popcornMouvements.slice(0, 500);
-  
   await saveFB('cb_popcorn_mouvements', popcornMouvements);
   await saveFB('cb_grand_stock', grandStock);
-  
   logAction('Vente popcorn', kg + ' kg utilise - Recette: ' + fmt(recette) + ' - Ecart: ' + fmt(ecart));
-  
   closeModal('modalPopcornVente');
   renderPopcorn();
-  
-  if (ecart === 0) {
-    toast('Vente OK - Recette conforme');
-  } else if (ecart > 0) {
-    toast('Ecart positif de ' + fmt(ecart) + ' (reversement superieur)');
-  } else {
-    toast('Ecart negatif de ' + fmt(Math.abs(ecart)) + ' (manque a gagner)');
-  }
+  if (ecart === 0) toast('Vente OK - Recette conforme');
+  else if (ecart > 0) toast('Ecart positif de ' + fmt(ecart) + ' (reversement superieur)');
+  else toast('Ecart negatif de ' + fmt(Math.abs(ecart)) + ' (manque a gagner)');
 }
 </script>
 <script>
-// ---- 18-parking.js ----
+// ---- 17-parking.js ----
 // ================================================================
-// 18-PARKING.JS -- Gestion du parking
+// 17-PARKING.JS -- Gestion du parking
 // ================================================================
 
 function renderParking() {
-  // Mise à jour des stats
   const placesOccupees = parkingVehicles.filter(v => v.statut === 'stationne').length;
   const placesLibres = PARKING_CONFIG.totalPlaces - placesOccupees;
   const todayStr = today();
@@ -4100,16 +3690,14 @@ function renderParking() {
   document.getElementById('parkingTotal').textContent = parkingVehicles.length + sortiesAujourdhui.length;
   document.getElementById('parkingRecetteTotal').textContent = fmt(recetteAujourdhui);
   
-  // Grille des places
   const grid = document.getElementById('parkingGrid');
   const vehiclesStationnes = parkingVehicles.filter(v => v.statut === 'stationne');
   
   if (vehiclesStationnes.length === 0 && placesLibres === PARKING_CONFIG.totalPlaces) {
     grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--muted);">Parking vide</div>';
   } else {
-    // Afficher les véhicules stationnés
-    let html = '';
-    vehiclesStationnes.forEach((v, index) => {
+    let html = '<style>.parking-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}.parking-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:.8rem;text-align:center;box-shadow:var(--sh);}.parking-card.occupe{border-color:var(--accent);}.parking-card.libre{border-color:var(--green);}.parking-plaque{font-weight:700;font-size:.9rem;}.parking-time{font-size:.7rem;color:var(--muted);}.parking-actions{margin-top:8px;}</style>';
+    vehiclesStationnes.forEach((v) => {
       const duree = calculerDuree(v.heureEntree);
       html += `<div class="parking-card occupe">
         <div class="parking-plaque">${v.plaque}</div>
@@ -4120,26 +3708,23 @@ function renderParking() {
         </div>
       </div>`;
     });
-    // Ajouter des places libres
-    const placesLibresHtml = placesLibres > 0 ? 
-      `<div class="parking-card libre" style="justify-content:center;align-items:center;border-style:dashed;">
+    if (placesLibres > 0) {
+      html += `<div class="parking-card libre" style="justify-content:center;align-items:center;border-style:dashed;">
         <div style="font-size:1.5rem;opacity:.3;">+</div>
         <div style="font-size:.7rem;color:var(--muted);">${placesLibres} place(s) libre(s)</div>
-      </div>` : '';
-    grid.innerHTML = html + placesLibresHtml;
+      </div>`;
+    }
+    grid.innerHTML = html;
   }
   
-  // Historique des sorties
   const tb = document.getElementById('parkingHistoryTable');
   const historyDisplay = parkingHistory.slice(0, 50);
   if (!historyDisplay.length) {
     tb.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:1.5rem;color:var(--muted)">Aucune sortie</td></tr>';
     return;
   }
-  
   const statusMap = { paye: 'bg-g', sorti: 'bg-b' };
   const statusLabel = { paye: 'Paye', sorti: 'Sorti' };
-  
   tb.innerHTML = historyDisplay.map(h => {
     const duree = h.duree ? h.duree + ' min' : '--';
     return `<tr>
@@ -4162,7 +3747,6 @@ function calculerDuree(heureEntree) {
   return heures + 'h' + (minutes > 0 ? minutes + 'min' : '');
 }
 
-// ===== ENTREE PARKING =====
 function openParkingEntry() {
   document.getElementById('parkingPlaque').value = '';
   document.getElementById('parkingType').value = 'voiture';
@@ -4174,57 +3758,34 @@ async function saveParkingEntry() {
   const plaque = document.getElementById('parkingPlaque').value.trim().toUpperCase();
   const type = document.getElementById('parkingType').value;
   const tarif = document.getElementById('parkingTarif').value;
-  
   if (!plaque) { toast('Entrer une plaque d\'immatriculation'); return; }
-  
-  // Verifier si le vehicule est deja dans le parking
   const existe = parkingVehicles.find(v => v.plaque === plaque && v.statut === 'stationne');
   if (existe) { toast('Ce vehicule est deja dans le parking'); return; }
-  
-  // Verifier les places disponibles
   const placesOccupees = parkingVehicles.filter(v => v.statut === 'stationne').length;
-  if (placesOccupees >= PARKING_CONFIG.totalPlaces) {
-    toast('Parking complet');
-    return;
-  }
-  
+  if (placesOccupees >= PARKING_CONFIG.totalPlaces) { toast('Parking complet'); return; }
   const vehicle = {
     id: 'PK-' + Date.now().toString(36).toUpperCase(),
-    plaque: plaque,
-    type: type,
-    tarif: tarif,
-    heureEntree: nowFull(),
-    statut: 'stationne'
+    plaque: plaque, type: type, tarif: tarif,
+    heureEntree: nowFull(), statut: 'stationne'
   };
-  
   parkingVehicles.push(vehicle);
   await saveFB('cb_parking_vehicles', parkingVehicles);
-  
   logAction('Parking entree', 'Vehicule ' + plaque + ' entre - Tarif: ' + tarif);
-  
   closeModal('modalParkingEntry');
   renderParking();
   toast('Vehicule ' + plaque + ' enregistre');
 }
 
-// ===== SORTIE PARKING =====
 function openParkingExit(id) {
   const vehicle = parkingVehicles.find(v => v.id === id);
   if (!vehicle) { toast('Vehicule non trouve'); return; }
-  
-  document.getElementById('parkingExitInfo').innerHTML = `
-    <strong>${vehicle.plaque}</strong> - Entree: ${vehicle.heureEntree}
-  `;
-  
-  // Calculer la duree et le montant
+  document.getElementById('parkingExitInfo').innerHTML = `<strong>${vehicle.plaque}</strong> - Entree: ${vehicle.heureEntree}`;
   const entree = new Date(vehicle.heureEntree);
   const maintenant = new Date();
   const diffMinutes = Math.floor((maintenant - entree) / 60000);
   const diffHeures = Math.ceil(diffMinutes / 60);
-  
   let montant = 0;
   let dureeText = '';
-  
   if (vehicle.tarif === 'forfait_jour') {
     montant = PARKING_CONFIG.tarifForfaitJour;
     dureeText = 'Forfait journee';
@@ -4233,261 +3794,38 @@ function openParkingExit(id) {
     dureeText = 'Forfait nuit';
   } else {
     montant = diffHeures * PARKING_CONFIG.tarifHoraire;
-    if (diffMinutes < 60) {
-      dureeText = diffMinutes + ' min';
-    } else {
-      const h = Math.floor(diffMinutes / 60);
-      const m = diffMinutes % 60;
-      dureeText = h + 'h' + (m > 0 ? m + 'min' : '');
-    }
+    if (diffMinutes < 60) dureeText = diffMinutes + ' min';
+    else { const h = Math.floor(diffMinutes / 60); const m = diffMinutes % 60; dureeText = h + 'h' + (m > 0 ? m + 'min' : ''); }
   }
-  
   document.getElementById('parkingExitDuree').textContent = dureeText;
   document.getElementById('parkingExitMontant').textContent = fmt(montant);
-  
-  // Stocker l'id du vehicule pour la confirmation
   document.getElementById('modalParkingExit').dataset.vehicleId = id;
   document.getElementById('modalParkingExit').dataset.montant = montant;
-  
   openModal('modalParkingExit');
 }
 
 async function confirmParkingExit() {
   const id = document.getElementById('modalParkingExit').dataset.vehicleId;
   const montant = parseFloat(document.getElementById('modalParkingExit').dataset.montant);
-  
   const vehicle = parkingVehicles.find(v => v.id === id);
   if (!vehicle) { toast('Vehicule non trouve'); return; }
-  
-  // Enregistrer dans l'historique
   const history = {
     id: 'PKH-' + Date.now().toString(36).toUpperCase(),
-    date: today(),
-    ts: nowFull(),
-    plaque: vehicle.plaque,
-    type: vehicle.type,
-    heureEntree: vehicle.heureEntree,
-    heureSortie: nowFull(),
+    date: today(), ts: nowFull(),
+    plaque: vehicle.plaque, type: vehicle.type,
+    heureEntree: vehicle.heureEntree, heureSortie: nowFull(),
     duree: Math.floor((new Date() - new Date(vehicle.heureEntree)) / 60000),
-    montant: montant,
-    tarif: vehicle.tarif,
-    statut: 'paye'
+    montant: montant, tarif: vehicle.tarif, statut: 'paye'
   };
-  
   parkingHistory.unshift(history);
   if (parkingHistory.length > 500) parkingHistory = parkingHistory.slice(0, 500);
-  
-  // Supprimer le vehicule du parking
   parkingVehicles = parkingVehicles.filter(v => v.id !== id);
-  
   await saveFB('cb_parking_vehicles', parkingVehicles);
   await saveFB('cb_parking_history', parkingHistory);
-  
   logAction('Parking sortie', 'Vehicule ' + vehicle.plaque + ' sorti - Montant: ' + fmt(montant));
-  
   closeModal('modalParkingExit');
   renderParking();
   toast('Vehicule ' + vehicle.plaque + ' sorti - ' + fmt(montant) + ' paye');
-}
-</script>
-<script>
-// ---- 19-grand-stock.js ----
-// ================================================================
-// 19-GRAND-STOCK.JS -- Gestion du grand stock central
-// ================================================================
-
-function renderGrandStock() {
-  // Statistiques
-  let totalProduits = 0;
-  let valeurTotale = 0;
-  let alertes = 0;
-  
-  const table = document.getElementById('grandStockTable');
-  let html = '';
-  
-  for (const [produit, qte] of Object.entries(grandStock)) {
-    const seuil = STOCK_SEUILS[produit] || 5;
-    const statut = qte <= 0 ? 'rupture' : qte <= seuil ? 'alerte' : 'ok';
-    if (qte <= seuil) alertes++;
-    totalProduits += qte;
-    
-    const info = getProduitInfo(produit);
-    const statutClass = statut === 'ok' ? 'bg-g' : statut === 'alerte' ? 'bg-a' : 'bg-r';
-    const statutLabel = statut === 'ok' ? 'OK' : statut === 'alerte' ? 'Stock bas' : 'Rupture';
-    
-    html += `<tr class="${statut === 'alerte' ? 'stock-alerte' : statut === 'rupture' ? 'stock-rupture' : ''}">
-      <td><strong>${info.label}</strong></td>
-      <td>${info.categorie}</td>
-      <td><strong>${qte}</strong></td>
-      <td>${info.unite}</td>
-      <td>${seuil}</td>
-      <td>
-        <span class="badge ${statutClass}">
-          ${statutLabel}
-        </span>
-      </td>
-      <td>
-        <button class="icon-btn" onclick="openStockAjustement('${produit}')" title="Ajuster">${icon('sliders')}</button>
-      </td>
-    </tr>`;
-  }
-  
-  table.innerHTML = html;
-  
-  document.getElementById('gsTotalProduits').textContent = totalProduits;
-  document.getElementById('gsAlertes').textContent = alertes;
-  document.getElementById('stockLastUpdate').textContent = nowFull();
-  
-  // Mouvements du jour
-  const todayStr = today();
-  const mvtsJour = grandStockMvts.filter(m => m.date === todayStr);
-  document.getElementById('gsMouvements').textContent = mvtsJour.length;
-  
-  // Historique
-  renderGrandStockMvt();
-}
-
-function renderGrandStockMvt() {
-  const tb = document.getElementById('grandStockMvtTable');
-  if (!grandStockMvts.length) {
-    tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:var(--muted)">Aucun mouvement</td></tr>';
-    return;
-  }
-  
-  const typeMap = { reception: 'bg-g', sortie: 'bg-r', ajustement: 'bg-b' };
-  const typeLabel = { reception: 'Reception', sortie: 'Sortie', ajustement: 'Ajustement' };
-  
-  const displayMvts = grandStockMvts.slice(0, 50);
-  tb.innerHTML = displayMvts.map(m => {
-    const info = getProduitInfo(m.produit);
-    const signe = m.type === 'reception' ? '+' : '-';
-    const color = m.type === 'reception' ? 'var(--green)' : 'var(--red)';
-    return `<tr>
-      <td style="font-size:.75rem">${m.ts}</td>
-      <td><span class="badge ${typeMap[m.type] || 'bg-b'}">${typeLabel[m.type] || m.type}</span></td>
-      <td>${info.label}</td>
-      <td><strong style="color:${color}">${signe} ${m.qte}</strong></td>
-      <td>${m.stockApres}</td>
-      <td style="font-size:.75rem">${m.par}</td>
-      <td style="font-size:.75rem;color:var(--muted)">${m.commentaire || '--'}</td>
-    </tr>`;
-  }).join('');
-}
-
-async function saveGrandStockMvt(produit, type, qte, commentaire = '') {
-  const stockAvant = grandStock[produit] || 0;
-  let stockApres = stockAvant;
-  
-  if (type === 'reception') stockApres = stockAvant + qte;
-  else if (type === 'sortie') stockApres = Math.max(0, stockAvant - qte);
-  else if (type === 'ajustement') stockApres = qte;
-  
-  grandStock[produit] = stockApres;
-  
-  const mvt = {
-    id: 'STK-' + Date.now().toString(36).toUpperCase(),
-    date: today(),
-    ts: nowFull(),
-    produit: produit,
-    type: type,
-    qte: qte,
-    stockAvant: stockAvant,
-    stockApres: stockApres,
-    par: currentUser ? currentUser.name : 'Systeme',
-    commentaire: commentaire || ''
-  };
-  
-  grandStockMvts.unshift(mvt);
-  if (grandStockMvts.length > 500) grandStockMvts = grandStockMvts.slice(0, 500);
-  
-  await saveFB('cb_grand_stock', grandStock);
-  await saveFB('cb_grand_stock_mvts', grandStockMvts);
-  
-  logAction('Grand Stock', type + ' - ' + produit + ' : ' + qte + ' (' + commentaire + ')');
-  renderGrandStock();
-}
-
-// ===== RECEPTION =====
-function openStockReception() {
-  document.getElementById('stockReceptionProduit').value = 'farine';
-  document.getElementById('stockReceptionQte').value = '';
-  document.getElementById('stockReceptionFournisseur').value = '';
-  document.getElementById('stockReceptionComment').value = '';
-  openModal('modalStockReception');
-}
-
-async function saveStockReception() {
-  const produit = document.getElementById('stockReceptionProduit').value;
-  const qte = parseFloat(document.getElementById('stockReceptionQte').value);
-  const fournisseur = document.getElementById('stockReceptionFournisseur').value.trim();
-  const comment = document.getElementById('stockReceptionComment').value.trim();
-  
-  if (!qte || qte <= 0) { toast('Entrer une quantite valide'); return; }
-  
-  await saveGrandStockMvt(produit, 'reception', qte, 'Fournisseur: ' + (fournisseur || '--') + (comment ? ' - ' + comment : ''));
-  closeModal('modalStockReception');
-  toast('Reception de ' + qte + ' ' + getProduitInfo(produit).unite + ' de ' + getProduitInfo(produit).label);
-}
-
-// ===== SORTIE =====
-function openStockSortie() {
-  document.getElementById('stockSortieProduit').value = 'farine';
-  document.getElementById('stockSortieQte').value = '';
-  document.getElementById('stockSortieKiosque').value = 'Kiosque Nourriture';
-  document.getElementById('stockSortieComment').value = '';
-  openModal('modalStockSortie');
-}
-
-async function saveStockSortie() {
-  const produit = document.getElementById('stockSortieProduit').value;
-  const qte = parseFloat(document.getElementById('stockSortieQte').value);
-  const kiosque = document.getElementById('stockSortieKiosque').value;
-  const comment = document.getElementById('stockSortieComment').value.trim();
-  
-  if (!qte || qte <= 0) { toast('Entrer une quantite valide'); return; }
-  if ((grandStock[produit] || 0) < qte) { toast('Stock insuffisant'); return; }
-  
-  await saveGrandStockMvt(produit, 'sortie', qte, 'Vers ' + kiosque + (comment ? ' - ' + comment : ''));
-  
-  // Ajouter au stock du kiosque
-  if (!stockVendeur[kiosque]) stockVendeur[kiosque] = {};
-  stockVendeur[kiosque][produit] = (stockVendeur[kiosque][produit] || 0) + qte;
-  await saveFB('cb_stock_vendeur', stockVendeur);
-  
-  closeModal('modalStockSortie');
-  toast('Sortie de ' + qte + ' ' + getProduitInfo(produit).unite + ' vers ' + kiosque);
-}
-
-// ===== AJUSTEMENT =====
-function openStockAjustement(produit) {
-  if (produit) {
-    document.getElementById('stockAjustementProduit').value = produit;
-    document.getElementById('stockAjustementQte').value = grandStock[produit] || 0;
-  } else {
-    document.getElementById('stockAjustementProduit').value = 'farine';
-    document.getElementById('stockAjustementQte').value = '';
-  }
-  document.getElementById('stockAjustementRaison').value = '';
-  openModal('modalStockAjustement');
-}
-
-async function saveStockAjustement() {
-  const produit = document.getElementById('stockAjustementProduit').value;
-  const qte = parseFloat(document.getElementById('stockAjustementQte').value);
-  const raison = document.getElementById('stockAjustementRaison').value.trim();
-  
-  if (qte < 0) { toast('La quantite ne peut pas etre negative'); return; }
-  
-  const ancienneQte = grandStock[produit] || 0;
-  const difference = qte - ancienneQte;
-  
-  if (difference === 0) { toast('Aucun changement'); closeModal('modalStockAjustement'); return; }
-  
-  const type = difference > 0 ? 'reception' : 'sortie';
-  await saveGrandStockMvt(produit, 'ajustement', qte, (raison || 'Ajustement manuel') + ' (ancien: ' + ancienneQte + ')');
-  
-  closeModal('modalStockAjustement');
-  toast('Stock de ' + getProduitInfo(produit).label + ' ajuste a ' + qte);
 }
 </script>
 </body>
