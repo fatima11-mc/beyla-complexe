@@ -233,7 +233,7 @@ input,select,textarea,button{font-family:inherit;}
   to { opacity: 1; }
 }
 
-/* ===== BOTTOM NAV AMÉLIORÉE ===== */
+/* ===== BOTTOM NAV ===== */
 .bottom-nav {
   display: none;
   position: fixed;
@@ -352,10 +352,6 @@ input,select,textarea,button{font-family:inherit;}
 }
 .bn-logout:hover {
   background: rgba(184,74,26,.2);
-}
-.bn-logout .bn-icon svg {
-  width: 18px;
-  height: 18px;
 }
 
 /* ===== RESPONSIVE ===== */
@@ -653,37 +649,6 @@ tbody td{padding:9px 10px;}
 }
 .csc-id{font-weight:700;font-size:.82rem;color:var(--accent);min-width:110px;}
 .csc-info{flex:1;font-size:.8rem;color:var(--muted);}
-
-/* ===== STOCK ===== */
-.stock-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem;}
-.stock-tab-btn{
-  padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);cursor:pointer;
-  font-size:.75rem;font-weight:600;background:var(--surface);color:var(--muted);transition:.15s;
-}
-.stock-tab-btn.act{background:linear-gradient(135deg,#0d1b2a,#1a2e4a);color:#fff;border-color:transparent;}
-.stock-grid{display:grid;grid-template-columns:1fr;gap:8px;}
-.stock-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:.9rem;display:flex;align-items:center;gap:12px;box-shadow:var(--sh);}
-.stock-card.low{border-color:var(--amber);background:var(--amber-bg);}
-.stock-card.out{border-color:var(--red);background:var(--red-bg);}
-.sc-info{flex:1;}
-.sc-name{font-weight:600;font-size:.88rem;}
-.sc-cat{font-size:.7rem;color:var(--muted);}
-.sc-stock{font-size:.78rem;font-weight:700;padding:2px 8px;border-radius:12px;}
-.sc-stock.ok{color:var(--green);background:var(--green-bg);}
-.sc-stock.low{color:var(--amber);background:var(--amber-bg);}
-.sc-stock.out{color:var(--red);background:var(--red-bg);}
-.sc-stock.inf{color:var(--blue);background:var(--blue-bg);}
-.sc-controls{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
-.stock-adj-input{
-  width:65px;border:1.5px solid var(--border);border-radius:8px;padding:6px 8px;
-  font-size:.88rem;text-align:center;background:var(--surface2);outline:none;
-}
-.stock-adj-btn{padding:7px 12px;border:none;border-radius:8px;cursor:pointer;font-size:.78rem;font-weight:700;transition:.15s;}
-.stock-set-btn{background:var(--blue-bg);color:var(--blue);}
-.stock-add-btn{background:var(--green-bg);color:var(--green);}
-.stock-sub-btn{background:var(--red-bg);color:var(--red);}
-.mvt-grid{margin-top:1.5rem;}
-.mvt-title{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.7rem;}
 
 /* ===== ADMIN ===== */
 .admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;}
@@ -1048,41 +1013,22 @@ tbody td{padding:9px 10px;}
   </div>
 </div>
 
-<!-- ========== STOCK ========== -->
-<div id="pg-stock" class="page">
-  <div class="inner-page">
-    <div class="pg-header">
-      <div><div class="pg-title">Stock</div><div class="pg-sub">Gestion des stocks par kiosque</div></div>
-    </div>
-    <div class="stock-tabs" id="stockTabs"></div>
-    <div id="stockContent"></div>
-    <div class="mvt-grid">
-      <div class="mvt-title">Historique des mouvements recents</div>
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr><th>Date/Heure</th><th>Produit</th><th>Categorie</th><th>Type</th><th>Quantite</th><th>Stock apres</th><th>Par</th><th>Kiosque</th></tr></thead>
-          <tbody id="mvtTable"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ========== GRAND STOCK ========== -->
+<!-- ========== GRAND STOCK (UNIQUE STOCK) ========== -->
 <div id="pg-grand-stock" class="page">
   <div class="inner-page">
     <div class="pg-header">
       <div>
         <div class="pg-title">Grand Stock Central</div>
-        <div class="pg-sub">Gestion des entrees et sorties de marchandises</div>
+        <div class="pg-sub">Gestion des entrees, sorties vers kiosques et ajustements</div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <span style="font-size:.8rem;background:var(--surface2);padding:6px 14px;border-radius:20px;">
           Mise a jour : <span id="stockLastUpdate">Aujourd'hui</span>
         </span>
         <button class="add-btn" onclick="openStockReception()">Reception</button>
-        <button class="add-btn" onclick="openStockSortie()">Sortie</button>
+        <button class="add-btn" onclick="openStockSortie()">Sortie vers kiosque</button>
         <button class="add-btn" onclick="openStockAjustement()">Ajustement</button>
+        <button class="add-btn" onclick="openStockConsommable()">+ Nouveau consommable</button>
       </div>
     </div>
     <div class="stats-grid" id="grandStockStats">
@@ -1101,7 +1047,7 @@ tbody td{padding:9px 10px;}
       <div class="mvt-title">Historique des mouvements</div>
       <div class="tbl-wrap">
         <table>
-          <thead><tr><th>Date/Heure</th><th>Type</th><th>Produit</th><th>Quantite</th><th>Stock apres</th><th>Par</th><th>Commentaire</th></tr></thead>
+          <thead><tr><th>Date/Heure</th><th>Type</th><th>Produit</th><th>Quantite</th><th>Kiosque</th><th>Stock apres</th><th>Par</th><th>Commentaire</th></tr></thead>
           <tbody id="grandStockMvtTable"></tbody>
         </table>
       </div>
@@ -1389,29 +1335,32 @@ tbody td{padding:9px 10px;}
     </div>
     <div class="form-group" id="kiosqueGroup" style="display:none;">
       <label class="form-label">Kiosque / Point de vente</label>
-      <input class="form-in" id="uKiosque" placeholder="ex: Kiosque Sud">
+      <input class="form-in" id="uKiosque" placeholder="ex: Kiosque Nourriture">
+      <div style="font-size:.7rem;color:var(--muted);margin-top:4px;">
+        Kiosques disponibles : Nourriture, Boissons, Chicha, Creme, Popcorn
+      </div>
     </div>
     <div class="form-group" id="categoriesGroup" style="display:none;">
       <label class="form-label">Categories visibles en caisse</label>
-      <div style="font-size:.7rem;color:var(--muted);margin-bottom:4px;">Selectionnez les categories que ce compte peut voir</div>
+      <div style="font-size:.7rem;color:var(--muted);margin-bottom:4px;">Selectionnez la categorie que ce compte peut voir</div>
       <div class="cat-checkbox-group">
         <label class="cat-check-all" onclick="document.getElementById('catTous').click()">
           <input type="checkbox" id="catTous" onchange="toggleAllCategories(this.checked)"> Tous
         </label>
-        <label class="cat-check checked" onclick="this.querySelector('input').click()">
-          <input type="checkbox" value="Nourriture" checked onchange="toggleCategory(this)"> Nourriture
+        <label class="cat-check" onclick="this.querySelector('input').click()">
+          <input type="checkbox" value="Nourriture" onchange="toggleCategory(this)"> Nourriture
         </label>
-        <label class="cat-check checked" onclick="this.querySelector('input').click()">
-          <input type="checkbox" value="Boissons" checked onchange="toggleCategory(this)"> Boissons
+        <label class="cat-check" onclick="this.querySelector('input').click()">
+          <input type="checkbox" value="Boissons" onchange="toggleCategory(this)"> Boissons
         </label>
-        <label class="cat-check checked" onclick="this.querySelector('input').click()">
-          <input type="checkbox" value="Chicha" checked onchange="toggleCategory(this)"> Chicha
+        <label class="cat-check" onclick="this.querySelector('input').click()">
+          <input type="checkbox" value="Chicha" onchange="toggleCategory(this)"> Chicha
         </label>
-        <label class="cat-check checked" onclick="this.querySelector('input').click()">
-          <input type="checkbox" value="Cremerie" checked onchange="toggleCategory(this)"> Cremerie
+        <label class="cat-check" onclick="this.querySelector('input').click()">
+          <input type="checkbox" value="Cremerie" onchange="toggleCategory(this)"> Cremerie
         </label>
-        <label class="cat-check checked" onclick="this.querySelector('input').click()">
-          <input type="checkbox" value="Popcorn" checked onchange="toggleCategory(this)"> Popcorn
+        <label class="cat-check" onclick="this.querySelector('input').click()">
+          <input type="checkbox" value="Popcorn" onchange="toggleCategory(this)"> Popcorn
         </label>
       </div>
     </div>
@@ -1449,6 +1398,41 @@ tbody td{padding:9px 10px;}
   </div>
 </div>
 
+<!-- Modal Consommable -->
+<div class="overlay" id="modalConsommable">
+  <div class="modal">
+    <span class="modal-handle"></span>
+    <h3>Nouveau consommable</h3>
+    <div class="form-group"><label class="form-label">Nom du consommable</label><input class="form-in" id="cName" placeholder="ex: Chocolat, Lait, ..."></div>
+    <div class="form-group"><label class="form-label">Categorie</label>
+      <select class="form-in" id="cCat">
+        <option value="Cuisine">Cuisine</option>
+        <option value="Cremerie">Cremerie</option>
+        <option value="Popcorn">Popcorn</option>
+        <option value="Boissons">Boissons</option>
+        <option value="Chicha">Chicha</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Unite</label>
+      <select class="form-in" id="cUnite">
+        <option value="kg">Kg</option>
+        <option value="L">Litre</option>
+        <option value="piece">Piece</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Seuil d'alerte</label>
+      <input class="form-in" id="cSeuil" type="number" value="5" placeholder="ex: 5">
+    </div>
+    <div class="form-group"><label class="form-label">Quantite initiale</label>
+      <input class="form-in" id="cQte" type="number" step="0.1" value="0" placeholder="ex: 10">
+    </div>
+    <div class="modal-acts">
+      <button class="btn btn-ghost" onclick="closeModal('modalConsommable')">Annuler</button>
+      <button class="btn btn-ok" onclick="saveConsommable()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal Mot de passe -->
 <div class="overlay" id="modalPwd">
   <div class="modal">
@@ -1472,30 +1456,11 @@ tbody td{padding:9px 10px;}
     <h3>Reception de marchandises</h3>
     <div class="form-group">
       <label class="form-label">Produit</label>
-      <select class="form-in" id="stockReceptionProduit">
-        <option value="farine">Farine</option>
-        <option value="fromage">Fromage</option>
-        <option value="creme">Creme</option>
-        <option value="mais">Mais</option>
-        <option value="huile">Huile</option>
-        <option value="sucre">Sucre</option>
-        <option value="cacao">Cacao</option>
-        <option value="viande">Viande</option>
-        <option value="poulet">Poulet</option>
-        <option value="legumes">Legumes</option>
-      </select>
+      <select class="form-in" id="stockReceptionProduit"></select>
     </div>
     <div class="form-group">
       <label class="form-label">Quantite</label>
       <input class="form-in" id="stockReceptionQte" type="number" step="0.1" placeholder="ex: 10">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Unite</label>
-      <select class="form-in" id="stockReceptionUnite">
-        <option value="kg">Kg</option>
-        <option value="L">Litre</option>
-        <option value="piece">Piece</option>
-      </select>
     </div>
     <div class="form-group">
       <label class="form-label">Fournisseur</label>
@@ -1518,18 +1483,7 @@ tbody td{padding:9px 10px;}
     <h3>Sortie vers kiosque</h3>
     <div class="form-group">
       <label class="form-label">Produit</label>
-      <select class="form-in" id="stockSortieProduit">
-        <option value="farine">Farine</option>
-        <option value="fromage">Fromage</option>
-        <option value="creme">Creme</option>
-        <option value="mais">Mais</option>
-        <option value="huile">Huile</option>
-        <option value="sucre">Sucre</option>
-        <option value="cacao">Cacao</option>
-        <option value="viande">Viande</option>
-        <option value="poulet">Poulet</option>
-        <option value="legumes">Legumes</option>
-      </select>
+      <select class="form-in" id="stockSortieProduit"></select>
     </div>
     <div class="form-group">
       <label class="form-label">Quantite</label>
@@ -1566,18 +1520,7 @@ tbody td{padding:9px 10px;}
     <h3>Ajustement de stock</h3>
     <div class="form-group">
       <label class="form-label">Produit</label>
-      <select class="form-in" id="stockAjustementProduit">
-        <option value="farine">Farine</option>
-        <option value="fromage">Fromage</option>
-        <option value="creme">Creme</option>
-        <option value="mais">Mais</option>
-        <option value="huile">Huile</option>
-        <option value="sucre">Sucre</option>
-        <option value="cacao">Cacao</option>
-        <option value="viande">Viande</option>
-        <option value="poulet">Poulet</option>
-        <option value="legumes">Legumes</option>
-      </select>
+      <select class="form-in" id="stockAjustementProduit"></select>
     </div>
     <div class="form-group">
       <label class="form-label">Nouvelle quantite</label>
@@ -1787,33 +1730,35 @@ const DEFAULT_USERS = [
   {id: 1, name: 'Administrateur', login: 'admin', pass: 'admin123', role: 'admin', kiosque: null, catAccess: ['Tous']}
 ];
 
-// ========== LISTES VIDE - À REMPLIR DEPUIS L'ADMIN ==========
+// ========== LISTES VIDE ==========
 let products = [];
 let CREMERIE_PRODUITS = [];
 let POPCORN_PRODUITS = [];
+
+// ========== GRAND STOCK UNIQUE ==========
+let grandStock = JSON.parse(localStorage.getItem('cb_grand_stock')) || {};
+let grandStockMvts = JSON.parse(localStorage.getItem('cb_grand_stock_mvts')) || [];
+let grandStockItems = JSON.parse(localStorage.getItem('cb_grand_stock_items')) || {};
 
 // ========== AUTRES DONNÉES ==========
 let users = JSON.parse(localStorage.getItem('cb_users')) || DEFAULT_USERS;
 let orders = JSON.parse(localStorage.getItem('cb_orders')) || [];
 let dispo = JSON.parse(localStorage.getItem('cb_dispo')) || {};
 let stockVendeur = JSON.parse(localStorage.getItem('cb_stock_vendeur')) || {};
-let stockMvts = JSON.parse(localStorage.getItem('cb_stock_mvts')) || [];
 let journalActions = JSON.parse(localStorage.getItem('cb_journal_actions')) || [];
 let verifs = JSON.parse(localStorage.getItem('cb_verifs')) || {};
 
-let grandStock = JSON.parse(localStorage.getItem('cb_grand_stock')) || {
-  farine: 0, fromage: 0, creme: 0, mais: 0, huile: 0,
-  sucre: 0, cacao: 0, viande: 0, poulet: 0, legumes: 0
-};
-let grandStockMvts = JSON.parse(localStorage.getItem('cb_grand_stock_mvts')) || [];
-
+// Cremerie
 let cremerieMouvements = JSON.parse(localStorage.getItem('cb_cremerie_mouvements')) || [];
+
+// Popcorn
 let popcornMouvements = JSON.parse(localStorage.getItem('cb_popcorn_mouvements')) || [];
 
+// Parking
 let parkingVehicles = JSON.parse(localStorage.getItem('cb_parking_vehicles')) || [];
 let parkingHistory = JSON.parse(localStorage.getItem('cb_parking_history')) || [];
 
-// ========== CONFIGURATION DES PRIX ==========
+// ========== CONFIGURATION ==========
 const DEFAULT_CONFIG = {
   cremerie: { rendement: 600000, prixPetitPot: 5000, prixGrandPot: 10000 },
   popcorn: { rendement: 200000, prixBoite: 10000 },
@@ -1828,17 +1773,15 @@ let currentUser = null;
 let cart = [];
 let editUserId = null;
 let editProdId = null;
-let viewOrderId = null;
 let syncInProgress = false;
 let queueFilter = 'tous';
 let selRoleVal = 'admin';
 let cancelOrderId = null;
-let stockCatFilter = 'Tout';
 let currentKiosqueSource = '';
 
 const ALL_CATEGORIES = ['Nourriture', 'Boissons', 'Chicha', 'Cremerie', 'Popcorn'];
-const ALL_STOCK_CATS = ['Nourriture', 'Boissons', 'Chicha', 'Cremerie', 'Popcorn'];
 
+// Seuils par défaut
 const STOCK_SEUILS = {
   farine: 10, fromage: 5, creme: 3, mais: 3, huile: 2,
   sucre: 2, cacao: 1, viande: 5, poulet: 5, legumes: 3
@@ -1853,11 +1796,36 @@ function loadProducts() {
   if (savedPop) { POPCORN_PRODUITS = JSON.parse(savedPop); } else { POPCORN_PRODUITS = []; }
 }
 loadProducts();
+
+function getGrandStockItems() {
+  const items = {};
+  for (const key of Object.keys(grandStock)) {
+    const info = getProduitInfo(key);
+    items[key] = { label: info.label, categorie: info.categorie, unite: info.unite };
+  }
+  return items;
+}
+
+function getProduitInfo(key) {
+  const infos = {
+    farine: { label: 'Farine', categorie: 'Cuisine', unite: 'kg' },
+    fromage: { label: 'Fromage', categorie: 'Cuisine', unite: 'kg' },
+    creme: { label: 'Creme', categorie: 'Cremerie', unite: 'kg' },
+    mais: { label: 'Mais', categorie: 'Popcorn', unite: 'kg' },
+    huile: { label: 'Huile', categorie: 'Cuisine', unite: 'L' },
+    sucre: { label: 'Sucre', categorie: 'Cuisine', unite: 'kg' },
+    cacao: { label: 'Cacao', categorie: 'Cremerie', unite: 'kg' },
+    viande: { label: 'Viande', categorie: 'Cuisine', unite: 'kg' },
+    poulet: { label: 'Poulet', categorie: 'Cuisine', unite: 'kg' },
+    legumes: { label: 'Legumes', categorie: 'Cuisine', unite: 'kg' }
+  };
+  return infos[key] || { label: key.charAt(0).toUpperCase() + key.slice(1), categorie: 'Autre', unite: 'piece' };
+}
 </script>
 <script>
 // ---- 02-firebase.js ----
 // ================================================================
-// 02-FIREBASE.JS -- Configuration & synchronisation Firebase
+// 02-FIREBASE.JS -- Configuration Firebase
 // ================================================================
 
 const fbConfig = {
@@ -1896,7 +1864,7 @@ function setSyncDot(online) {
 
 async function loadFB() {
   try {
-    const keys = ['cb_users','cb_prods','cb_orders','cb_dispo','cb_verifs','cb_stock_vendeur','cb_stock_mvts','cb_journal_actions','cb_cremerie_produits','cb_popcorn_produits','cb_app_config'];
+    const keys = ['cb_users','cb_prods','cb_orders','cb_dispo','cb_verifs','cb_stock_vendeur','cb_journal_actions','cb_cremerie_produits','cb_popcorn_produits','cb_app_config','cb_grand_stock','cb_grand_stock_mvts','cb_grand_stock_items'];
     for (const key of keys) {
       const snap = await db.ref('beyla/' + key).once('value');
       if (snap.exists()) {
@@ -1908,11 +1876,13 @@ async function loadFB() {
         if (key==='cb_dispo')        dispo = val;
         if (key==='cb_verifs')       verifs = val;
         if (key==='cb_stock_vendeur') stockVendeur = val;
-        if (key==='cb_stock_mvts')   stockMvts = Array.isArray(val) ? val : Object.values(val);
         if (key==='cb_journal_actions') journalActions = Array.isArray(val) ? val : Object.values(val);
         if (key==='cb_cremerie_produits') { CREMERIE_PRODUITS = val; localStorage.setItem('cb_cremerie_produits', JSON.stringify(CREMERIE_PRODUITS)); }
         if (key==='cb_popcorn_produits') { POPCORN_PRODUITS = val; localStorage.setItem('cb_popcorn_produits', JSON.stringify(POPCORN_PRODUITS)); }
         if (key==='cb_app_config') { appConfig = val; PARKING_CONFIG = appConfig.parking; localStorage.setItem('cb_app_config', JSON.stringify(appConfig)); }
+        if (key==='cb_grand_stock') { grandStock = val; localStorage.setItem('cb_grand_stock', JSON.stringify(grandStock)); }
+        if (key==='cb_grand_stock_mvts') { grandStockMvts = Array.isArray(val) ? val : Object.values(val); localStorage.setItem('cb_grand_stock_mvts', JSON.stringify(grandStockMvts)); }
+        if (key==='cb_grand_stock_items') { grandStockItems = val; localStorage.setItem('cb_grand_stock_items', JSON.stringify(grandStockItems)); }
       }
     }
     setSyncDot(true);
@@ -1951,14 +1921,6 @@ function listenOrders() {
       updateQueueBadge();
     }
   });
-  db.ref('beyla/cb_stock_vendeur').on('value', snap => {
-    if (snap.exists()) {
-      stockVendeur = snap.val();
-      saveLS('cb_stock_vendeur', stockVendeur);
-      if (currentPage==='caisse') renderProds();
-      if (currentPage==='stock')  renderStock();
-    }
-  });
 }
 </script>
 <script>
@@ -1993,6 +1955,7 @@ const ICON_PATHS = {
   receipt:     '<path d="M6 3.5h12v17l-2-1.3-2 1.3-2-1.3-2 1.3-2-1.3-2 1.3Z"/><path d="M8.5 8h7M8.5 11.5h7M8.5 15h4.5"/>',
   alert:       '<path d="M12 4 21 19.5H3Z"/><path d="M12 10v4"/><circle cx="12" cy="17" r=".2" fill="currentColor"/>',
   building:    '<path d="M5 21V5.5A1.5 1.5 0 0 1 6.5 4h7A1.5 1.5 0 0 1 15 5.5V21"/><path d="M15 10h3.5A1.5 1.5 0 0 1 20 11.5V21"/><path d="M8 8h1M11 8h1M8 12h1M11 12h1M8 16h1M11 16h1M17 14h1M17 17h1"/><path d="M2 21h20"/>',
+  plus:        '<path d="M12 5v14M5 12h14"/>',
 };
 function icon(name, size) {
   const s = size || 18;
@@ -2019,37 +1982,6 @@ function getCatIcon(cat) {
   return icon(icons[cat] || 'box', 15);
 }
 function isFood(product) { return product.cat === 'Nourriture'; }
-
-function getProduitInfo(key) {
-  const infos = {
-    farine: { label: 'Farine', categorie: 'Cuisine', unite: 'kg' },
-    fromage: { label: 'Fromage', categorie: 'Cuisine', unite: 'kg' },
-    creme: { label: 'Creme', categorie: 'Cremerie', unite: 'kg' },
-    mais: { label: 'Mais', categorie: 'Popcorn', unite: 'kg' },
-    huile: { label: 'Huile', categorie: 'Cuisine', unite: 'L' },
-    sucre: { label: 'Sucre', categorie: 'Cuisine', unite: 'kg' },
-    cacao: { label: 'Cacao', categorie: 'Cremerie', unite: 'kg' },
-    viande: { label: 'Viande', categorie: 'Cuisine', unite: 'kg' },
-    poulet: { label: 'Poulet', categorie: 'Cuisine', unite: 'kg' },
-    legumes: { label: 'Legumes', categorie: 'Cuisine', unite: 'kg' }
-  };
-  return infos[key] || { label: key, categorie: 'Autre', unite: 'piece' };
-}
-
-async function logStockMvt(prodId, type, qty, stockAfter, kiosque, note) {
-  const p = products.find(x => x.id === prodId);
-  const mvt = {
-    ts: nowFull(), date: today(), prodId,
-    prodName: p ? p.name : '?', prodCat: p ? p.cat : '?',
-    type, qty, stockAfter,
-    by: currentUser ? currentUser.name : '--',
-    kiosque: kiosque || '--',
-    note: note||''
-  };
-  stockMvts.unshift(mvt);
-  if (stockMvts.length > 200) stockMvts = stockMvts.slice(0,200);
-  await saveFB('cb_stock_mvts', stockMvts);
-}
 
 async function logAction(action, details) {
   const entry = {
@@ -2118,12 +2050,12 @@ document.getElementById('loginPass').addEventListener('keydown', e => { if (e.ke
 <script>
 // ---- 05-navigation.js ----
 // ================================================================
-// 05-NAVIGATION.JS -- Menu par rôle, initialisation
+// 05-NAVIGATION.JS -- Menu par rôle (PAGE STOCK SUPPRIMÉE)
 // ================================================================
 
 const NAV_ICONS = {
   accueil:'home', caisse:'cart', journal:'list', queue:'clock',
-  stock:'box', 'grand-stock':'warehouse', cremerie:'icecream',
+  'grand-stock':'warehouse', cremerie:'icecream',
   popcorn:'popcorn', parking:'car', admin:'settings'
 };
 
@@ -2131,19 +2063,23 @@ const NAV_MAP = {
   admin: [
     {id:'accueil', label:'Accueil'}, {id:'caisse', label:'Caisse'},
     {id:'journal', label:'Journal'}, {id:'queue', label:'Cuisine'},
-    {id:'stock', label:'Stock'}, {id:'grand-stock', label:'Grand Stock'},
+    {id:'grand-stock', label:'Grand Stock'},
     {id:'cremerie', label:'Cremerie'}, {id:'popcorn', label:'Popcorn'},
     {id:'parking', label:'Parking'}, {id:'admin', label:'Admin'}
   ],
   stockmanager: [
     {id:'accueil', label:'Accueil'}, {id:'grand-stock', label:'Grand Stock'},
-    {id:'stock', label:'Stocks kiosques'}, {id:'journal', label:'Journal des stocks'},
+    {id:'journal', label:'Journal des stocks'},
     {id:'cremerie', label:'Cremerie'}, {id:'popcorn', label:'Popcorn'}
   ],
-  cuisiniere: [{id:'queue', label:'Commandes'}, {id:'stock', label:'Stock cuisine'}],
+  cuisiniere: [{id:'queue', label:'Commandes'}, {id:'grand-stock', label:'Stock'}],
   serveur: [{id:'accueil', label:'Accueil'}, {id:'caisse', label:'Caisse'}, {id:'journal', label:'Journal'}, {id:'queue', label:'Suivi commandes'}],
   parking: [{id:'accueil', label:'Accueil'}, {id:'parking', label:'Parking'}, {id:'journal', label:'Journal'}],
-  vendeur: [{id:'accueil', label:'Accueil'}, {id:'caisse', label:'Caisse'}, {id:'journal', label:'Journal'}, {id:'queue', label:'Validations'}, {id:'stock', label:'Mon stock'}],
+  vendeur: [
+    {id:'accueil', label:'Accueil'}, {id:'caisse', label:'Caisse'},
+    {id:'journal', label:'Journal'}, {id:'queue', label:'Validations'},
+    {id:'grand-stock', label:'Mon stock'}
+  ],
 };
 
 // ---- Menu mobile ----
@@ -2250,13 +2186,6 @@ function initApp() {
   closeMobileMenu();
 }
 
-// Surcharger showPage pour vérifier l'indicateur de scroll
-const originalShowPage = window.showPage;
-showPage = function(id) {
-  if (originalShowPage) originalShowPage(id);
-  setTimeout(checkScrollIndicator, 200);
-};
-
 function populateKiosqueSource() {
   const sel = document.getElementById('kiosqueSourceSel');
   const kiosques = users.filter(u => u.role === 'vendeur' && u.kiosque).map(u => u.kiosque);
@@ -2318,7 +2247,6 @@ function showPage(id) {
   if (id==='caisse') { initCaisse(); updateKiosqueSourceVisibility(); }
   if (id==='journal') { document.getElementById('jDate').value = today(); populateVendeurFilter(); renderJournal(); }
   if (id==='queue') renderQueue();
-  if (id==='stock') renderStock();
   if (id==='grand-stock') renderGrandStock();
   if (id==='cremerie') renderCremerie();
   if (id==='popcorn') renderPopcorn();
@@ -2363,7 +2291,7 @@ function updateQueueBadge() {
 <script>
 // ---- 06-dashboard.js ----
 // ================================================================
-// 06-DASHBOARD.JS -- Page "Accueil"
+// 06-DASHBOARD.JS -- Page Accueil
 // ================================================================
 
 function renderDashboard() {
@@ -2463,7 +2391,7 @@ function renderDashboard() {
 <script>
 // ---- 07-caisse.js ----
 // ================================================================
-// 07-CAISSE.JS -- Page de vente
+// 07-CAISSE.JS -- Page de vente (filtrage par catégorie du vendeur)
 // ================================================================
 
 let isProcessing = false;
@@ -2491,7 +2419,16 @@ function initCaisse() {
 }
 
 function renderCatBar() {
-  document.getElementById('catBar').innerHTML = CATS.map(c =>
+  // Filtrer les catégories selon les droits du vendeur
+  const allowedCats = currentUser.catAccess || [];
+  const hasAllAccess = allowedCats.length === 0 || allowedCats.includes('Tous');
+  
+  let cats = CATS;
+  if (!hasAllAccess && currentUser.role === 'vendeur') {
+    cats = ['Tout', ...allowedCats];
+  }
+  
+  document.getElementById('catBar').innerHTML = cats.map(c =>
     `<button class="cat-btn ${c===activeCat?'act':''}" onclick="setCat('${c}')">${c}</button>`
   ).join('');
 }
@@ -2518,7 +2455,7 @@ function renderProds() {
   const todayKey = today();
   const g = document.getElementById('prodGrid');
   if (!filtered.length) {
-    g.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--muted)">Aucun article</div>';
+    g.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--muted)">Aucun article disponible pour votre kiosque</div>';
     return;
   }
 
@@ -2720,7 +2657,6 @@ async function confirmOrder() {
       if (!p || isFood(p) || p.cat === 'Cremerie' || p.cat === 'Popcorn') continue;
       if (!stockVendeur[kiosqueSource]) stockVendeur[kiosqueSource] = {};
       stockVendeur[kiosqueSource][item.id] = Math.max(0, (stockVendeur[kiosqueSource][item.id]||0) - item.qty);
-      await logStockMvt(item.id, 'vente', item.qty, stockVendeur[kiosqueSource][item.id], kiosqueSource, 'Vente kiosque');
     }
   }
 
@@ -2778,7 +2714,6 @@ async function validatePayment(id) {
     if (!p || isFood(p) || p.cat === 'Cremerie' || p.cat === 'Popcorn') continue;
     if (!stockVendeur[kiosque]) stockVendeur[kiosque] = {};
     stockVendeur[kiosque][item.id] = Math.max(0, (stockVendeur[kiosque][item.id]||0) - item.qty);
-    await logStockMvt(item.id, 'vente', item.qty, stockVendeur[kiosque][item.id], kiosque, 'Validation commande '+o.id);
   }
   
   const hasFood = o.items.some(item => {
@@ -2975,8 +2910,6 @@ async function confirmCancelOrder() {
         if (!p || isFood(p)) continue;
         if (!stockVendeur[kiosque]) stockVendeur[kiosque] = {};
         stockVendeur[kiosque][item.id] = (stockVendeur[kiosque][item.id]||0) + item.qty;
-        await logStockMvt(item.id, 'ajustement', item.qty, stockVendeur[kiosque][item.id], kiosque,
-          `Annulation commande ${o.id}${reason?' -- '+reason:''} (restauration)`);
       }
       await saveFB('cb_stock_vendeur', stockVendeur);
     }
@@ -3174,191 +3107,229 @@ async function setOrderStatus(id, status) {
 }
 </script>
 <script>
-// ---- 11-stock.js ----
+// ---- 11-grand-stock.js ----
 // ================================================================
-// 11-STOCK.JS -- Page Stock
+// 11-GRAND-STOCK.JS -- Gestion du grand stock central (UNIQUE)
 // ================================================================
 
-function renderStock() {
-  if (currentUser.role === 'serveur') {
-    document.getElementById('stockContent').innerHTML = '<div style="color:var(--muted);padding:2rem;text-align:center;">Le stock est gere par les kiosques.</div>';
-    document.getElementById('stockTabs').innerHTML = '';
-    document.getElementById('mvtTable').innerHTML = '<tr><td colspan="8" style="text-align:center;padding:1.5rem;color:var(--muted)">Aucun mouvement pour vous</td></tr>';
-    return;
-  }
-  
-  const tabsContainer = document.getElementById('stockTabs');
-  const kiosques = users.filter(u => u.role === 'vendeur' && u.kiosque).map(u => u.kiosque);
-  const uniqueKiosques = [...new Set(kiosques)];
-
-  let tabsHtml = '';
-  if (currentUser.role === 'admin' || currentUser.role === 'stockmanager') {
-    tabsHtml += `<button class="stock-tab-btn act" data-tab="tous" onclick="switchStockTab('tous')">Tous</button>`;
-    uniqueKiosques.forEach(k => {
-      tabsHtml += `<button class="stock-tab-btn" data-tab="${k}" onclick="switchStockTab('${k}')">${k}</button>`;
-    });
-  } else if (currentUser.role === 'vendeur') {
-    const monKiosque = currentUser.kiosque;
-    if (monKiosque) {
-      tabsHtml += `<button class="stock-tab-btn act" data-tab="${monKiosque}" onclick="switchStockTab('${monKiosque}')">${monKiosque}</button>`;
-    }
-  }
-  tabsContainer.innerHTML = tabsHtml;
-
-  const activeTab = document.querySelector('.stock-tab-btn.act')?.dataset.tab || 'tous';
-  renderStockContent(activeTab);
-}
-
-function switchStockTab(tab) {
-  document.querySelectorAll('.stock-tab-btn').forEach(b => b.classList.remove('act'));
-  document.querySelector(`.stock-tab-btn[data-tab="${tab}"]`)?.classList.add('act');
-  renderStockContent(tab);
-}
-
-function renderStockContent(tab) {
-  const container = document.getElementById('stockContent');
-  const isAdmin = currentUser.role === 'admin' || currentUser.role === 'stockmanager';
-  const isVendeur = currentUser.role === 'vendeur';
-
-  const allowedCats = currentUser.catAccess || [];
-  const hasAllAccess = allowedCats.length === 0 || allowedCats.includes('Tous');
-  
-  const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
-  const productsToShow = hasAllAccess ? allProducts : allProducts.filter(p => allowedCats.includes(p.cat));
-
+function renderGrandStock() {
+  let totalProduits = 0;
+  let alertes = 0;
+  const table = document.getElementById('grandStockTable');
   let html = '';
-
-  if (tab === 'tous') {
-    const productsAStock = productsToShow.filter(p => p.cat !== 'Cremerie' && p.cat !== 'Popcorn' && !isFood(p));
-    if (!productsAStock.length) {
-      html = '<div style="color:var(--muted);padding:.5rem;">Aucun produit avec stock</div>';
-    } else {
-      const kiosques = users.filter(u => u.role === 'vendeur' && u.kiosque).map(u => u.kiosque);
-      const uniqueKiosques = [...new Set(kiosques)];
-      if (!uniqueKiosques.length) {
-        html = '<div style="color:var(--muted);padding:.5rem;">Aucun kiosque enregistre</div>';
-      } else {
-        let tableHtml = `<div class="tbl-wrap"><table><thead><tr><th>Produit</th>`;
-        uniqueKiosques.forEach(k => tableHtml += `<th>${k}</th>`);
-        if (isAdmin) tableHtml += `<th>Actions</th>`;
-        tableHtml += `</tr></thead><tbody>`;
-        productsAStock.forEach(p => {
-          tableHtml += `<tr><td><strong>${p.name}</strong></td>`;
-          uniqueKiosques.forEach(k => {
-            const qty = (stockVendeur[k] && stockVendeur[k][p.id]) || 0;
-            const cls = getStockClass(qty);
-            tableHtml += `<td><span class="sc-stock ${cls}">${qty}</span></td>`;
-          });
-          if (isAdmin) {
-            tableHtml += `<td><button class="icon-btn" onclick="openAdjustStock('${p.id}')" title="Ajuster">${icon('sliders')}</button></td>`;
-          }
-          tableHtml += `</tr>`;
-        });
-        tableHtml += `</tbody></table></div>`;
-        html = tableHtml;
-      }
-    }
-  } else {
-    const kiosque = tab;
-    const productsAStock = productsToShow.filter(p => p.cat !== 'Cremerie' && p.cat !== 'Popcorn' && !isFood(p));
-    if (!productsAStock.length) {
-      html = '<div style="color:var(--muted);padding:.5rem;">Aucun produit avec stock</div>';
-    } else {
-      html = productsAStock.map(p => {
-        const qty = (stockVendeur[kiosque] && stockVendeur[kiosque][p.id]) || 0;
-        const cls = getStockClass(qty);
-        return `<div class="stock-card ${qty<=0?'out':qty<=5?'low':''}" data-prod="${p.id}" data-kiosque="${kiosque}">
-          <div class="sc-info">
-            <div class="sc-name">${getCatIcon(p.cat)} ${p.name}</div>
-            <div class="sc-cat">${p.cat} -- ${fmt(p.prix || p.price)}</div>
-            <div class="sc-stock ${cls}">${qty} unite(s) -- ${getStockLabel(qty)}</div>
-          </div>
-          ${isAdmin ? `
-          <div class="sc-controls">
-            <input type="number" class="stock-adj-input" id="si-${p.id}-${kiosque}" value="1" min="0">
-            <button class="stock-adj-btn stock-set-btn" onclick="adjustStockKiosque('${kiosque}',${p.id},'set')">Definir</button>
-            <button class="stock-adj-btn stock-add-btn" onclick="adjustStockKiosque('${kiosque}',${p.id},'add')">+ Reassort</button>
-            <button class="stock-adj-btn stock-sub-btn" onclick="adjustStockKiosque('${kiosque}',${p.id},'sub')">- Perte</button>
-          </div>` : (isVendeur ? `<div style="font-size:.75rem;color:var(--muted);">Mon stock</div>` : `<div style="font-size:.75rem;color:var(--muted);">Stock du kiosque</div>`)}
-        </div>`;
-      }).join('');
-    }
+  
+  populateGrandStockSelects();
+  
+  for (const [produit, qte] of Object.entries(grandStock)) {
+    const seuil = STOCK_SEUILS[produit] || 5;
+    const statut = qte <= 0 ? 'rupture' : qte <= seuil ? 'alerte' : 'ok';
+    if (qte <= seuil) alertes++;
+    totalProduits += qte;
+    const info = getProduitInfo(produit);
+    const statutClass = statut === 'ok' ? 'bg-g' : statut === 'alerte' ? 'bg-a' : 'bg-r';
+    const statutLabel = statut === 'ok' ? 'OK' : statut === 'alerte' ? 'Stock bas' : 'Rupture';
+    html += `<tr>
+      <td><strong>${info.label}</strong></td>
+      <td>${info.categorie}</td>
+      <td><strong>${qte}</strong></td>
+      <td>${info.unite}</td>
+      <td>${seuil}</td>
+      <td><span class="badge ${statutClass}">${statutLabel}</span></td>
+      <td><button class="icon-btn" onclick="openStockAjustement('${produit}')" title="Ajuster">${icon('sliders')}</button></td>
+    </tr>`;
   }
-
-  container.innerHTML = html;
-  renderStockMvt();
+  table.innerHTML = html;
+  document.getElementById('gsTotalProduits').textContent = totalProduits;
+  document.getElementById('gsAlertes').textContent = alertes;
+  document.getElementById('stockLastUpdate').textContent = nowFull();
+  
+  const mvtsJour = grandStockMvts.filter(m => m.date === today());
+  document.getElementById('gsMouvements').textContent = mvtsJour.length;
+  
+  renderGrandStockMvt();
 }
 
-function renderStockMvt() {
-  const tb = document.getElementById('mvtTable');
-  if (!stockMvts.length) {
-    tb.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:1.5rem;color:var(--muted)">Aucun mouvement enregistre</td></tr>';
+function populateGrandStockSelects() {
+  const items = getGrandStockItems();
+  const selects = ['stockReceptionProduit', 'stockSortieProduit', 'stockAjustementProduit'];
+  
+  selects.forEach(selId => {
+    const sel = document.getElementById(selId);
+    if (!sel) return;
+    const currentVal = sel.value;
+    sel.innerHTML = '';
+    for (const [key, info] of Object.entries(items)) {
+      const option = document.createElement('option');
+      option.value = key;
+      option.textContent = info.label + ' (' + info.categorie + ')';
+      sel.appendChild(option);
+    }
+    if (currentVal && sel.querySelector(`option[value="${currentVal}"]`)) {
+      sel.value = currentVal;
+    }
+  });
+}
+
+function renderGrandStockMvt() {
+  const tb = document.getElementById('grandStockMvtTable');
+  if (!grandStockMvts.length) {
+    tb.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:1.5rem;color:var(--muted)">Aucun mouvement</td></tr>';
     return;
   }
-  const typeMap = {vente:'bg-r',reassort:'bg-g',ajustement:'bg-b',perte:'bg-a'};
-  const typeLabel = {vente:'Vente',reassort:'Reassort',ajustement:'Ajust.',perte:'Perte'};
-  let filteredMvts = stockMvts;
-  if (currentUser.role === 'vendeur') {
-    const monKiosque = currentUser.kiosque;
-    filteredMvts = stockMvts.filter(m => m.kiosque === monKiosque);
-  }
-  const displayMvts = filteredMvts.slice(0,60);
-  tb.innerHTML = displayMvts.map(m=>`<tr>
-    <td style="font-size:.75rem">${m.ts}</td>
-    <td><strong>${m.prodName}</strong></td>
-    <td><span style="font-size:.7rem;color:var(--muted)">${getCatIcon(m.prodCat||'')} ${m.prodCat||'--'}</span></td>
-    <td><span class="badge ${typeMap[m.type]||'bg-b'}">${typeLabel[m.type]||m.type}</span></td>
-    <td><strong style="color:${m.type==='vente'||m.type==='perte'?'var(--red)':'var(--green)'}">${m.type==='vente'||m.type==='perte'?'-':'+'}${m.qty}</strong></td>
-    <td>${m.stockAfter}</td>
-    <td style="font-size:.75rem">${m.by}</td>
-    <td style="font-size:.75rem">${m.kiosque||'--'}</td>
-  </tr>`).join('');
-  if (!displayMvts.length) {
-    tb.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:1.5rem;color:var(--muted)">Aucun mouvement pour vous</td></tr>';
-  }
+  const typeMap = { reception: 'bg-g', sortie: 'bg-r', ajustement: 'bg-b' };
+  const typeLabel = { reception: 'Reception', sortie: 'Sortie vers kiosque', ajustement: 'Ajustement' };
+  tb.innerHTML = grandStockMvts.slice(0, 50).map(m => {
+    const info = getProduitInfo(m.produit);
+    const signe = m.type === 'reception' ? '+' : '-';
+    const color = m.type === 'reception' ? 'var(--green)' : 'var(--red)';
+    return `<tr>
+      <td style="font-size:.75rem">${m.ts}</td>
+      <td><span class="badge ${typeMap[m.type] || 'bg-b'}">${typeLabel[m.type] || m.type}</span></td>
+      <td>${info.label}</td>
+      <td><strong style="color:${color}">${signe} ${m.qte}</strong></td>
+      <td>${m.kiosque || '--'}</td>
+      <td>${m.stockApres}</td>
+      <td style="font-size:.75rem">${m.par}</td>
+      <td style="font-size:.75rem;color:var(--muted)">${m.commentaire || '--'}</td>
+    </tr>`;
+  }).join('');
 }
 
-function openAdjustStock(prodId) { toast('Utilisez la vue par kiosque pour ajuster'); }
+async function saveGrandStockMvt(produit, type, qte, kiosque = '', commentaire = '') {
+  const stockAvant = grandStock[produit] || 0;
+  let stockApres = stockAvant;
+  if (type === 'reception') stockApres = stockAvant + qte;
+  else if (type === 'sortie') stockApres = Math.max(0, stockAvant - qte);
+  else if (type === 'ajustement') stockApres = qte;
+  grandStock[produit] = stockApres;
+  const mvt = {
+    id: 'STK-' + Date.now().toString(36).toUpperCase(),
+    date: today(), ts: nowFull(), produit: produit,
+    type: type, qte: qte, stockAvant: stockAvant, stockApres: stockApres,
+    kiosque: kiosque || '--',
+    par: currentUser ? currentUser.name : 'Systeme',
+    commentaire: commentaire || ''
+  };
+  grandStockMvts.unshift(mvt);
+  if (grandStockMvts.length > 500) grandStockMvts = grandStockMvts.slice(0, 500);
+  await saveFB('cb_grand_stock', grandStock);
+  await saveFB('cb_grand_stock_mvts', grandStockMvts);
+  logAction('Grand Stock', type + ' - ' + produit + ' : ' + qte + (kiosque ? ' vers ' + kiosque : '') + ' (' + commentaire + ')');
+  renderGrandStock();
+}
 
-function adjustStockKiosque(kiosque, prodId, mode) {
-  if (currentUser.role !== 'admin' && currentUser.role !== 'stockmanager') { toast('Reserve a l\'admin ou stock manager'); return; }
-  const inp = document.getElementById(`si-${prodId}-${kiosque}`);
-  if (!inp) return;
-  const val = parseInt(inp.value)||0;
-  if (val<=0 && mode!=='set') { toast('Entrer une quantite valide'); return; }
+// === RECEPTION ===
+function openStockReception() {
+  populateGrandStockSelects();
+  document.getElementById('stockReceptionQte').value = '';
+  document.getElementById('stockReceptionFournisseur').value = '';
+  document.getElementById('stockReceptionComment').value = '';
+  openModal('modalStockReception');
+}
+
+async function saveStockReception() {
+  const produit = document.getElementById('stockReceptionProduit').value;
+  const qte = parseFloat(document.getElementById('stockReceptionQte').value);
+  const fournisseur = document.getElementById('stockReceptionFournisseur').value.trim();
+  const comment = document.getElementById('stockReceptionComment').value.trim();
+  if (!produit) { toast('Veuillez sélectionner un produit'); return; }
+  if (!qte || qte <= 0) { toast('Entrer une quantite valide'); return; }
+  await saveGrandStockMvt(produit, 'reception', qte, '', 'Fournisseur: ' + (fournisseur || '--') + (comment ? ' - ' + comment : ''));
+  closeModal('modalStockReception');
+  toast('Reception de ' + qte + ' ' + getProduitInfo(produit).unite + ' de ' + getProduitInfo(produit).label);
+}
+
+// === SORTIE VERS KIOSQUE ===
+function openStockSortie() {
+  populateGrandStockSelects();
+  document.getElementById('stockSortieQte').value = '';
+  document.getElementById('stockSortieComment').value = '';
+  openModal('modalStockSortie');
+}
+
+async function saveStockSortie() {
+  const produit = document.getElementById('stockSortieProduit').value;
+  const qte = parseFloat(document.getElementById('stockSortieQte').value);
+  const kiosque = document.getElementById('stockSortieKiosque').value;
+  const comment = document.getElementById('stockSortieComment').value.trim();
+  if (!produit) { toast('Veuillez sélectionner un produit'); return; }
+  if (!qte || qte <= 0) { toast('Entrer une quantite valide'); return; }
+  if ((grandStock[produit] || 0) < qte) { toast('Stock insuffisant'); return; }
+  
+  // Enregistrer le mouvement dans le grand stock
+  await saveGrandStockMvt(produit, 'sortie', qte, kiosque, comment || 'Sortie vers kiosque');
+  
+  // Ajouter au stock du kiosque
   if (!stockVendeur[kiosque]) stockVendeur[kiosque] = {};
-  const before = stockVendeur[kiosque][prodId] || 0;
-  let after = before;
-  if (mode==='set') after = Math.max(0, val);
-  else if (mode==='add') after = before + val;
-  else if (mode==='sub') after = Math.max(0, before - val);
-  stockVendeur[kiosque][prodId] = after;
-  saveFB('cb_stock_vendeur', stockVendeur);
-  logStockMvt(prodId, mode==='add'?'reassort':mode==='sub'?'perte':'ajustement', Math.abs(after-before), after, kiosque, 'Ajustement admin');
-  logAction('Ajustement stock', 'Kiosque '+kiosque+' - Produit '+products.find(p=>p.id===prodId)?.name+' - '+mode+' '+val+' (avant '+before+', apres '+after+')');
+  stockVendeur[kiosque][produit] = (stockVendeur[kiosque][produit] || 0) + qte;
+  await saveFB('cb_stock_vendeur', stockVendeur);
   
-  const card = document.querySelector(`.stock-card[data-prod="${prodId}"][data-kiosque="${kiosque}"]`);
-  if (card) {
-    const stockSpan = card.querySelector('.sc-stock');
-    if (stockSpan) {
-      const cls = getStockClass(after);
-      stockSpan.className = `sc-stock ${cls}`;
-      stockSpan.textContent = `${after} unite(s) -- ${getStockLabel(after)}`;
-    }
-    card.className = `stock-card ${after<=0?'out':after<=5?'low':''}`;
+  closeModal('modalStockSortie');
+  toast('Sortie de ' + qte + ' ' + getProduitInfo(produit).unite + ' vers ' + kiosque);
+}
+
+// === AJUSTEMENT ===
+function openStockAjustement(produit) {
+  populateGrandStockSelects();
+  if (produit) {
+    document.getElementById('stockAjustementProduit').value = produit;
+    document.getElementById('stockAjustementQte').value = grandStock[produit] || 0;
   } else {
-    renderStockContent(document.querySelector('.stock-tab-btn.act')?.dataset.tab || 'tous');
+    document.getElementById('stockAjustementQte').value = '';
   }
+  document.getElementById('stockAjustementRaison').value = '';
+  openModal('modalStockAjustement');
+}
+
+async function saveStockAjustement() {
+  const produit = document.getElementById('stockAjustementProduit').value;
+  const qte = parseFloat(document.getElementById('stockAjustementQte').value);
+  const raison = document.getElementById('stockAjustementRaison').value.trim();
+  if (!produit) { toast('Veuillez sélectionner un produit'); return; }
+  if (qte < 0) { toast('La quantite ne peut pas etre negative'); return; }
+  const ancienneQte = grandStock[produit] || 0;
+  const difference = qte - ancienneQte;
+  if (difference === 0) { toast('Aucun changement'); closeModal('modalStockAjustement'); return; }
+  await saveGrandStockMvt(produit, 'ajustement', qte, '', (raison || 'Ajustement manuel') + ' (ancien: ' + ancienneQte + ')');
+  closeModal('modalStockAjustement');
+  toast('Stock de ' + getProduitInfo(produit).label + ' ajuste a ' + qte);
+}
+
+// === NOUVEAU CONSOMMABLE ===
+function openStockConsommable() {
+  document.getElementById('cName').value = '';
+  document.getElementById('cCat').value = 'Cuisine';
+  document.getElementById('cUnite').value = 'kg';
+  document.getElementById('cSeuil').value = '5';
+  document.getElementById('cQte').value = '0';
+  openModal('modalConsommable');
+}
+
+async function saveConsommable() {
+  const name = document.getElementById('cName').value.trim().toLowerCase();
+  const cat = document.getElementById('cCat').value;
+  const unite = document.getElementById('cUnite').value;
+  const seuil = parseInt(document.getElementById('cSeuil').value) || 5;
+  const qte = parseFloat(document.getElementById('cQte').value) || 0;
   
-  renderStockMvt();
-  if (currentPage==='caisse') renderProds();
-  toast('Stock mis a jour');
+  if (!name) { toast('Veuillez entrer un nom'); return; }
+  if (grandStock[name] !== undefined) { toast('Ce consommable existe déjà'); return; }
+  
+  grandStock[name] = qte;
+  STOCK_SEUILS[name] = seuil;
+  
+  await saveFB('cb_grand_stock', grandStock);
+  
+  logAction('Grand Stock', 'Nouveau consommable ajouté: ' + name + ' (' + cat + ')');
+  closeModal('modalConsommable');
+  renderGrandStock();
+  toast('✅ Consommable "' + name + '" ajouté');
 }
 </script>
 <script>
 // ---- 12-admin.js ----
 // ================================================================
-// 12-ADMIN.JS -- Page Admin avec gestion des produits corrigée
+// 12-ADMIN.JS -- Page Admin
 // ================================================================
 
 const ADMIN_CATEGORIES = ['Nourriture', 'Boissons', 'Chicha', 'Cremerie', 'Popcorn'];
@@ -3382,7 +3353,7 @@ function renderAdmin() {
     </div>`;
   }).join('');
 
-  // Produits - Version corrigée
+  // Produits
   const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
   if (allProducts.length === 0) {
     document.getElementById('prodMgmtGrid').innerHTML = '<div style="color:var(--muted);padding:1rem;text-align:center;">Aucun produit. Cliquez sur + Ajouter pour commencer.</div>';
@@ -3571,7 +3542,7 @@ async function delUser(id) {
   toast('Compte supprime');
 }
 
-// ===== GESTION DES PRODUITS - VERSION CORRIGÉE =====
+// ===== GESTION DES PRODUITS =====
 function openAddProd() {
   editProdId = null;
   document.getElementById('modalProdTitle').textContent = 'Nouveau produit';
@@ -3607,7 +3578,6 @@ async function saveProd() {
   if (!name) { toast('Veuillez entrer un nom de produit'); return; }
   if (!price || price <= 0) { toast('Veuillez entrer un prix valide'); return; }
   
-  // Générer un nouvel ID si nécessaire
   const allIds = [
     ...products.map(p => p.id), 
     ...CREMERIE_PRODUITS.map(p => p.id), 
@@ -3618,10 +3588,7 @@ async function saveProd() {
   
   try {
     if (editProdId) {
-      // ===== MODIFICATION =====
       let found = false;
-      
-      // Chercher dans products
       let idx = products.findIndex(p => p.id === editProdId);
       if (idx !== -1) {
         if (cat === 'Cremerie') {
@@ -3637,7 +3604,6 @@ async function saveProd() {
       }
       
       if (!found) {
-        // Chercher dans CREMERIE_PRODUITS
         idx = CREMERIE_PRODUITS.findIndex(p => p.id === editProdId);
         if (idx !== -1) {
           if (cat === 'Cremerie') {
@@ -3654,7 +3620,6 @@ async function saveProd() {
       }
       
       if (!found) {
-        // Chercher dans POPCORN_PRODUITS
         idx = POPCORN_PRODUITS.findIndex(p => p.id === editProdId);
         if (idx !== -1) {
           if (cat === 'Popcorn') {
@@ -3678,7 +3643,6 @@ async function saveProd() {
       logAction('Gestion produit', 'Produit ' + name + ' modifié par ' + currentUser.name);
       
     } else {
-      // ===== CRÉATION =====
       if (cat === 'Cremerie') {
         CREMERIE_PRODUITS.push({id: newId, name, prix: price, cat: 'Cremerie', photo});
       } else if (cat === 'Popcorn') {
@@ -3686,11 +3650,9 @@ async function saveProd() {
       } else {
         products.push({id: newId, name, price, cat, photo});
       }
-      
       logAction('Gestion produit', 'Produit ' + name + ' créé par ' + currentUser.name);
     }
     
-    // ===== SAUVEGARDE =====
     await saveFB('cb_prods', products);
     await saveFB('cb_cremerie_produits', CREMERIE_PRODUITS);
     await saveFB('cb_popcorn_produits', POPCORN_PRODUITS);
@@ -3702,12 +3664,12 @@ async function saveProd() {
     closeModal('modalProd');
     renderAdmin();
     renderProds();
-    toast(editProdId ? '✅ Produit modifié avec succès' : '✅ Produit ajouté avec succès');
+    toast(editProdId ? '✅ Produit modifié' : '✅ Produit ajouté');
     editProdId = null;
     
   } catch (error) {
     console.error('Erreur dans saveProd:', error);
-    toast('❌ Erreur lors de la sauvegarde: ' + error.message);
+    toast('❌ Erreur lors de la sauvegarde');
   }
 }
 
@@ -3715,18 +3677,14 @@ async function delProd(id) {
   if (!confirm('Supprimer ce produit definitivement ?')) return;
   
   let p = null;
-  
-  // Chercher dans products
   let idx = products.findIndex(x => x.id === id);
   if (idx !== -1) {
     p = products.splice(idx, 1)[0];
   } else {
-    // Chercher dans CREMERIE_PRODUITS
     idx = CREMERIE_PRODUITS.findIndex(x => x.id === id);
     if (idx !== -1) {
       p = CREMERIE_PRODUITS.splice(idx, 1)[0];
     } else {
-      // Chercher dans POPCORN_PRODUITS
       idx = POPCORN_PRODUITS.findIndex(x => x.id === id);
       if (idx !== -1) {
         p = POPCORN_PRODUITS.splice(idx, 1)[0];
@@ -3736,7 +3694,6 @@ async function delProd(id) {
   
   if (!p) { toast('Produit non trouvé'); return; }
   
-  // Supprimer le stock associé
   Object.keys(stockVendeur).forEach(k => {
     if (stockVendeur[k] && stockVendeur[k][id] !== undefined) {
       delete stockVendeur[k][id];
@@ -3748,32 +3705,28 @@ async function delProd(id) {
     await saveFB('cb_cremerie_produits', CREMERIE_PRODUITS);
     await saveFB('cb_popcorn_produits', POPCORN_PRODUITS);
     await saveFB('cb_stock_vendeur', stockVendeur);
-    
     localStorage.setItem('cb_prods', JSON.stringify(products));
     localStorage.setItem('cb_cremerie_produits', JSON.stringify(CREMERIE_PRODUITS));
     localStorage.setItem('cb_popcorn_produits', JSON.stringify(POPCORN_PRODUITS));
-    
     logAction('Gestion produit', 'Produit ' + p.name + ' supprimé par ' + currentUser.name);
     renderAdmin();
     renderProds();
     toast('✅ Produit supprimé');
   } catch (error) {
     console.error('Erreur dans delProd:', error);
-    toast('❌ Erreur lors de la suppression: ' + error.message);
+    toast('❌ Erreur lors de la suppression');
   }
 }
 
-// ---- GESTION DE LA CONFIGURATION ----
+// ===== GESTION DE LA CONFIGURATION =====
 let currentConfigTab = 'cremerie';
 
 function switchConfigTab(tab) {
   currentConfigTab = tab;
   document.querySelectorAll('.config-tab-btn').forEach(b => b.classList.remove('act'));
   document.querySelectorAll('.config-panel').forEach(p => p.style.display = 'none');
-  
   document.querySelector(`.config-tab-btn[onclick*="${tab}"]`)?.classList.add('act');
   document.getElementById('config' + tab.charAt(0).toUpperCase() + tab.slice(1)).style.display = 'block';
-  
   loadConfigValues(tab);
 }
 
@@ -3801,18 +3754,15 @@ async function saveCremerieConfig() {
   const rendement = parseInt(document.getElementById('cfgCremerieRendement').value);
   const petit = parseInt(document.getElementById('cfgCremeriePetit').value);
   const grand = parseInt(document.getElementById('cfgCremerieGrand').value);
-  
   if (!rendement || rendement <= 0 || !petit || petit <= 0 || !grand || grand <= 0) {
     toast('Veuillez entrer des valeurs valides');
     return;
   }
-  
   appConfig.cremerie.rendement = rendement;
   appConfig.cremerie.prixPetitPot = petit;
   appConfig.cremerie.prixGrandPot = grand;
-  
   await saveConfig(appConfig);
-  logAction('Configuration', 'Mise à jour des prix Crèmerie: rendement=' + rendement + ', petit=' + petit + ', grand=' + grand);
+  logAction('Configuration', 'Mise à jour des prix Crèmerie');
   loadConfigValues('cremerie');
   toast('Configuration Crèmerie sauvegardée');
 }
@@ -3820,17 +3770,14 @@ async function saveCremerieConfig() {
 async function savePopcornConfig() {
   const rendement = parseInt(document.getElementById('cfgPopcornRendement').value);
   const boite = parseInt(document.getElementById('cfgPopcornBoite').value);
-  
   if (!rendement || rendement <= 0 || !boite || boite <= 0) {
     toast('Veuillez entrer des valeurs valides');
     return;
   }
-  
   appConfig.popcorn.rendement = rendement;
   appConfig.popcorn.prixBoite = boite;
-  
   await saveConfig(appConfig);
-  logAction('Configuration', 'Mise à jour des prix Popcorn: rendement=' + rendement + ', boite=' + boite);
+  logAction('Configuration', 'Mise à jour des prix Popcorn');
   loadConfigValues('popcorn');
   toast('Configuration Popcorn sauvegardée');
 }
@@ -3840,28 +3787,23 @@ async function saveParkingConfig() {
   const horaire = parseInt(document.getElementById('cfgParkingHoraire').value);
   const jour = parseInt(document.getElementById('cfgParkingJour').value);
   const nuit = parseInt(document.getElementById('cfgParkingNuit').value);
-  
   if (!places || places <= 0 || !horaire || horaire <= 0 || !jour || jour <= 0 || !nuit || nuit <= 0) {
     toast('Veuillez entrer des valeurs valides');
     return;
   }
-  
   const placesOccupees = parkingVehicles.filter(v => v.statut === 'stationne').length;
   if (places < placesOccupees) {
     toast('Impossible de réduire en dessous des places occupées (' + placesOccupees + ')');
     return;
   }
-  
   appConfig.parking.totalPlaces = places;
   appConfig.parking.tarifHoraire = horaire;
   appConfig.parking.tarifForfaitJour = jour;
   appConfig.parking.tarifForfaitNuit = nuit;
   PARKING_CONFIG = appConfig.parking;
-  
   await saveConfig(appConfig);
-  logAction('Configuration', 'Mise à jour des tarifs Parking: places=' + places + ', horaire=' + horaire + ', jour=' + jour + ', nuit=' + nuit);
+  logAction('Configuration', 'Mise à jour des tarifs Parking');
   loadConfigValues('parking');
-  
   if (currentPage === 'parking') renderParking();
   toast('Configuration Parking sauvegardée');
 }
@@ -3896,162 +3838,9 @@ async function doChangePwd() {
 }
 </script>
 <script>
-// ---- 14-grand-stock.js ----
+// ---- 14-cremerie.js ----
 // ================================================================
-// 14-GRAND-STOCK.JS -- Gestion du grand stock
-// ================================================================
-
-function renderGrandStock() {
-  let totalProduits = 0;
-  let alertes = 0;
-  const table = document.getElementById('grandStockTable');
-  let html = '';
-  
-  for (const [produit, qte] of Object.entries(grandStock)) {
-    const seuil = STOCK_SEUILS[produit] || 5;
-    const statut = qte <= 0 ? 'rupture' : qte <= seuil ? 'alerte' : 'ok';
-    if (qte <= seuil) alertes++;
-    totalProduits += qte;
-    const info = getProduitInfo(produit);
-    const statutClass = statut === 'ok' ? 'bg-g' : statut === 'alerte' ? 'bg-a' : 'bg-r';
-    const statutLabel = statut === 'ok' ? 'OK' : statut === 'alerte' ? 'Stock bas' : 'Rupture';
-    html += `<tr>
-      <td><strong>${info.label}</strong></td>
-      <td>${info.categorie}</td>
-      <td><strong>${qte}</strong></td>
-      <td>${info.unite}</td>
-      <td>${seuil}</td>
-      <td><span class="badge ${statutClass}">${statutLabel}</span></td>
-      <td><button class="icon-btn" onclick="openStockAjustement('${produit}')" title="Ajuster">${icon('sliders')}</button></td>
-    </tr>`;
-  }
-  table.innerHTML = html;
-  document.getElementById('gsTotalProduits').textContent = totalProduits;
-  document.getElementById('gsAlertes').textContent = alertes;
-  document.getElementById('stockLastUpdate').textContent = nowFull();
-  
-  const mvtsJour = grandStockMvts.filter(m => m.date === today());
-  document.getElementById('gsMouvements').textContent = mvtsJour.length;
-  
-  renderGrandStockMvt();
-}
-
-function renderGrandStockMvt() {
-  const tb = document.getElementById('grandStockMvtTable');
-  if (!grandStockMvts.length) {
-    tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:var(--muted)">Aucun mouvement</td></tr>';
-    return;
-  }
-  const typeMap = { reception: 'bg-g', sortie: 'bg-r', ajustement: 'bg-b' };
-  const typeLabel = { reception: 'Reception', sortie: 'Sortie', ajustement: 'Ajustement' };
-  tb.innerHTML = grandStockMvts.slice(0, 50).map(m => {
-    const info = getProduitInfo(m.produit);
-    const signe = m.type === 'reception' ? '+' : '-';
-    const color = m.type === 'reception' ? 'var(--green)' : 'var(--red)';
-    return `<tr>
-      <td style="font-size:.75rem">${m.ts}</td>
-      <td><span class="badge ${typeMap[m.type] || 'bg-b'}">${typeLabel[m.type] || m.type}</span></td>
-      <td>${info.label}</td>
-      <td><strong style="color:${color}">${signe} ${m.qte}</strong></td>
-      <td>${m.stockApres}</td>
-      <td style="font-size:.75rem">${m.par}</td>
-      <td style="font-size:.75rem;color:var(--muted)">${m.commentaire || '--'}</td>
-    </tr>`;
-  }).join('');
-}
-
-async function saveGrandStockMvt(produit, type, qte, commentaire = '') {
-  const stockAvant = grandStock[produit] || 0;
-  let stockApres = stockAvant;
-  if (type === 'reception') stockApres = stockAvant + qte;
-  else if (type === 'sortie') stockApres = Math.max(0, stockAvant - qte);
-  else if (type === 'ajustement') stockApres = qte;
-  grandStock[produit] = stockApres;
-  const mvt = {
-    id: 'STK-' + Date.now().toString(36).toUpperCase(),
-    date: today(), ts: nowFull(), produit: produit,
-    type: type, qte: qte, stockAvant: stockAvant, stockApres: stockApres,
-    par: currentUser ? currentUser.name : 'Systeme', commentaire: commentaire || ''
-  };
-  grandStockMvts.unshift(mvt);
-  if (grandStockMvts.length > 500) grandStockMvts = grandStockMvts.slice(0, 500);
-  await saveFB('cb_grand_stock', grandStock);
-  await saveFB('cb_grand_stock_mvts', grandStockMvts);
-  logAction('Grand Stock', type + ' - ' + produit + ' : ' + qte + ' (' + commentaire + ')');
-  renderGrandStock();
-}
-
-function openStockReception() {
-  document.getElementById('stockReceptionProduit').value = 'farine';
-  document.getElementById('stockReceptionQte').value = '';
-  document.getElementById('stockReceptionFournisseur').value = '';
-  document.getElementById('stockReceptionComment').value = '';
-  openModal('modalStockReception');
-}
-
-async function saveStockReception() {
-  const produit = document.getElementById('stockReceptionProduit').value;
-  const qte = parseFloat(document.getElementById('stockReceptionQte').value);
-  const fournisseur = document.getElementById('stockReceptionFournisseur').value.trim();
-  const comment = document.getElementById('stockReceptionComment').value.trim();
-  if (!qte || qte <= 0) { toast('Entrer une quantite valide'); return; }
-  await saveGrandStockMvt(produit, 'reception', qte, 'Fournisseur: ' + (fournisseur || '--') + (comment ? ' - ' + comment : ''));
-  closeModal('modalStockReception');
-  toast('Reception de ' + qte + ' ' + getProduitInfo(produit).unite + ' de ' + getProduitInfo(produit).label);
-}
-
-function openStockSortie() {
-  document.getElementById('stockSortieProduit').value = 'farine';
-  document.getElementById('stockSortieQte').value = '';
-  document.getElementById('stockSortieKiosque').value = 'Kiosque Nourriture';
-  document.getElementById('stockSortieComment').value = '';
-  openModal('modalStockSortie');
-}
-
-async function saveStockSortie() {
-  const produit = document.getElementById('stockSortieProduit').value;
-  const qte = parseFloat(document.getElementById('stockSortieQte').value);
-  const kiosque = document.getElementById('stockSortieKiosque').value;
-  const comment = document.getElementById('stockSortieComment').value.trim();
-  if (!qte || qte <= 0) { toast('Entrer une quantite valide'); return; }
-  if ((grandStock[produit] || 0) < qte) { toast('Stock insuffisant'); return; }
-  await saveGrandStockMvt(produit, 'sortie', qte, 'Vers ' + kiosque + (comment ? ' - ' + comment : ''));
-  if (!stockVendeur[kiosque]) stockVendeur[kiosque] = {};
-  stockVendeur[kiosque][produit] = (stockVendeur[kiosque][produit] || 0) + qte;
-  await saveFB('cb_stock_vendeur', stockVendeur);
-  closeModal('modalStockSortie');
-  toast('Sortie de ' + qte + ' ' + getProduitInfo(produit).unite + ' vers ' + kiosque);
-}
-
-function openStockAjustement(produit) {
-  if (produit) {
-    document.getElementById('stockAjustementProduit').value = produit;
-    document.getElementById('stockAjustementQte').value = grandStock[produit] || 0;
-  } else {
-    document.getElementById('stockAjustementProduit').value = 'farine';
-    document.getElementById('stockAjustementQte').value = '';
-  }
-  document.getElementById('stockAjustementRaison').value = '';
-  openModal('modalStockAjustement');
-}
-
-async function saveStockAjustement() {
-  const produit = document.getElementById('stockAjustementProduit').value;
-  const qte = parseFloat(document.getElementById('stockAjustementQte').value);
-  const raison = document.getElementById('stockAjustementRaison').value.trim();
-  if (qte < 0) { toast('La quantite ne peut pas etre negative'); return; }
-  const ancienneQte = grandStock[produit] || 0;
-  const difference = qte - ancienneQte;
-  if (difference === 0) { toast('Aucun changement'); closeModal('modalStockAjustement'); return; }
-  await saveGrandStockMvt(produit, 'ajustement', qte, (raison || 'Ajustement manuel') + ' (ancien: ' + ancienneQte + ')');
-  closeModal('modalStockAjustement');
-  toast('Stock de ' + getProduitInfo(produit).label + ' ajuste a ' + qte);
-}
-</script>
-<script>
-// ---- 15-cremerie.js ----
-// ================================================================
-// 15-CREMERIE.JS -- Gestion de la cremerie
+// 14-CREMERIE.JS -- Gestion de la cremerie
 // ================================================================
 
 function getCremerieConfig() {
@@ -4208,9 +3997,9 @@ async function saveVenteCremerie() {
 }
 </script>
 <script>
-// ---- 16-popcorn.js ----
+// ---- 15-popcorn.js ----
 // ================================================================
-// 16-POPCORN.JS -- Gestion du popcorn
+// 15-POPCORN.JS -- Gestion du popcorn
 // ================================================================
 
 function getPopcornConfig() {
@@ -4358,9 +4147,9 @@ async function saveVentePopcorn() {
 }
 </script>
 <script>
-// ---- 17-parking.js ----
+// ---- 16-parking.js ----
 // ================================================================
-// 17-PARKING.JS -- Gestion du parking
+// 16-PARKING.JS -- Gestion du parking
 // ================================================================
 
 function renderParking() {
@@ -4386,7 +4175,15 @@ function renderParking() {
   if (vehiclesStationnes.length === 0 && placesLibres === PARKING_CONFIG.totalPlaces) {
     grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--muted);">Parking vide</div>';
   } else {
-    let html = '<style>.parking-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}.parking-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:.8rem;text-align:center;box-shadow:var(--sh);}.parking-card.occupe{border-color:var(--accent);}.parking-card.libre{border-color:var(--green);}.parking-plaque{font-weight:700;font-size:.9rem;}.parking-time{font-size:.7rem;color:var(--muted);}.parking-actions{margin-top:8px;}</style>';
+    let html = `<style>
+      .parking-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:10px;}
+      .parking-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:.8rem;text-align:center;box-shadow:var(--sh);}
+      .parking-card.occupe{border-color:var(--accent);}
+      .parking-card.libre{border-color:var(--green);}
+      .parking-plaque{font-weight:700;font-size:.9rem;}
+      .parking-time{font-size:.7rem;color:var(--muted);}
+      .parking-actions{margin-top:8px;}
+    </style>`;
     vehiclesStationnes.forEach((v) => {
       const duree = calculerDuree(v.heureEntree);
       html += `<div class="parking-card occupe">
@@ -4407,6 +4204,7 @@ function renderParking() {
     grid.innerHTML = html;
   }
   
+  // Historique
   const tb = document.getElementById('parkingHistoryTable');
   const historyDisplay = parkingHistory.slice(0, 50);
   if (!historyDisplay.length) {
@@ -4428,15 +4226,20 @@ function renderParking() {
 }
 
 function calculerDuree(heureEntree) {
-  const entree = new Date(heureEntree);
-  const maintenant = new Date();
-  const diffMinutes = Math.floor((maintenant - entree) / 60000);
-  if (diffMinutes < 60) return diffMinutes + ' min';
-  const heures = Math.floor(diffMinutes / 60);
-  const minutes = diffMinutes % 60;
-  return heures + 'h' + (minutes > 0 ? minutes + 'min' : '');
+  try {
+    const entree = new Date(heureEntree);
+    const maintenant = new Date();
+    const diffMinutes = Math.floor((maintenant - entree) / 60000);
+    if (diffMinutes < 60) return diffMinutes + ' min';
+    const heures = Math.floor(diffMinutes / 60);
+    const minutes = diffMinutes % 60;
+    return heures + 'h' + (minutes > 0 ? minutes + 'min' : '');
+  } catch(e) {
+    return '--';
+  }
 }
 
+// === ENTREE PARKING ===
 function openParkingEntry() {
   document.getElementById('parkingPlaque').value = '';
   document.getElementById('parkingType').value = 'voiture';
@@ -4448,77 +4251,117 @@ function openParkingEntry() {
 }
 
 async function saveParkingEntry() {
-  const plaque = document.getElementById('parkingPlaque').value.trim().toUpperCase();
-  const type = document.getElementById('parkingType').value;
-  const tarif = document.getElementById('parkingTarif').value;
-  if (!plaque) { toast('Entrer une plaque d\'immatriculation'); return; }
-  const existe = parkingVehicles.find(v => v.plaque === plaque && v.statut === 'stationne');
-  if (existe) { toast('Ce vehicule est deja dans le parking'); return; }
-  const placesOccupees = parkingVehicles.filter(v => v.statut === 'stationne').length;
-  if (placesOccupees >= PARKING_CONFIG.totalPlaces) { toast('Parking complet'); return; }
-  const vehicle = {
-    id: 'PK-' + Date.now().toString(36).toUpperCase(),
-    plaque: plaque, type: type, tarif: tarif,
-    heureEntree: nowFull(), statut: 'stationne'
-  };
-  parkingVehicles.push(vehicle);
-  await saveFB('cb_parking_vehicles', parkingVehicles);
-  logAction('Parking entree', 'Vehicule ' + plaque + ' entre - Tarif: ' + tarif);
-  closeModal('modalParkingEntry');
-  renderParking();
-  toast('Vehicule ' + plaque + ' enregistre');
+  try {
+    const plaque = document.getElementById('parkingPlaque').value.trim().toUpperCase();
+    const type = document.getElementById('parkingType').value;
+    const tarif = document.getElementById('parkingTarif').value;
+    
+    if (!plaque) { toast('Entrer une plaque d\'immatriculation'); return; }
+    
+    const existe = parkingVehicles.find(v => v.plaque === plaque && v.statut === 'stationne');
+    if (existe) { toast('Ce vehicule est deja dans le parking'); return; }
+    
+    const placesOccupees = parkingVehicles.filter(v => v.statut === 'stationne').length;
+    if (placesOccupees >= PARKING_CONFIG.totalPlaces) { toast('Parking complet'); return; }
+    
+    const vehicle = {
+      id: 'PK-' + Date.now().toString(36).toUpperCase(),
+      plaque: plaque,
+      type: type,
+      tarif: tarif,
+      heureEntree: nowFull(),
+      statut: 'stationne'
+    };
+    
+    parkingVehicles.push(vehicle);
+    await saveFB('cb_parking_vehicles', parkingVehicles);
+    logAction('Parking entree', 'Vehicule ' + plaque + ' entre - Tarif: ' + tarif);
+    closeModal('modalParkingEntry');
+    renderParking();
+    toast('Vehicule ' + plaque + ' enregistre');
+  } catch(e) {
+    console.error('Erreur saveParkingEntry:', e);
+    toast('Erreur: ' + e.message);
+  }
 }
 
+// === SORTIE PARKING ===
 function openParkingExit(id) {
-  const vehicle = parkingVehicles.find(v => v.id === id);
-  if (!vehicle) { toast('Vehicule non trouve'); return; }
-  document.getElementById('parkingExitInfo').innerHTML = `<strong>${vehicle.plaque}</strong> - Entree: ${vehicle.heureEntree}`;
-  const entree = new Date(vehicle.heureEntree);
-  const maintenant = new Date();
-  const diffMinutes = Math.floor((maintenant - entree) / 60000);
-  const diffHeures = Math.ceil(diffMinutes / 60);
-  let montant = 0;
-  let dureeText = '';
-  if (vehicle.tarif === 'forfait_jour') {
-    montant = PARKING_CONFIG.tarifForfaitJour;
-    dureeText = 'Forfait journee';
-  } else if (vehicle.tarif === 'forfait_nuit') {
-    montant = PARKING_CONFIG.tarifForfaitNuit;
-    dureeText = 'Forfait nuit';
-  } else {
-    montant = diffHeures * PARKING_CONFIG.tarifHoraire;
-    if (diffMinutes < 60) dureeText = diffMinutes + ' min';
-    else { const h = Math.floor(diffMinutes / 60); const m = diffMinutes % 60; dureeText = h + 'h' + (m > 0 ? m + 'min' : ''); }
+  try {
+    const vehicle = parkingVehicles.find(v => v.id === id);
+    if (!vehicle) { toast('Vehicule non trouve'); return; }
+    
+    document.getElementById('parkingExitInfo').innerHTML = `
+      <strong>${vehicle.plaque}</strong> - Entree: ${vehicle.heureEntree}
+    `;
+    
+    const entree = new Date(vehicle.heureEntree);
+    const maintenant = new Date();
+    const diffMinutes = Math.floor((maintenant - entree) / 60000);
+    const diffHeures = Math.ceil(diffMinutes / 60);
+    
+    let montant = 0;
+    let dureeText = '';
+    
+    if (vehicle.tarif === 'forfait_jour') {
+      montant = PARKING_CONFIG.tarifForfaitJour;
+      dureeText = 'Forfait journee';
+    } else if (vehicle.tarif === 'forfait_nuit') {
+      montant = PARKING_CONFIG.tarifForfaitNuit;
+      dureeText = 'Forfait nuit';
+    } else {
+      montant = diffHeures * PARKING_CONFIG.tarifHoraire;
+      if (diffMinutes < 60) dureeText = diffMinutes + ' min';
+      else { const h = Math.floor(diffMinutes / 60); const m = diffMinutes % 60; dureeText = h + 'h' + (m > 0 ? m + 'min' : ''); }
+    }
+    
+    document.getElementById('parkingExitDuree').textContent = dureeText;
+    document.getElementById('parkingExitMontant').textContent = fmt(montant);
+    document.getElementById('modalParkingExit').dataset.vehicleId = id;
+    document.getElementById('modalParkingExit').dataset.montant = montant;
+    openModal('modalParkingExit');
+  } catch(e) {
+    console.error('Erreur openParkingExit:', e);
+    toast('Erreur: ' + e.message);
   }
-  document.getElementById('parkingExitDuree').textContent = dureeText;
-  document.getElementById('parkingExitMontant').textContent = fmt(montant);
-  document.getElementById('modalParkingExit').dataset.vehicleId = id;
-  document.getElementById('modalParkingExit').dataset.montant = montant;
-  openModal('modalParkingExit');
 }
 
 async function confirmParkingExit() {
-  const id = document.getElementById('modalParkingExit').dataset.vehicleId;
-  const montant = parseFloat(document.getElementById('modalParkingExit').dataset.montant);
-  const vehicle = parkingVehicles.find(v => v.id === id);
-  if (!vehicle) { toast('Vehicule non trouve'); return; }
-  const history = {
-    id: 'PKH-' + Date.now().toString(36).toUpperCase(),
-    date: today(), ts: nowFull(),
-    plaque: vehicle.plaque, type: vehicle.type,
-    heureEntree: vehicle.heureEntree, heureSortie: nowFull(),
-    duree: Math.floor((new Date() - new Date(vehicle.heureEntree)) / 60000),
-    montant: montant, tarif: vehicle.tarif, statut: 'paye'
-  };
-  parkingHistory.unshift(history);
-  if (parkingHistory.length > 500) parkingHistory = parkingHistory.slice(0, 500);
-  parkingVehicles = parkingVehicles.filter(v => v.id !== id);
-  await saveFB('cb_parking_vehicles', parkingVehicles);
-  await saveFB('cb_parking_history', parkingHistory);
-  logAction('Parking sortie', 'Vehicule ' + vehicle.plaque + ' sorti - Montant: ' + fmt(montant));
-  closeModal('modalParkingExit');
-  renderParking();
-  toast('Vehicule ' + vehicle.plaque + ' sorti - ' + fmt(montant) + ' paye');
+  try {
+    const id = document.getElementById('modalParkingExit').dataset.vehicleId;
+    const montant = parseFloat(document.getElementById('modalParkingExit').dataset.montant);
+    const vehicle = parkingVehicles.find(v => v.id === id);
+    if (!vehicle) { toast('Vehicule non trouve'); return; }
+    
+    const history = {
+      id: 'PKH-' + Date.now().toString(36).toUpperCase(),
+      date: today(),
+      ts: nowFull(),
+      plaque: vehicle.plaque,
+      type: vehicle.type,
+      heureEntree: vehicle.heureEntree,
+      heureSortie: nowFull(),
+      duree: Math.floor((new Date() - new Date(vehicle.heureEntree)) / 60000),
+      montant: montant,
+      tarif: vehicle.tarif,
+      statut: 'paye'
+    };
+    
+    parkingHistory.unshift(history);
+    if (parkingHistory.length > 500) parkingHistory = parkingHistory.slice(0, 500);
+    parkingVehicles = parkingVehicles.filter(v => v.id !== id);
+    
+    await saveFB('cb_parking_vehicles', parkingVehicles);
+    await saveFB('cb_parking_history', parkingHistory);
+    
+    logAction('Parking sortie', 'Vehicule ' + vehicle.plaque + ' sorti - Montant: ' + fmt(montant));
+    closeModal('modalParkingExit');
+    renderParking();
+    toast('Vehicule ' + vehicle.plaque + ' sorti - ' + fmt(montant) + ' paye');
+  } catch(e) {
+    console.error('Erreur confirmParkingExit:', e);
+    toast('Erreur: ' + e.message);
+  }
 }
 </script>
 </body>
