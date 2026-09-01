@@ -695,7 +695,7 @@ tbody td{padding:9px 10px;}
     <div class="pg-header">
       <div>
         <div class="pg-title">Grand Stock Central</div>
-        <div class="pg-sub">Produits, entrees, sorties vers kiosques et ajustements — tout se passe ici</div>
+        <div class="pg-sub">Gestion des stocks - Tout se passe ici</div>
       </div>
       <span style="font-size:.8rem;background:var(--surface2);padding:6px 14px;border-radius:20px;">
         Mise a jour : <span id="stockLastUpdate">Aujourd'hui</span>
@@ -704,14 +704,14 @@ tbody td{padding:9px 10px;}
         <button class="add-btn" onclick="openStockReception()">Reception</button>
         <button class="add-btn" onclick="openStockSortie()">Sortie vers kiosque</button>
         <button class="add-btn" onclick="openStockAjustement()">Ajustement</button>
-        <button class="add-btn" onclick="openStockConsommable()">+ Nouveau consommable</button>
+        <button class="add-btn" onclick="openAddProd()">+ Nouveau produit</button>
       </div>
     </div>
 
-    <!-- Carte Produits & Menu déplacée ici -->
+    <!-- Carte Produits & Menu -->
     <div class="admin-card" id="gsProduitsCard" style="margin-bottom:1.2rem;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem;">
-        <div class="admin-card-title" style="margin:0">Produits & Menu</div>
+        <div class="admin-card-title" style="margin:0">Liste des produits</div>
         <button class="add-btn" onclick="openAddProd()">+ Ajouter</button>
       </div>
       <div class="prod-mgmt-grid" id="prodMgmtGrid"></div>
@@ -740,6 +740,20 @@ tbody td{padding:9px 10px;}
         </table>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- ========== STOCK KIOSQUES (pour Stock Manager) ========== -->
+<div id="pg-stock-kiosques" class="page">
+  <div class="inner-page">
+    <div class="pg-header">
+      <div>
+        <div class="pg-title">Stock des kiosques</div>
+        <div class="pg-sub">Visualisation des stocks par point de vente</div>
+      </div>
+      <button class="add-btn" onclick="syncNow()" style="background:var(--blue);">Actualiser</button>
+    </div>
+    <div id="stockKiosquesContent"></div>
   </div>
 </div>
 
@@ -816,12 +830,15 @@ tbody td{padding:9px 10px;}
       <div class="stat-c"><div class="stat-l">Recette aujourd'hui</div><div class="stat-v g" id="parkingRecetteTotal">0 GNF</div></div>
     </div>
     <div class="parking-grid" id="parkingGrid"></div>
-    <div class="tbl-wrap" style="margin-top:1.5rem;">
-      <div class="mvt-title">Historique des sorties</div>
-      <table>
-        <thead><tr><th>Date/Heure</th><th>Plaque</th><th>Duree</th><th>Montant</th><th>Statut</th></tr></thead>
-        <tbody id="parkingHistoryTable"></tbody>
-      </table>
+    <!-- Historique masqué pour les non-admin -->
+    <div id="parkingHistoryDiv" style="display:none;">
+      <div class="tbl-wrap" style="margin-top:1.5rem;">
+        <div class="mvt-title">Historique des sorties</div>
+        <table>
+          <thead><tr><th>Date/Heure</th><th>Plaque</th><th>Duree</th><th>Montant</th><th>Statut</th></tr></thead>
+          <tbody id="parkingHistoryTable"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
@@ -839,15 +856,14 @@ tbody td{padding:9px 10px;}
         <div id="userList"></div>
       </div>
       
-      <!-- Carte Produits & Menu supprimée, déplacée vers Grand Stock -->
-      
       <div class="admin-card" style="grid-column:1/-1;">
         <div class="admin-card-title">Controle anti-vol - Ventes par kiosque</div>
         <div id="ventesVendeur"></div>
         <div style="margin-top:1rem;"><button class="btn btn-blue" onclick="exportVentesVendeur()" style="flex:0;padding:8px 20px;">Exporter les ventes</button></div>
       </div>
       
-      <div class="admin-card" style="grid-column:1/-1;">
+      <!-- Journal des actions - UNIQUEMENT ADMIN -->
+      <div class="admin-card" style="grid-column:1/-1;" id="journalActionsCard">
         <div class="admin-card-title">Journal des actions sensibles</div>
         <div id="journalActions" style="max-height:300px;overflow-y:auto;font-size:.8rem;"></div>
       </div>
@@ -902,29 +918,8 @@ tbody td{padding:9px 10px;}
 <div id="floatingValidate"><button onclick="confirmOrder()">VALIDER LA COMMANDE</button></div>
 
 <!-- ========== MODALS ========== -->
-
-<!-- Modal Détail Commande -->
-<div class="overlay" id="modalOrder">
-  <div class="modal">
-    <span class="modal-handle"></span>
-    <h3>Detail commande</h3>
-    <div id="modalOrderContent"></div>
-    <div class="modal-acts" id="modalOrderActs">
-      <button class="btn btn-ghost" onclick="closeModal('modalOrder')">Fermer</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal Annulation Commande -->
-<div class="overlay" id="modalCancelOrder">
-  <div class="modal">
-    <span class="modal-handle"></span>
-    <h3>Annuler la commande</h3>
-    <div style="font-size:.88rem;color:var(--muted);margin-bottom:1rem;line-height:1.7;">Cette action supprime definitivement la commande.<br>Le stock sera restaure automatiquement.</div>
-    <div class="form-group"><label class="form-label">Raison de l'annulation</label><textarea class="form-in" id="cancelReason" rows="2" placeholder="ex: Erreur de saisie, client parti..."></textarea></div>
-    <div class="modal-acts"><button class="btn btn-ghost" onclick="closeModal('modalCancelOrder')">Retour</button><button class="btn" style="background:var(--red);color:#fff;" onclick="confirmCancelOrder()">Confirmer annulation</button></div>
-  </div>
-</div>
+<div class="overlay" id="modalOrder"><div class="modal"><span class="modal-handle"></span><h3>Detail commande</h3><div id="modalOrderContent"></div><div class="modal-acts" id="modalOrderActs"><button class="btn btn-ghost" onclick="closeModal('modalOrder')">Fermer</button></div></div></div>
+<div class="overlay" id="modalCancelOrder"><div class="modal"><span class="modal-handle"></span><h3>Annuler la commande</h3><div style="font-size:.88rem;color:var(--muted);margin-bottom:1rem;line-height:1.7;">Cette action supprime definitivement la commande.<br>Le stock sera restaure automatiquement.</div><div class="form-group"><label class="form-label">Raison de l'annulation</label><textarea class="form-in" id="cancelReason" rows="2" placeholder="ex: Erreur de saisie, client parti..."></textarea></div><div class="modal-acts"><button class="btn btn-ghost" onclick="closeModal('modalCancelOrder')">Retour</button><button class="btn" style="background:var(--red);color:#fff;" onclick="confirmCancelOrder()">Confirmer annulation</button></div></div></div>
 
 <!-- Modal Utilisateur -->
 <div class="overlay" id="modalUser">
@@ -965,7 +960,7 @@ tbody td{padding:9px 10px;}
   </div>
 </div>
 
-<!-- Modal Produit avec champ seuil -->
+<!-- Modal Produit -->
 <div class="overlay" id="modalProd">
   <div class="modal">
     <span class="modal-handle"></span>
@@ -987,34 +982,6 @@ tbody td{padding:9px 10px;}
     </div>
     <div class="form-group"><label class="form-label">Photo du plat (URL ou emoji)</label><input class="form-in" id="pPhoto" placeholder="ex: plat.png ou https://..."></div>
     <div class="modal-acts"><button class="btn btn-ghost" onclick="closeModal('modalProd')">Annuler</button><button class="btn btn-ok" onclick="saveProd()">Enregistrer</button></div>
-  </div>
-</div>
-
-<!-- Modal Consommable -->
-<div class="overlay" id="modalConsommable">
-  <div class="modal">
-    <span class="modal-handle"></span>
-    <h3>Nouveau consommable</h3>
-    <div class="form-group"><label class="form-label">Nom du consommable</label><input class="form-in" id="cName" placeholder="ex: Chocolat, Lait, ..."></div>
-    <div class="form-group"><label class="form-label">Categorie</label>
-      <select class="form-in" id="cCat">
-        <option value="Cuisine">Cuisine</option>
-        <option value="Cremerie">Cremerie</option>
-        <option value="Popcorn">Popcorn</option>
-        <option value="Boissons">Boissons</option>
-        <option value="Chicha">Chicha</option>
-      </select>
-    </div>
-    <div class="form-group"><label class="form-label">Unite</label>
-      <select class="form-in" id="cUnite">
-        <option value="kg">Kg</option>
-        <option value="L">Litre</option>
-        <option value="piece">Piece</option>
-      </select>
-    </div>
-    <div class="form-group"><label class="form-label">Seuil d'alerte</label><input class="form-in" id="cSeuil" type="number" value="5" placeholder="ex: 5"></div>
-    <div class="form-group"><label class="form-label">Quantite initiale</label><input class="form-in" id="cQte" type="number" step="0.1" value="0" placeholder="ex: 10"></div>
-    <div class="modal-acts"><button class="btn btn-ghost" onclick="closeModal('modalConsommable')">Annuler</button><button class="btn btn-ok" onclick="saveConsommable()">Enregistrer</button></div>
   </div>
 </div>
 
@@ -1053,7 +1020,8 @@ tbody td{padding:9px 10px;}
     <div class="form-group"><label class="form-label">Kiosque destinataire</label>
       <select class="form-in" id="stockSortieKiosque">
         <option value="Kiosque Nourriture">Kiosque Nourriture</option>
-        <option value="Kiosque Boissons">Kiosque Boissons</option>
+        <option value="Kiosque Boissons 1">Kiosque Boissons 1</option>
+        <option value="Kiosque Boissons 2">Kiosque Boissons 2</option>
         <option value="Kiosque Chicha">Kiosque Chicha</option>
         <option value="Kiosque Creme">Kiosque Creme</option>
         <option value="Kiosque Popcorn">Kiosque Popcorn</option>
@@ -1179,7 +1147,10 @@ tbody td{padding:9px 10px;}
 // ================================================================
 // 01-DATA.JS
 // ================================================================
-const DEFAULT_USERS = [{id:1,name:'Administrateur',login:'admin',pass:'admin123',role:'admin',kiosque:null,catAccess:['Tous']}];
+const DEFAULT_USERS = [
+  {id:1,name:'Administrateur',login:'admin',pass:'admin123',role:'admin',kiosque:null,catAccess:['Tous']},
+  {id:2,name:'Stock Manager',login:'stock',pass:'stock123',role:'stockmanager',kiosque:null,catAccess:['Tous']}
+];
 
 let products = [];
 let CREMERIE_PRODUITS = [];
@@ -1210,7 +1181,7 @@ let selRoleVal = 'admin';
 let cancelOrderId = null;
 let currentKiosqueSource = '';
 const ALL_CATEGORIES = ['Nourriture','Boissons','Chicha','Cremerie','Popcorn'];
-const STOCK_SEUILS = { farine:10, fromage:5, creme:3, mais:3, huile:2, sucre:2, cacao:1, viande:5, poulet:5, legumes:3 };
+const STOCK_SEUILS = {};
 
 function loadProducts(){
   const s=localStorage.getItem('cb_prods'); if(s) products=JSON.parse(s); else products=[];
@@ -1219,9 +1190,6 @@ function loadProducts(){
 }
 loadProducts();
 
-// ================================================================
-// getProduitInfo() - reconnaît les vrais produits
-// ================================================================
 function getProduitInfo(key) {
   const allProds = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
   const prod = allProds.find(p => String(p.id) === String(key));
@@ -1356,10 +1324,20 @@ document.getElementById('loginPass').addEventListener('keydown',e=>{ if(e.key===
 // ================================================================
 // 05-NAVIGATION.JS
 // ================================================================
-const NAV_ICONS={accueil:'home',caisse:'cart',journal:'list',queue:'clock','grand-stock':'warehouse',cremerie:'icecream',popcorn:'popcorn',parking:'car',admin:'settings'};
+const NAV_ICONS={accueil:'home',caisse:'cart',journal:'list',queue:'clock','grand-stock':'warehouse','stock-kiosques':'box',cremerie:'icecream',popcorn:'popcorn',parking:'car',admin:'settings'};
+
 const NAV_MAP={
-  admin:[{id:'accueil',label:'Accueil'},{id:'caisse',label:'Caisse'},{id:'journal',label:'Journal'},{id:'queue',label:'Cuisine'},{id:'grand-stock',label:'Grand Stock'},{id:'cremerie',label:'Cremerie'},{id:'popcorn',label:'Popcorn'},{id:'parking',label:'Parking'},{id:'admin',label:'Admin'}],
-  stockmanager:[{id:'accueil',label:'Accueil'},{id:'grand-stock',label:'Grand Stock'},{id:'journal',label:'Journal des stocks'},{id:'cremerie',label:'Cremerie'},{id:'popcorn',label:'Popcorn'}],
+  admin:[
+    {id:'accueil',label:'Accueil'},{id:'caisse',label:'Caisse'},
+    {id:'journal',label:'Journal'},{id:'queue',label:'Cuisine'},
+    {id:'grand-stock',label:'Grand Stock'},{id:'stock-kiosques',label:'Stocks kiosques'},
+    {id:'cremerie',label:'Cremerie'},{id:'popcorn',label:'Popcorn'},
+    {id:'parking',label:'Parking'},{id:'admin',label:'Admin'}
+  ],
+  stockmanager:[
+    {id:'accueil',label:'Accueil'},{id:'grand-stock',label:'Grand Stock'},
+    {id:'stock-kiosques',label:'Stocks kiosques'},{id:'journal',label:'Journal'}
+  ],
   cuisiniere:[{id:'queue',label:'Commandes'},{id:'grand-stock',label:'Stock'}],
   serveur:[{id:'accueil',label:'Accueil'},{id:'caisse',label:'Caisse'},{id:'journal',label:'Journal'},{id:'queue',label:'Suivi commandes'}],
   parking:[{id:'accueil',label:'Accueil'},{id:'parking',label:'Parking'},{id:'journal',label:'Journal'}],
@@ -1375,7 +1353,7 @@ function populateKiosqueSource(){ const sel=document.getElementById('kiosqueSour
 function updateKiosqueSourceVisibility(){ const row=document.getElementById('kiosqueSourceRow'); const sel=document.getElementById('kiosqueSourceSel'); if(currentUser.role==='vendeur'){ row.style.display='none'; currentKiosqueSource=currentUser.kiosque||''; if(currentKiosqueSource) sel.value=currentKiosqueSource; }else if(currentUser.role==='serveur'){ row.style.display='flex'; if(!currentKiosqueSource||!sel.querySelector('option[value="'+currentKiosqueSource+'"]')){ const firstOption=sel.querySelector('option:not([value=""])'); if(firstOption){ sel.value=firstOption.value; currentKiosqueSource=firstOption.value; }else{ sel.value=''; currentKiosqueSource=''; } }else sel.value=currentKiosqueSource; }else if(currentUser.role==='admin'||currentUser.role==='stockmanager'){ row.style.display='flex'; if(!currentKiosqueSource||!sel.querySelector('option[value="'+currentKiosqueSource+'"]')){ const firstOption=sel.querySelector('option:not([value=""])'); if(firstOption){ sel.value=firstOption.value; currentKiosqueSource=firstOption.value; }else{ sel.value=''; currentKiosqueSource=''; } }else sel.value=currentKiosqueSource; }else{ row.style.display='none'; currentKiosqueSource=''; } }
 document.getElementById('kiosqueSourceSel').addEventListener('change',function(){ currentKiosqueSource=this.value; renderProds(); });
 let currentPage='';
-function showPage(id){ const allowed=NAV_MAP[currentUser.role]||[]; if(!allowed.some(p=>p.id===id)){ toast('Acces non autorise'); if(allowed.length>0) id=allowed[0].id; else return; } currentPage=id; document.querySelectorAll('.page').forEach(p=>p.classList.remove('act')); document.querySelectorAll('.hn,.bn-item').forEach(b=>b.classList.remove('act')); const pg=document.getElementById('pg-'+id); if(pg) pg.classList.add('act'); document.querySelectorAll('#hn-'+id+',#bn-'+id).forEach(b=>b.classList.add('act')); if(id==='accueil') renderDashboard(); if(id==='caisse'){ initCaisse(); updateKiosqueSourceVisibility(); } if(id==='journal'){ document.getElementById('jDate').value=today(); populateVendeurFilter(); renderJournal(); } if(id==='queue') renderQueue(); if(id==='grand-stock') renderGrandStock(); if(id==='cremerie') renderCremerie(); if(id==='popcorn') renderPopcorn(); if(id==='parking') renderParking(); if(id==='admin') renderAdmin(); const fv=document.getElementById('floatingValidate'); if(fv) fv.style.display=(id==='caisse'&&window.innerWidth<=640)?'block':'none'; setTimeout(checkScrollIndicator,200); }
+function showPage(id){ const allowed=NAV_MAP[currentUser.role]||[]; if(!allowed.some(p=>p.id===id)){ toast('Acces non autorise'); if(allowed.length>0) id=allowed[0].id; else return; } currentPage=id; document.querySelectorAll('.page').forEach(p=>p.classList.remove('act')); document.querySelectorAll('.hn,.bn-item').forEach(b=>b.classList.remove('act')); const pg=document.getElementById('pg-'+id); if(pg) pg.classList.add('act'); document.querySelectorAll('#hn-'+id+',#bn-'+id).forEach(b=>b.classList.add('act')); if(id==='accueil') renderDashboard(); if(id==='caisse'){ initCaisse(); updateKiosqueSourceVisibility(); } if(id==='journal'){ document.getElementById('jDate').value=today(); populateVendeurFilter(); renderJournal(); } if(id==='queue') renderQueue(); if(id==='grand-stock') renderGrandStock(); if(id==='stock-kiosques') renderStockKiosques(); if(id==='cremerie') renderCremerie(); if(id==='popcorn') renderPopcorn(); if(id==='parking') renderParking(); if(id==='admin') renderAdmin(); const fv=document.getElementById('floatingValidate'); if(fv) fv.style.display=(id==='caisse'&&window.innerWidth<=640)?'block':'none'; setTimeout(checkScrollIndicator,200); }
 function refreshCurrentPage(){ if(currentPage) showPage(currentPage); }
 window.addEventListener('resize',()=>{ const fv=document.getElementById('floatingValidate'); if(fv) fv.style.display=(currentPage==='caisse'&&window.innerWidth<=640)?'block':'none'; if(window.innerWidth>640){ const cat=document.getElementById('cataloguePanel'); const cmd=document.getElementById('commandePanel'); if(cat) cat.style.display=''; if(cmd) cmd.style.display=''; } setTimeout(checkScrollIndicator,200); });
 function updateQueueBadge(){ const pending=orders.filter(o=>o.date===today()&&(o.status==='en_attente'||o.status==='attente'||o.status==='preparation')).length; ['hn-queue','bn-queue'].forEach(id=>{ const btn=document.getElementById(id); if(!btn) return; const old=btn.querySelector('.notif-dot,.bn-notif'); if(old) old.remove(); if(pending>0&&(currentUser.role==='admin'||currentUser.role==='cuisiniere'||currentUser.role==='serveur'||currentUser.role==='vendeur')){ const dot=document.createElement('span'); dot.className=btn.id.startsWith('hn')?'notif-dot':'bn-notif'; btn.appendChild(dot); } }); }
@@ -1635,21 +1613,161 @@ async function saveStockSortie(){ const produit=document.getElementById('stockSo
 function openStockAjustement(produit){ populateGrandStockSelects(); if(produit){ document.getElementById('stockAjustementProduit').value=produit; document.getElementById('stockAjustementQte').value=grandStock[produit]||0; }else{ document.getElementById('stockAjustementQte').value=''; } document.getElementById('stockAjustementRaison').value=''; openModal('modalStockAjustement'); }
 async function saveStockAjustement(){ const produit=document.getElementById('stockAjustementProduit').value; const qte=parseFloat(document.getElementById('stockAjustementQte').value); const raison=document.getElementById('stockAjustementRaison').value.trim(); if(!produit){ toast('Veuillez sélectionner un produit'); return; } if(qte<0){ toast('La quantite ne peut pas etre negative'); return; } const ancienneQte=grandStock[produit]||0; const difference=qte-ancienneQte; if(difference===0){ toast('Aucun changement'); closeModal('modalStockAjustement'); return; } await saveGrandStockMvt(produit,'ajustement',qte,'',(raison||'Ajustement manuel')+' (ancien: '+ancienneQte+')'); closeModal('modalStockAjustement'); toast('Stock de '+getProduitInfo(produit).label+' ajuste a '+qte); }
 
-function openStockConsommable(){ document.getElementById('cName').value=''; document.getElementById('cCat').value='Cuisine'; document.getElementById('cUnite').value='kg'; document.getElementById('cSeuil').value='5'; document.getElementById('cQte').value='0'; openModal('modalConsommable'); }
-async function saveConsommable(){ const name=document.getElementById('cName').value.trim().toLowerCase(); const cat=document.getElementById('cCat').value; const unite=document.getElementById('cUnite').value; const seuil=parseInt(document.getElementById('cSeuil').value)||5; const qte=parseFloat(document.getElementById('cQte').value)||0; if(!name){ toast('Veuillez entrer un nom'); return; } if(grandStock[name]!==undefined){ toast('Ce consommable existe déjà'); return; } grandStock[name]=qte; STOCK_SEUILS[name]=seuil; await saveFB('cb_grand_stock',grandStock); logAction('Grand Stock','Nouveau consommable ajouté: '+name+' ('+cat+')'); closeModal('modalConsommable'); renderGrandStock(); toast('✅ Consommable "'+name+'" ajouté'); }
+// ================================================================
+// 12-STOCK-KIOSQUES.JS - Page pour Stock Manager
+// ================================================================
+function renderStockKiosques(){
+  const container=document.getElementById('stockKiosquesContent');
+  const kiosques=users.filter(u=>u.role==='vendeur'&&u.kiosque).map(u=>u.kiosque);
+  const uniqueKiosques=[...new Set(kiosques)];
+  
+  if(!uniqueKiosques.length){
+    container.innerHTML='<div style="color:var(--muted);padding:2rem;text-align:center;">Aucun kiosque enregistré</div>';
+    return;
+  }
+  
+  const allProducts=[...products,...CREMERIE_PRODUITS,...POPCORN_PRODUITS];
+  const produitsAStock=allProducts.filter(p=>p.cat!=='Cremerie'&&p.cat!=='Popcorn'&&!isFood(p));
+  
+  if(!produitsAStock.length){
+    container.innerHTML='<div style="color:var(--muted);padding:2rem;text-align:center;">Aucun produit avec stock</div>';
+    return;
+  }
+  
+  let html='<div class="tbl-wrap"><table><thead><tr><th>Produit</th>';
+  uniqueKiosques.forEach(k=>{
+    html+=`<th>${k}</th>`;
+  });
+  html+=`<th>Statut</th></tr></thead><tbody>`;
+  
+  produitsAStock.forEach(p=>{
+    let totalQty=0;
+    let hasStock=false;
+    let ruptureCount=0;
+    let stockCount=0;
+    
+    html+=`<tr><td><strong>${p.name}</strong></td>`;
+    uniqueKiosques.forEach(k=>{
+      const qty=(stockVendeur[k]&&stockVendeur[k][p.id])||0;
+      totalQty+=qty;
+      if(qty>0) hasStock=true;
+      if(qty<=0) ruptureCount++;
+      else if(qty<=5) stockCount++;
+      const cls=getStockClass(qty);
+      html+=`<td><span class="sc-stock ${cls}">${qty}</span></td>`;
+    });
+    
+    let statut='';
+    if(!hasStock) statut='<span class="badge bg-r">Rupture totale</span>';
+    else if(ruptureCount>0) statut='<span class="badge bg-a">⚠️ Rupture dans certains kiosques</span>';
+    else if(stockCount>0) statut='<span class="badge bg-a">Stock bas</span>';
+    else statut='<span class="badge bg-g">OK</span>';
+    
+    html+=`<td>${statut}</td></tr>`;
+  });
+  
+  html+='</tbody></table></div>';
+  
+  // Résumé des alertes
+  let alertesHtml='<div style="margin-top:1rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;">';
+  uniqueKiosques.forEach(k=>{
+    let ruptures=0, stockBas=0;
+    produitsAStock.forEach(p=>{
+      const qty=(stockVendeur[k]&&stockVendeur[k][p.id])||0;
+      if(qty<=0) ruptures++;
+      else if(qty<=5) stockBas++;
+    });
+    if(ruptures>0 || stockBas>0){
+      alertesHtml+=`<div class="admin-card" style="padding:.8rem;border-color:${ruptures>0?'var(--red)':'var(--amber)'};">
+        <strong>${k}</strong><br>
+        ${ruptures>0?`<span style="color:var(--red);">🔴 ${ruptures} rupture(s)</span>`:''}
+        ${stockBas>0?`<span style="color:var(--amber);">🟡 ${stockBas} stock bas</span>`:''}
+      </div>`;
+    }
+  });
+  alertesHtml+='</div>';
+  
+  container.innerHTML=html+alertesHtml;
+}
 
 // ================================================================
-// 12-ADMIN.JS
+// 13-ADMIN.JS
 // ================================================================
 const ADMIN_CATEGORIES=['Nourriture','Boissons','Chicha','Cremerie','Popcorn'];
-function renderAdmin(){ document.getElementById('userList').innerHTML=users.map(u=>{ const roleLabels={admin:'Admin',stockmanager:'Stock Manager',cuisiniere:'Cuisiniere',vendeur:'Kiosque',serveur:'Serveur',parking:'Parking'}; return '<div class="user-row"><div class="user-avatar">'+u.name.split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase()+'</div><div style="flex:1"><div class="user-name">'+u.name+'</div><div class="user-role">'+(roleLabels[u.role]||u.role)+' -- @'+u.login+(u.kiosque?' -- '+u.kiosque:'')+(u.catAccess&&u.catAccess.length&&u.catAccess[0]!=='Tous'?' -- '+u.catAccess.join(', '):'')+(u.catAccess&&u.catAccess.includes('Tous')?' -- Tous':'')+'</div></div>'+(u.id!==1?'<button class="icon-btn" onclick="editUserModal('+u.id+')" title="Modifier">'+icon('edit')+'</button><button class="icon-btn icon-btn-danger" onclick="delUser('+u.id+')" style="margin-left:4px" title="Supprimer">'+icon('trash')+'</button>':'')+'</div>'; }).join(''); renderVentesVendeur(); renderJournalActions(); loadConfigValues(currentConfigTab||'cremerie'); }
 
-function renderVentesVendeur(){ const todayOrders=orders.filter(o=>o.date===today()); const vendeurStats={}; todayOrders.forEach(o=>{ const v=o.kiosqueSource||o.vendeur||'Non defini'; if(!vendeurStats[v]) vendeurStats[v]={total:0,nb:0,items:0}; vendeurStats[v].total+=o.total||0; vendeurStats[v].nb++; vendeurStats[v].items+=o.items.reduce((s,i)=>s+i.qty,0); }); let html=''; if(Object.keys(vendeurStats).length===0){ html='<div style="color:var(--muted);padding:.5rem 0">Aucune vente aujourd\'hui.</div>'; }else{ html='<div class="tbl-wrap"><table><thead><tr><th>Kiosque</th><th>Nb commandes</th><th>Articles vendus</th><th>Total</th></tr></thead><tbody>'; for(const [v,stats] of Object.entries(vendeurStats)){ html+='<tr><td><strong>'+v+'</strong></td><td>'+stats.nb+'</td><td>'+stats.items+'</td><td><strong>'+fmt(stats.total)+'</strong></td></tr>'; } html+='</tbody></table></div>'; } document.getElementById('ventesVendeur').innerHTML=html; }
+function renderAdmin(){
+  // Journal des actions - UNIQUEMENT pour admin
+  const journalCard=document.getElementById('journalActionsCard');
+  if(journalCard){
+    journalCard.style.display=(currentUser.role==='admin')?'block':'none';
+  }
+  
+  document.getElementById('userList').innerHTML=users.map(u=>{
+    const roleLabels={admin:'Admin',stockmanager:'Stock Manager',cuisiniere:'Cuisiniere',vendeur:'Kiosque',serveur:'Serveur',parking:'Parking'};
+    return '<div class="user-row"><div class="user-avatar">'+u.name.split(' ').map(x=>x[0]).slice(0,2).join('').toUpperCase()+'</div><div style="flex:1"><div class="user-name">'+u.name+'</div><div class="user-role">'+(roleLabels[u.role]||u.role)+' -- @'+u.login+(u.kiosque?' -- '+u.kiosque:'')+(u.catAccess&&u.catAccess.length&&u.catAccess[0]!=='Tous'?' -- '+u.catAccess.join(', '):'')+(u.catAccess&&u.catAccess.includes('Tous')?' -- Tous':'')+'</div></div>'+(u.id!==1?'<button class="icon-btn" onclick="editUserModal('+u.id+')" title="Modifier">'+icon('edit')+'</button><button class="icon-btn icon-btn-danger" onclick="delUser('+u.id+')" style="margin-left:4px" title="Supprimer">'+icon('trash')+'</button>':'')+'</div>';
+  }).join('');
+  
+  renderVentesVendeur();
+  renderJournalActions();
+  loadConfigValues(currentConfigTab||'cremerie');
+}
 
-function renderJournalActions(){ const container=document.getElementById('journalActions'); if(!journalActions.length){ container.innerHTML='<div style="color:var(--muted);padding:.5rem 0">Aucune action enregistree.</div>'; return; } container.innerHTML=journalActions.slice(0,100).map(j=>'<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:.75rem;"><span><strong>'+j.user+'</strong> - '+j.action+'</span><span style="color:var(--muted);">'+j.details+' - '+j.ts+'</span></div>').join(''); }
+function renderVentesVendeur(){
+  const todayOrders=orders.filter(o=>o.date===today());
+  const vendeurStats={};
+  todayOrders.forEach(o=>{
+    const v=o.kiosqueSource||o.vendeur||'Non defini';
+    if(!vendeurStats[v]) vendeurStats[v]={total:0,nb:0,items:0};
+    vendeurStats[v].total+=o.total||0;
+    vendeurStats[v].nb++;
+    vendeurStats[v].items+=o.items.reduce((s,i)=>s+i.qty,0);
+  });
+  let html='';
+  if(Object.keys(vendeurStats).length===0){
+    html='<div style="color:var(--muted);padding:.5rem 0">Aucune vente aujourd\'hui.</div>';
+  }else{
+    html='<div class="tbl-wrap"><table><thead><tr><th>Kiosque</th><th>Nb commandes</th><th>Articles vendus</th><th>Total</th></tr></thead><tbody>';
+    for(const [v,stats] of Object.entries(vendeurStats)){
+      html+='<tr><td><strong>'+v+'</strong></td><td>'+stats.nb+'</td><td>'+stats.items+'</td><td><strong>'+fmt(stats.total)+'</strong></td></tr>';
+    }
+    html+='</tbody></table></div>';
+  }
+  document.getElementById('ventesVendeur').innerHTML=html;
+}
 
-function exportVentesVendeur(){ const date=today(); const day=orders.filter(o=>o.date===date); if(!day.length){ toast('Aucune donnee a exporter'); return; } const wb=XLSX.utils.book_new(); const rows=[['COMPLEXE BEYLA -- VENTES PAR KIOSQUE - '+date],[],['Kiosque','Nb commandes','Articles vendus','Total (GNF)']]; const stats={}; day.forEach(o=>{ const v=o.kiosqueSource||o.vendeur||'Non defini'; if(!stats[v]) stats[v]={nb:0,items:0,total:0}; stats[v].nb++; stats[v].items+=o.items.reduce((s,i)=>s+i.qty,0); stats[v].total+=o.total||0; }); for(const [v,s] of Object.entries(stats)) rows.push([v,s.nb,s.items,s.total]); const ws=XLSX.utils.aoa_to_sheet(rows); XLSX.utils.book_append_sheet(wb,ws,'Ventes par kiosque'); XLSX.writeFile(wb,'Beyla_Ventes_Kiosque_'+date+'.xlsx'); toast('Fichier exporte'); }
+function renderJournalActions(){
+  const container=document.getElementById('journalActions');
+  if(!journalActions.length){
+    container.innerHTML='<div style="color:var(--muted);padding:.5rem 0">Aucune action enregistree.</div>';
+    return;
+  }
+  container.innerHTML=journalActions.slice(0,100).map(j=>'<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:.75rem;"><span><strong>'+j.user+'</strong> - '+j.action+'</span><span style="color:var(--muted);">'+j.details+' - '+j.ts+'</span></div>').join('');
+}
 
+function exportVentesVendeur(){
+  const date=today();
+  const day=orders.filter(o=>o.date===date);
+  if(!day.length){ toast('Aucune donnee a exporter'); return; }
+  const wb=XLSX.utils.book_new();
+  const rows=[['COMPLEXE BEYLA -- VENTES PAR KIOSQUE - '+date],[],['Kiosque','Nb commandes','Articles vendus','Total (GNF)']];
+  const stats={};
+  day.forEach(o=>{
+    const v=o.kiosqueSource||o.vendeur||'Non defini';
+    if(!stats[v]) stats[v]={nb:0,items:0,total:0};
+    stats[v].nb++;
+    stats[v].items+=o.items.reduce((s,i)=>s+i.qty,0);
+    stats[v].total+=o.total||0;
+  });
+  for(const [v,s] of Object.entries(stats)) rows.push([v,s.nb,s.items,s.total]);
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  XLSX.utils.book_append_sheet(wb,ws,'Ventes par kiosque');
+  XLSX.writeFile(wb,'Beyla_Ventes_Kiosque_'+date+'.xlsx');
+  toast('Fichier exporte');
+}
+
+// ================================================================
+// GESTION DES UTILISATEURS
+// ================================================================
 function openAddUser(){ editUserId=null; document.getElementById('modalUserTitle').textContent='Nouveau compte'; ['uName','uLogin','uPass','uKiosque'].forEach(i=>document.getElementById(i).value=''); document.getElementById('uRole').value='vendeur'; document.querySelectorAll('.cat-check input[type="checkbox"]').forEach(cb=>cb.checked=false); document.getElementById('catTous').checked=false; toggleKiosqueField(); toggleCategoryFields(); openModal('modalUser'); }
 function editUserModal(id){ const u=users.find(x=>x.id===id); if(!u) return; editUserId=id; document.getElementById('modalUserTitle').textContent='Modifier compte'; document.getElementById('uName').value=u.name; document.getElementById('uLogin').value=u.login; document.getElementById('uPass').value=''; document.getElementById('uRole').value=u.role; document.getElementById('uKiosque').value=u.kiosque||''; const catAccess=u.catAccess||[]; document.querySelectorAll('.cat-check input[type="checkbox"]').forEach(cb=>{ cb.checked=catAccess.includes(cb.value); }); document.getElementById('catTous').checked=catAccess.includes('Tous'); toggleKiosqueField(); toggleCategoryFields(); openModal('modalUser'); }
 function toggleKiosqueField(){ const role=document.getElementById('uRole').value; document.getElementById('kiosqueGroup').style.display=role==='vendeur'?'block':'none'; }
@@ -1657,33 +1775,172 @@ function toggleCategoryFields(){ const role=document.getElementById('uRole').val
 function toggleAllCategories(checked){ document.querySelectorAll('.cat-check input[type="checkbox"]').forEach(cb=>{ cb.checked=checked; cb.closest('.cat-check').classList.toggle('checked',checked); }); }
 function toggleCategory(checkbox){ checkbox.closest('.cat-check').classList.toggle('checked',checkbox.checked); const allChecked=document.querySelectorAll('.cat-check input[type="checkbox"]:checked').length===ADMIN_CATEGORIES.length; document.getElementById('catTous').checked=allChecked; }
 
-async function saveUser(){ const name=document.getElementById('uName').value.trim(); const login=document.getElementById('uLogin').value.trim(); const pass=document.getElementById('uPass').value; const role=document.getElementById('uRole').value; const kiosque=document.getElementById('uKiosque').value.trim()||null; const selectedCats=[]; document.querySelectorAll('.cat-check input[type="checkbox"]:checked').forEach(cb=>{ selectedCats.push(cb.value); }); if(document.getElementById('catTous').checked) selectedCats.push('Tous'); if(!name||!login){ toast('Remplir nom et login'); return; } if(!editUserId&&!pass){ toast('Mot de passe requis'); return; } if(users.find(u=>u.login===login&&u.id!==editUserId)){ toast('Login deja utilise'); return; } if(role==='admin'){ const adminCount=users.filter(u=>u.role==='admin'&&u.id!==editUserId).length; if(adminCount>=2){ toast('Limite de 2 administrateurs atteinte'); return; } } if(editUserId){ const u=users.find(x=>x.id===editUserId); if(u){ u.name=name; u.login=login; if(pass) u.pass=pass; u.role=role; u.kiosque=kiosque; u.catAccess=selectedCats.length?selectedCats:null; } }else{ const mx=Math.max(...users.map(u=>u.id),0); users.push({id:mx+1,name,login,pass,role,kiosque,catAccess:selectedCats.length?selectedCats:null}); } await saveFB('cb_users',users); logAction('Gestion utilisateur','Compte '+login+' '+(editUserId?'modifie':'cree')+' par '+currentUser.name); closeModal('modalUser'); renderAdmin(); populateKiosqueSource(); toast('Compte enregistre'); }
+async function saveUser(){
+  const name=document.getElementById('uName').value.trim();
+  const login=document.getElementById('uLogin').value.trim();
+  const pass=document.getElementById('uPass').value;
+  const role=document.getElementById('uRole').value;
+  const kiosque=document.getElementById('uKiosque').value.trim()||null;
+  const selectedCats=[];
+  document.querySelectorAll('.cat-check input[type="checkbox"]:checked').forEach(cb=>{
+    selectedCats.push(cb.value);
+  });
+  if(document.getElementById('catTous').checked) selectedCats.push('Tous');
+  if(!name||!login){ toast('Remplir nom et login'); return; }
+  if(!editUserId&&!pass){ toast('Mot de passe requis'); return; }
+  if(users.find(u=>u.login===login&&u.id!==editUserId)){ toast('Login deja utilise'); return; }
+  if(role==='admin'){ const adminCount=users.filter(u=>u.role==='admin'&&u.id!==editUserId).length; if(adminCount>=2){ toast('Limite de 2 administrateurs atteinte'); return; } }
+  if(editUserId){ const u=users.find(x=>x.id===editUserId); if(u){ u.name=name; u.login=login; if(pass) u.pass=pass; u.role=role; u.kiosque=kiosque; u.catAccess=selectedCats.length?selectedCats:null; } }else{ const mx=Math.max(...users.map(u=>u.id),0); users.push({id:mx+1,name,login,pass,role,kiosque,catAccess:selectedCats.length?selectedCats:null}); }
+  await saveFB('cb_users',users);
+  logAction('Gestion utilisateur','Compte '+login+' '+(editUserId?'modifie':'cree')+' par '+currentUser.name);
+  closeModal('modalUser');
+  renderAdmin();
+  populateKiosqueSource();
+  toast('Compte enregistre');
+}
 async function delUser(id){ if(id===currentUser.id){ toast('Impossible de supprimer votre compte'); return; } if(!confirm('Supprimer ce compte ?')) return; const user=users.find(u=>u.id===id); users=users.filter(u=>u.id!==id); await saveFB('cb_users',users); logAction('Gestion utilisateur','Compte '+(user?.login||'')+' supprime par '+currentUser.name); renderAdmin(); populateKiosqueSource(); toast('Compte supprime'); }
 
 // ================================================================
-// GESTION DES PRODUITS - AVEC LIEN VERS GRAND STOCK
+// GESTION DES PRODUITS
 // ================================================================
 function openAddProd(){ editProdId=null; document.getElementById('modalProdTitle').textContent='Nouveau produit'; document.getElementById('pName').value=''; document.getElementById('pPrice').value=''; document.getElementById('pCat').value='Nourriture'; document.getElementById('pPhoto').value=''; document.getElementById('pSeuil').value='5'; toggleSeuilField(); openModal('modalProd'); }
-
 function editProdModal(id){ let p=products.find(x=>x.id===id); if(!p) p=CREMERIE_PRODUITS.find(x=>x.id===id); if(!p) p=POPCORN_PRODUITS.find(x=>x.id===id); if(!p){ toast('Produit non trouvé'); return; } editProdId=id; document.getElementById('modalProdTitle').textContent='Modifier produit'; document.getElementById('pName').value=p.name; document.getElementById('pPrice').value=p.prix||p.price; document.getElementById('pCat').value=p.cat; document.getElementById('pPhoto').value=p.photo||''; document.getElementById('pSeuil').value=p.seuil||5; toggleSeuilField(); openModal('modalProd'); }
-
 function toggleSeuilField(){ const cat=document.getElementById('pCat').value; document.getElementById('pSeuilGroup').style.display=(cat==='Boissons'||cat==='Chicha')?'block':'none'; }
 
-async function saveProd(){ const name=document.getElementById('pName').value.trim(); const price=parseFloat(document.getElementById('pPrice').value); const cat=document.getElementById('pCat').value; const photo=document.getElementById('pPhoto').value.trim(); const seuil=parseInt(document.getElementById('pSeuil').value)||5;
- if(!name){ toast('Veuillez entrer un nom de produit'); return; } if(!price||price<=0){ toast('Veuillez entrer un prix valide'); return; } 
- let ancienCat=null; if(editProdId){ const existant=[...products,...CREMERIE_PRODUITS,...POPCORN_PRODUITS].find(p=>p.id===editProdId); if(existant) ancienCat=existant.cat; } 
- const allIds=[...products.map(p=>p.id),...CREMERIE_PRODUITS.map(p=>p.id),...POPCORN_PRODUITS.map(p=>p.id)]; const maxId=allIds.length>0?Math.max(...allIds):0; const newId=maxId+1; 
- try{ if(editProdId){ let found=false; let idx=products.findIndex(p=>p.id===editProdId); if(idx!==-1){ if(cat==='Cremerie'){ const p=products.splice(idx,1)[0]; CREMERIE_PRODUITS.push({id:p.id,name,prix:price,cat:'Cremerie',photo,seuil}); }else if(cat==='Popcorn'){ const p=products.splice(idx,1)[0]; POPCORN_PRODUITS.push({id:p.id,name,prix:price,cat:'Popcorn',photo,seuil}); }else{ products[idx]={id:editProdId,name,price,cat,photo,seuil}; } found=true; } if(!found){ idx=CREMERIE_PRODUITS.findIndex(p=>p.id===editProdId); if(idx!==-1){ if(cat==='Cremerie'){ CREMERIE_PRODUITS[idx]={id:editProdId,name,prix:price,cat,photo,seuil}; }else if(cat==='Popcorn'){ const p=CREMERIE_PRODUITS.splice(idx,1)[0]; POPCORN_PRODUITS.push({id:p.id,name,prix:price,cat:'Popcorn',photo,seuil}); }else{ const p=CREMERIE_PRODUITS.splice(idx,1)[0]; products.push({id:p.id,name,price,cat,photo,seuil}); } found=true; } } if(!found){ idx=POPCORN_PRODUITS.findIndex(p=>p.id===editProdId); if(idx!==-1){ if(cat==='Popcorn'){ POPCORN_PRODUITS[idx]={id:editProdId,name,prix:price,cat,photo,seuil}; }else if(cat==='Cremerie'){ const p=POPCORN_PRODUITS.splice(idx,1)[0]; CREMERIE_PRODUITS.push({id:p.id,name,prix:price,cat:'Cremerie',photo,seuil}); }else{ const p=POPCORN_PRODUITS.splice(idx,1)[0]; products.push({id:p.id,name,price,cat,photo,seuil}); } found=true; } } if(!found){ toast('Erreur: Produit non trouvé'); return; } logAction('Gestion produit','Produit '+name+' modifié par '+currentUser.name); }else{ if(cat==='Cremerie'){ CREMERIE_PRODUITS.push({id:newId,name,prix:price,cat:'Cremerie',photo,seuil}); }else if(cat==='Popcorn'){ POPCORN_PRODUITS.push({id:newId,name,prix:price,cat:'Popcorn',photo,seuil}); }else{ products.push({id:newId,name,price,cat,photo,seuil}); } logAction('Gestion produit','Produit '+name+' créé par '+currentUser.name); } 
- await syncProduitGrandStock(editProdId||newId, cat, ancienCat); 
- await saveFB('cb_prods',products); await saveFB('cb_cremerie_produits',CREMERIE_PRODUITS); await saveFB('cb_popcorn_produits',POPCORN_PRODUITS); 
- localStorage.setItem('cb_prods',JSON.stringify(products)); localStorage.setItem('cb_cremerie_produits',JSON.stringify(CREMERIE_PRODUITS)); localStorage.setItem('cb_popcorn_produits',JSON.stringify(POPCORN_PRODUITS)); 
- closeModal('modalProd'); 
- renderProdMgmt(); renderProds(); if(currentPage==='grand-stock') renderGrandStock(); if(currentPage==='admin') renderAdmin(); 
- toast(editProdId?'✅ Produit modifié':'✅ Produit ajouté'); editProdId=null; }catch(error){ console.error(error); toast('❌ Erreur lors de la sauvegarde'); } }
+async function saveProd(){
+  const name=document.getElementById('pName').value.trim();
+  const price=parseFloat(document.getElementById('pPrice').value);
+  const cat=document.getElementById('pCat').value;
+  const photo=document.getElementById('pPhoto').value.trim();
+  const seuil=parseInt(document.getElementById('pSeuil').value)||5;
+  if(!name){ toast('Veuillez entrer un nom de produit'); return; }
+  if(!price||price<=0){ toast('Veuillez entrer un prix valide'); return; }
+  let ancienCat=null;
+  if(editProdId){
+    const existant=[...products,...CREMERIE_PRODUITS,...POPCORN_PRODUITS].find(p=>p.id===editProdId);
+    if(existant) ancienCat=existant.cat;
+  }
+  const allIds=[...products.map(p=>p.id),...CREMERIE_PRODUITS.map(p=>p.id),...POPCORN_PRODUITS.map(p=>p.id)];
+  const maxId=allIds.length>0?Math.max(...allIds):0;
+  const newId=maxId+1;
+  try{
+    if(editProdId){
+      let found=false;
+      let idx=products.findIndex(p=>p.id===editProdId);
+      if(idx!==-1){
+        if(cat==='Cremerie'){
+          const p=products.splice(idx,1)[0];
+          CREMERIE_PRODUITS.push({id:p.id,name,prix:price,cat:'Cremerie',photo,seuil});
+        }else if(cat==='Popcorn'){
+          const p=products.splice(idx,1)[0];
+          POPCORN_PRODUITS.push({id:p.id,name,prix:price,cat:'Popcorn',photo,seuil});
+        }else{
+          products[idx]={id:editProdId,name,price,cat,photo,seuil};
+        }
+        found=true;
+      }
+      if(!found){
+        idx=CREMERIE_PRODUITS.findIndex(p=>p.id===editProdId);
+        if(idx!==-1){
+          if(cat==='Cremerie'){
+            CREMERIE_PRODUITS[idx]={id:editProdId,name,prix:price,cat,photo,seuil};
+          }else if(cat==='Popcorn'){
+            const p=CREMERIE_PRODUITS.splice(idx,1)[0];
+            POPCORN_PRODUITS.push({id:p.id,name,prix:price,cat:'Popcorn',photo,seuil});
+          }else{
+            const p=CREMERIE_PRODUITS.splice(idx,1)[0];
+            products.push({id:p.id,name,price,cat,photo,seuil});
+          }
+          found=true;
+        }
+      }
+      if(!found){
+        idx=POPCORN_PRODUITS.findIndex(p=>p.id===editProdId);
+        if(idx!==-1){
+          if(cat==='Popcorn'){
+            POPCORN_PRODUITS[idx]={id:editProdId,name,prix:price,cat,photo,seuil};
+          }else if(cat==='Cremerie'){
+            const p=POPCORN_PRODUITS.splice(idx,1)[0];
+            CREMERIE_PRODUITS.push({id:p.id,name,prix:price,cat:'Cremerie',photo,seuil});
+          }else{
+            const p=POPCORN_PRODUITS.splice(idx,1)[0];
+            products.push({id:p.id,name,price,cat,photo,seuil});
+          }
+          found=true;
+        }
+      }
+      if(!found){ toast('Erreur: Produit non trouvé'); return; }
+      logAction('Gestion produit','Produit '+name+' modifié par '+currentUser.name);
+    }else{
+      if(cat==='Cremerie'){
+        CREMERIE_PRODUITS.push({id:newId,name,prix:price,cat:'Cremerie',photo,seuil});
+      }else if(cat==='Popcorn'){
+        POPCORN_PRODUITS.push({id:newId,name,prix:price,cat:'Popcorn',photo,seuil});
+      }else{
+        products.push({id:newId,name,price,cat,photo,seuil});
+      }
+      logAction('Gestion produit','Produit '+name+' créé par '+currentUser.name);
+    }
+    await syncProduitGrandStock(editProdId||newId, cat, ancienCat);
+    await saveFB('cb_prods',products);
+    await saveFB('cb_cremerie_produits',CREMERIE_PRODUITS);
+    await saveFB('cb_popcorn_produits',POPCORN_PRODUITS);
+    localStorage.setItem('cb_prods',JSON.stringify(products));
+    localStorage.setItem('cb_cremerie_produits',JSON.stringify(CREMERIE_PRODUITS));
+    localStorage.setItem('cb_popcorn_produits',JSON.stringify(POPCORN_PRODUITS));
+    closeModal('modalProd');
+    renderProdMgmt();
+    renderProds();
+    if(currentPage==='grand-stock') renderGrandStock();
+    if(currentPage==='admin') renderAdmin();
+    toast(editProdId?'✅ Produit modifié':'✅ Produit ajouté');
+    editProdId=null;
+  }catch(error){ console.error(error); toast('❌ Erreur lors de la sauvegarde'); }
+}
 
-async function delProd(id){ if(!confirm('Supprimer ce produit definitivement ?')) return; let p=null; let idx=products.findIndex(x=>x.id===id); if(idx!==-1){ p=products.splice(idx,1)[0]; }else{ idx=CREMERIE_PRODUITS.findIndex(x=>x.id===id); if(idx!==-1){ p=CREMERIE_PRODUITS.splice(idx,1)[0]; }else{ idx=POPCORN_PRODUITS.findIndex(x=>x.id===id); if(idx!==-1){ p=POPCORN_PRODUITS.splice(idx,1)[0]; } } } if(!p){ toast('Produit non trouvé'); return; } Object.keys(stockVendeur).forEach(k=>{ if(stockVendeur[k]&&stockVendeur[k][id]!==undefined){ delete stockVendeur[k][id]; } }); 
- if(grandStock[id]!==undefined){ delete grandStock[id]; await saveFB('cb_grand_stock',grandStock); } 
- try{ await saveFB('cb_prods',products); await saveFB('cb_cremerie_produits',CREMERIE_PRODUITS); await saveFB('cb_popcorn_produits',POPCORN_PRODUITS); await saveFB('cb_stock_vendeur',stockVendeur); localStorage.setItem('cb_prods',JSON.stringify(products)); localStorage.setItem('cb_cremerie_produits',JSON.stringify(CREMERIE_PRODUITS)); localStorage.setItem('cb_popcorn_produits',JSON.stringify(POPCORN_PRODUITS)); logAction('Gestion produit','Produit '+p.name+' supprimé par '+currentUser.name); renderProdMgmt(); renderProds(); if(currentPage==='grand-stock') renderGrandStock(); if(currentPage==='admin') renderAdmin(); toast('✅ Produit supprimé'); }catch(error){ console.error(error); toast('❌ Erreur lors de la suppression'); } }
+async function delProd(id){
+  if(!confirm('Supprimer ce produit definitivement ?')) return;
+  let p=null;
+  let idx=products.findIndex(x=>x.id===id);
+  if(idx!==-1){
+    p=products.splice(idx,1)[0];
+  }else{
+    idx=CREMERIE_PRODUITS.findIndex(x=>x.id===id);
+    if(idx!==-1){
+      p=CREMERIE_PRODUITS.splice(idx,1)[0];
+    }else{
+      idx=POPCORN_PRODUITS.findIndex(x=>x.id===id);
+      if(idx!==-1){
+        p=POPCORN_PRODUITS.splice(idx,1)[0];
+      }
+    }
+  }
+  if(!p){ toast('Produit non trouvé'); return; }
+  Object.keys(stockVendeur).forEach(k=>{
+    if(stockVendeur[k]&&stockVendeur[k][id]!==undefined){
+      delete stockVendeur[k][id];
+    }
+  });
+  if(grandStock[id]!==undefined){
+    delete grandStock[id];
+    await saveFB('cb_grand_stock',grandStock);
+  }
+  try{
+    await saveFB('cb_prods',products);
+    await saveFB('cb_cremerie_produits',CREMERIE_PRODUITS);
+    await saveFB('cb_popcorn_produits',POPCORN_PRODUITS);
+    await saveFB('cb_stock_vendeur',stockVendeur);
+    localStorage.setItem('cb_prods',JSON.stringify(products));
+    localStorage.setItem('cb_cremerie_produits',JSON.stringify(CREMERIE_PRODUITS));
+    localStorage.setItem('cb_popcorn_produits',JSON.stringify(POPCORN_PRODUITS));
+    logAction('Gestion produit','Produit '+p.name+' supprimé par '+currentUser.name);
+    renderProdMgmt();
+    renderProds();
+    if(currentPage==='grand-stock') renderGrandStock();
+    if(currentPage==='admin') renderAdmin();
+    toast('✅ Produit supprimé');
+  }catch(error){ console.error(error); toast('❌ Erreur lors de la suppression'); }
+}
 
 // ================================================================
 // CONFIGURATION
@@ -1696,13 +1953,13 @@ async function savePopcornConfig(){ const rendement=parseInt(document.getElement
 async function saveParkingConfig(){ const places=parseInt(document.getElementById('cfgParkingPlaces').value); const horaire=parseInt(document.getElementById('cfgParkingHoraire').value); const jour=parseInt(document.getElementById('cfgParkingJour').value); const nuit=parseInt(document.getElementById('cfgParkingNuit').value); if(!places||places<=0||!horaire||horaire<=0||!jour||jour<=0||!nuit||nuit<=0){ toast('Veuillez entrer des valeurs valides'); return; } const placesOccupees=parkingVehicles.filter(v=>v.statut==='stationne').length; if(places<placesOccupees){ toast('Impossible de réduire en dessous des places occupées ('+placesOccupees+')'); return; } appConfig.parking.totalPlaces=places; appConfig.parking.tarifHoraire=horaire; appConfig.parking.tarifForfaitJour=jour; appConfig.parking.tarifForfaitNuit=nuit; PARKING_CONFIG=appConfig.parking; await saveConfig(appConfig); logAction('Configuration','Mise à jour des tarifs Parking'); loadConfigValues('parking'); if(currentPage==='parking') renderParking(); toast('Configuration Parking sauvegardée'); }
 
 // ================================================================
-// 13-PASSWORD.JS
+// 14-PASSWORD.JS
 // ================================================================
 function openChangePwd(){ ['pwdOld','pwdNew','pwdConf'].forEach(i=>document.getElementById(i).value=''); document.getElementById('pwdErr').textContent=''; openModal('modalPwd'); }
 async function doChangePwd(){ const old=document.getElementById('pwdOld').value; const nw=document.getElementById('pwdNew').value; const conf=document.getElementById('pwdConf').value; const errEl=document.getElementById('pwdErr'); if(!old||!nw||!conf){ errEl.textContent='Remplir tous les champs.'; return; } if(old!==currentUser.pass){ errEl.textContent='Ancien mot de passe incorrect.'; return; } if(nw.length<4){ errEl.textContent='Minimum 4 caracteres requis.'; return; } if(nw!==conf){ errEl.textContent='Les mots de passe ne correspondent pas.'; return; } const u=users.find(x=>x.id===currentUser.id); if(u){ u.pass=nw; currentUser.pass=nw; } await saveFB('cb_users',users); logAction('Changement mot de passe','Utilisateur '+currentUser.name+' a change son mot de passe'); closeModal('modalPwd'); toast('Mot de passe modifie'); }
 
 // ================================================================
-// 14-CREMERIE.JS
+// 15-CREMERIE.JS
 // ================================================================
 function getCremerieConfig(){ return {rendement:appConfig.cremerie.rendement||600000,prixPetitPot:appConfig.cremerie.prixPetitPot||5000,prixGrandPot:appConfig.cremerie.prixGrandPot||10000}; }
 function renderCremerie(){ const config=getCremerieConfig(); document.getElementById('cremerieSub').textContent='Gestion des glaces - Prix: petit '+fmt(config.prixPetitPot)+', grand '+fmt(config.prixGrandPot)+' - Rendement: '+fmt(config.rendement)+'/kg'; document.getElementById('cremerieStock').textContent=grandStock.creme||0; const todayStr=today(); const mouvementsJour=cremerieMouvements.filter(m=>m.date===todayStr); const ventesJour=mouvementsJour.filter(m=>m.type==='vente'); const totalKg=ventesJour.reduce((s,m)=>s+m.kg,0); const totalPetits=ventesJour.reduce((s,m)=>s+(m.petitsPots||0),0); const totalGrands=ventesJour.reduce((s,m)=>s+(m.grandsPots||0),0); const recette=ventesJour.reduce((s,m)=>s+(m.recette||0),0); const attendu=totalKg*config.rendement; const ecart=attendu-recette; document.getElementById('cremKg').textContent=totalKg+' kg'; document.getElementById('cremPetits').textContent=totalPetits; document.getElementById('cremGrands').textContent=totalGrands; document.getElementById('cremRecette').textContent=fmt(recette); document.getElementById('cremAttendu').textContent=fmt(attendu); const ecartEl=document.getElementById('cremEcart'); ecartEl.textContent=(ecart>=0?'+':'')+fmt(Math.abs(ecart)); ecartEl.style.color=ecart===0?'var(--green)':'var(--red)'; const tb=document.getElementById('cremerieTable'); if(!cremerieMouvements.length){ tb.innerHTML='<tr><td colspan="9" style="text-align:center;padding:1.5rem;color:var(--muted)">Aucun mouvement</td></tr>'; return; } const typeLabel={reception:'Reception',vente:'Vente',perte:'Perte'}; const typeMap={reception:'bg-g',vente:'bg-b',perte:'bg-r'}; tb.innerHTML=cremerieMouvements.slice(0,50).map(m=>{ const ecartMvt=(m.attendu||0)-(m.recette||0); return '<tr><td style="font-size:.75rem">'+m.date+'</td><td><span class="badge '+(typeMap[m.type]||'bg-b')+'">'+(typeLabel[m.type]||m.type)+'</span></td><td>'+(m.kg||0)+' kg</td><td>'+(m.petitsPots||0)+'</td><td>'+(m.grandsPots||0)+'</td><td><strong>'+fmt(m.recette||0)+'</strong></td><td>'+fmt(m.attendu||0)+'</td><td style="color:'+(ecartMvt===0?'var(--green)':'var(--red)')+'">'+fmt(Math.abs(ecartMvt))+'</td><td style="font-size:.75rem">'+(m.par||'--')+'</td></tr>'; }).join(''); }
@@ -1713,7 +1970,7 @@ function calcCremerieRecette(){ const config=getCremerieConfig(); const kg=parse
 async function saveVenteCremerie(){ const config=getCremerieConfig(); const kg=parseFloat(document.getElementById('cremVenteKg').value); const petits=parseInt(document.getElementById('cremVentePetits').value)||0; const grands=parseInt(document.getElementById('cremVenteGrands').value)||0; const par=document.getElementById('cremVentePar').value||currentUser.name; if(!kg||kg<=0){ toast('Entrer une quantite de kg valide'); return; } if(petits===0&&grands===0){ toast('Entrer au moins un pot vendu'); return; } if((grandStock.creme||0)<kg){ toast('Stock insuffisant (disponible: '+grandStock.creme+' kg)'); return; } const recette=(petits*config.prixPetitPot)+(grands*config.prixGrandPot); const attendu=kg*config.rendement; const ecart=attendu-recette; grandStock.creme-=kg; const mouvement={id:'CREM-VEN-'+Date.now().toString(36).toUpperCase(),date:today(),type:'vente',kg:kg,petitsPots:petits,grandsPots:grands,recette:recette,attendu:attendu,ecart:ecart,par:par,commentaire:'Vente du jour'}; cremerieMouvements.unshift(mouvement); if(cremerieMouvements.length>500) cremerieMouvements=cremerieMouvements.slice(0,500); await saveFB('cb_cremerie_mouvements',cremerieMouvements); await saveFB('cb_grand_stock',grandStock); logAction('Vente cremerie',kg+' kg utilise - Recette: '+fmt(recette)+' - Ecart: '+fmt(ecart)); closeModal('modalCremerieVente'); renderCremerie(); if(ecart===0) toast('Vente OK - Recette conforme'); else if(ecart>0) toast('Ecart positif de '+fmt(ecart)+' (reversement superieur)'); else toast('Ecart negatif de '+fmt(Math.abs(ecart))+' (manque a gagner)'); }
 
 // ================================================================
-// 15-POPCORN.JS
+// 16-POPCORN.JS
 // ================================================================
 function getPopcornConfig(){ return {rendement:appConfig.popcorn.rendement||200000,prixBoite:appConfig.popcorn.prixBoite||10000}; }
 function renderPopcorn(){ const config=getPopcornConfig(); document.getElementById('popcornSub').textContent='Gestion des popcorns - Prix: '+fmt(config.prixBoite)+'/boîte - Rendement: '+fmt(config.rendement)+'/kg'; document.getElementById('popcornStock').textContent=grandStock.mais||0; const todayStr=today(); const mouvementsJour=popcornMouvements.filter(m=>m.date===todayStr); const ventesJour=mouvementsJour.filter(m=>m.type==='vente'); const totalKg=ventesJour.reduce((s,m)=>s+m.kg,0); const totalBoites=ventesJour.reduce((s,m)=>s+(m.boites||0),0); const recette=ventesJour.reduce((s,m)=>s+(m.recette||0),0); const attendu=totalKg*config.rendement; const ecart=attendu-recette; document.getElementById('popKg').textContent=totalKg+' kg'; document.getElementById('popBoites').textContent=totalBoites; document.getElementById('popRecette').textContent=fmt(recette); document.getElementById('popAttendu').textContent=fmt(attendu); const ecartEl=document.getElementById('popEcart'); ecartEl.textContent=(ecart>=0?'+':'')+fmt(Math.abs(ecart)); ecartEl.style.color=ecart===0?'var(--green)':'var(--red)'; const tb=document.getElementById('popcornTable'); if(!popcornMouvements.length){ tb.innerHTML='<tr><td colspan="8" style="text-align:center;padding:1.5rem;color:var(--muted)">Aucun mouvement</td></tr>'; return; } const typeLabel={reception:'Reception',vente:'Vente',perte:'Perte'}; const typeMap={reception:'bg-g',vente:'bg-b',perte:'bg-r'}; tb.innerHTML=popcornMouvements.slice(0,50).map(m=>{ const ecartMvt=(m.attendu||0)-(m.recette||0); return '<tr><td style="font-size:.75rem">'+m.date+'</td><td><span class="badge '+(typeMap[m.type]||'bg-b')+'">'+(typeLabel[m.type]||m.type)+'</span></td><td>'+(m.kg||0)+' kg</td><td>'+(m.boites||0)+'</td><td><strong>'+fmt(m.recette||0)+'</strong></td><td>'+fmt(m.attendu||0)+'</td><td style="color:'+(ecartMvt===0?'var(--green)':'var(--red)')+'">'+fmt(Math.abs(ecartMvt))+'</td><td style="font-size:.75rem">'+(m.par||'--')+'</td></tr>'; }).join(''); }
@@ -1724,9 +1981,63 @@ function calcPopcornRecette(){ const config=getPopcornConfig(); const kg=parseFl
 async function saveVentePopcorn(){ const config=getPopcornConfig(); const kg=parseFloat(document.getElementById('popVenteKg').value); const boites=parseInt(document.getElementById('popVenteBoites').value)||0; const par=document.getElementById('popVentePar').value||currentUser.name; if(!kg||kg<=0){ toast('Entrer une quantite de kg valide'); return; } if(boites===0){ toast('Entrer au moins une boite vendue'); return; } if((grandStock.mais||0)<kg){ toast('Stock insuffisant (disponible: '+grandStock.mais+' kg)'); return; } const recette=boites*config.prixBoite; const attendu=kg*config.rendement; const ecart=attendu-recette; grandStock.mais-=kg; const mouvement={id:'POP-VEN-'+Date.now().toString(36).toUpperCase(),date:today(),type:'vente',kg:kg,boites:boites,recette:recette,attendu:attendu,ecart:ecart,par:par,commentaire:'Vente du jour'}; popcornMouvements.unshift(mouvement); if(popcornMouvements.length>500) popcornMouvements=popcornMouvements.slice(0,500); await saveFB('cb_popcorn_mouvements',popcornMouvements); await saveFB('cb_grand_stock',grandStock); logAction('Vente popcorn',kg+' kg utilise - Recette: '+fmt(recette)+' - Ecart: '+fmt(ecart)); closeModal('modalPopcornVente'); renderPopcorn(); if(ecart===0) toast('Vente OK - Recette conforme'); else if(ecart>0) toast('Ecart positif de '+fmt(ecart)+' (reversement superieur)'); else toast('Ecart negatif de '+fmt(Math.abs(ecart))+' (manque a gagner)'); }
 
 // ================================================================
-// 16-PARKING.JS
+// 17-PARKING.JS - HISTORIQUE MASQUÉ POUR NON-ADMIN
 // ================================================================
-function renderParking(){ const placesOccupees=parkingVehicles.filter(v=>v.statut==='stationne').length; const placesLibres=PARKING_CONFIG.totalPlaces-placesOccupees; const todayStr=today(); const sortiesAujourdhui=parkingHistory.filter(h=>h.date===todayStr); const recetteAujourdhui=sortiesAujourdhui.reduce((s,h)=>s+(h.montant||0),0); document.getElementById('totalPlaces').textContent=PARKING_CONFIG.totalPlaces; document.getElementById('placesLibres').textContent=placesLibres; document.getElementById('parkingRecette').textContent=fmt(recetteAujourdhui); document.getElementById('parkingOccupees').textContent=placesOccupees; document.getElementById('parkingLibres2').textContent=placesLibres; document.getElementById('parkingTotal').textContent=parkingVehicles.length+sortiesAujourdhui.length; document.getElementById('parkingRecetteTotal').textContent=fmt(recetteAujourdhui); document.getElementById('parkingSub').textContent='Gestion des places - Tarif: '+fmt(PARKING_CONFIG.tarifHoraire)+'/h, Jour: '+fmt(PARKING_CONFIG.tarifForfaitJour)+', Nuit: '+fmt(PARKING_CONFIG.tarifForfaitNuit); const grid=document.getElementById('parkingGrid'); const vehiclesStationnes=parkingVehicles.filter(v=>v.statut==='stationne'); if(vehiclesStationnes.length===0&&placesLibres===PARKING_CONFIG.totalPlaces){ grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--muted);">Parking vide</div>'; }else{ let html='<style>.parking-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:10px;}.parking-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:.8rem;text-align:center;box-shadow:var(--sh);}.parking-card.occupe{border-color:var(--accent);}.parking-card.libre{border-color:var(--green);}.parking-plaque{font-weight:700;font-size:.9rem;}.parking-time{font-size:.7rem;color:var(--muted);}.parking-actions{margin-top:8px;}</style>'; vehiclesStationnes.forEach((v)=>{ const duree=calculerDuree(v.heureEntree); html+='<div class="parking-card occupe"><div class="parking-plaque">'+v.plaque+'</div><div class="parking-time">Entree: '+v.heureEntree+'</div><div class="parking-time">Duree: '+duree+'</div><div class="parking-actions"><button class="btn btn-ok" style="flex:1;padding:6px;font-size:.7rem;" onclick="openParkingExit(\''+v.id+'\')">Sortie</button></div></div>'; }); if(placesLibres>0){ html+='<div class="parking-card libre" style="justify-content:center;align-items:center;border-style:dashed;"><div style="font-size:1.5rem;opacity:.3;">+</div><div style="font-size:.7rem;color:var(--muted);">'+placesLibres+' place(s) libre(s)</div></div>'; } grid.innerHTML=html; } const tb=document.getElementById('parkingHistoryTable'); const historyDisplay=parkingHistory.slice(0,50); if(!historyDisplay.length){ tb.innerHTML='<tr><td colspan="5" style="text-align:center;padding:1.5rem;color:var(--muted)">Aucune sortie</td></tr>'; return; } const statusMap={paye:'bg-g',sorti:'bg-b'}; const statusLabel={paye:'Paye',sorti:'Sorti'}; tb.innerHTML=historyDisplay.map(h=>{ const duree=h.duree?h.duree+' min':'--'; return '<tr><td style="font-size:.75rem">'+(h.ts||h.date)+'</td><td><strong>'+h.plaque+'</strong></td><td>'+duree+'</td><td><strong>'+fmt(h.montant||0)+'</strong></td><td><span class="badge '+(statusMap[h.statut]||'bg-b')+'">'+(statusLabel[h.statut]||h.statut)+'</span></td></tr>'; }).join(''); }
+function renderParking(){
+  // Masquer l'historique pour les non-admin
+  const historyDiv=document.getElementById('parkingHistoryDiv');
+  if(historyDiv){
+    historyDiv.style.display=(currentUser.role==='admin')?'block':'none';
+  }
+  
+  const placesOccupees=parkingVehicles.filter(v=>v.statut==='stationne').length;
+  const placesLibres=PARKING_CONFIG.totalPlaces-placesOccupees;
+  const todayStr=today();
+  const sortiesAujourdhui=parkingHistory.filter(h=>h.date===todayStr);
+  const recetteAujourdhui=sortiesAujourdhui.reduce((s,h)=>s+(h.montant||0),0);
+  
+  document.getElementById('totalPlaces').textContent=PARKING_CONFIG.totalPlaces;
+  document.getElementById('placesLibres').textContent=placesLibres;
+  document.getElementById('parkingRecette').textContent=fmt(recetteAujourdhui);
+  document.getElementById('parkingOccupees').textContent=placesOccupees;
+  document.getElementById('parkingLibres2').textContent=placesLibres;
+  document.getElementById('parkingTotal').textContent=parkingVehicles.length+sortiesAujourdhui.length;
+  document.getElementById('parkingRecetteTotal').textContent=fmt(recetteAujourdhui);
+  document.getElementById('parkingSub').textContent='Gestion des places - Tarif: '+fmt(PARKING_CONFIG.tarifHoraire)+'/h, Jour: '+fmt(PARKING_CONFIG.tarifForfaitJour)+', Nuit: '+fmt(PARKING_CONFIG.tarifForfaitNuit);
+  
+  const grid=document.getElementById('parkingGrid');
+  const vehiclesStationnes=parkingVehicles.filter(v=>v.statut==='stationne');
+  if(vehiclesStationnes.length===0&&placesLibres===PARKING_CONFIG.totalPlaces){
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--muted);">Parking vide</div>';
+  }else{
+    let html='<style>.parking-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:10px;}.parking-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:.8rem;text-align:center;box-shadow:var(--sh);}.parking-card.occupe{border-color:var(--accent);}.parking-card.libre{border-color:var(--green);}.parking-plaque{font-weight:700;font-size:.9rem;}.parking-time{font-size:.7rem;color:var(--muted);}.parking-actions{margin-top:8px;}</style>';
+    vehiclesStationnes.forEach((v)=>{
+      const duree=calculerDuree(v.heureEntree);
+      html+='<div class="parking-card occupe"><div class="parking-plaque">'+v.plaque+'</div><div class="parking-time">Entree: '+v.heureEntree+'</div><div class="parking-time">Duree: '+duree+'</div><div class="parking-actions"><button class="btn btn-ok" style="flex:1;padding:6px;font-size:.7rem;" onclick="openParkingExit(\''+v.id+'\')">Sortie</button></div></div>';
+    });
+    if(placesLibres>0){
+      html+='<div class="parking-card libre" style="justify-content:center;align-items:center;border-style:dashed;"><div style="font-size:1.5rem;opacity:.3;">+</div><div style="font-size:.7rem;color:var(--muted);">'+placesLibres+' place(s) libre(s)</div></div>';
+    }
+    grid.innerHTML=html;
+  }
+  
+  // Historique - uniquement admin
+  const tb=document.getElementById('parkingHistoryTable');
+  if(currentUser.role==='admin'){
+    const historyDisplay=parkingHistory.slice(0,50);
+    if(!historyDisplay.length){
+      tb.innerHTML='<tr><td colspan="5" style="text-align:center;padding:1.5rem;color:var(--muted)">Aucune sortie</td></tr>';
+      return;
+    }
+    const statusMap={paye:'bg-g',sorti:'bg-b'};
+    const statusLabel={paye:'Paye',sorti:'Sorti'};
+    tb.innerHTML=historyDisplay.map(h=>{
+      const duree=h.duree?h.duree+' min':'--';
+      return '<tr><td style="font-size:.75rem">'+(h.ts||h.date)+'</td><td><strong>'+h.plaque+'</strong></td><td>'+duree+'</td><td><strong>'+fmt(h.montant||0)+'</strong></td><td><span class="badge '+(statusMap[h.statut]||'bg-b')+'">'+(statusLabel[h.statut]||h.statut)+'</span></td></tr>';
+    }).join('');
+  }
+}
+
 function calculerDuree(heureEntree){ try{ const entree=new Date(heureEntree); const maintenant=new Date(); const diffMinutes=Math.floor((maintenant-entree)/60000); if(diffMinutes<60) return diffMinutes+' min'; const heures=Math.floor(diffMinutes/60); const minutes=diffMinutes%60; return heures+'h'+(minutes>0?minutes+'min':''); }catch(e){ return '--'; } }
 function openParkingEntry(){ document.getElementById('parkingPlaque').value=''; document.getElementById('parkingType').value='voiture'; document.getElementById('parkingTarif').value='horaire'; document.getElementById('tarifHoraireLabel').textContent=fmt(PARKING_CONFIG.tarifHoraire); document.getElementById('tarifJourLabel').textContent=fmt(PARKING_CONFIG.tarifForfaitJour); document.getElementById('tarifNuitLabel').textContent=fmt(PARKING_CONFIG.tarifForfaitNuit); openModal('modalParkingEntry'); }
 async function saveParkingEntry(){ try{ const plaque=document.getElementById('parkingPlaque').value.trim().toUpperCase(); const type=document.getElementById('parkingType').value; const tarif=document.getElementById('parkingTarif').value; if(!plaque){ toast('Entrer une plaque d\'immatriculation'); return; } const existe=parkingVehicles.find(v=>v.plaque===plaque&&v.statut==='stationne'); if(existe){ toast('Ce vehicule est deja dans le parking'); return; } const placesOccupees=parkingVehicles.filter(v=>v.statut==='stationne').length; if(placesOccupees>=PARKING_CONFIG.totalPlaces){ toast('Parking complet'); return; } const vehicle={id:'PK-'+Date.now().toString(36).toUpperCase(),plaque:plaque,type:type,tarif:tarif,heureEntree:nowFull(),statut:'stationne'}; parkingVehicles.push(vehicle); await saveFB('cb_parking_vehicles',parkingVehicles); logAction('Parking entree','Vehicule '+plaque+' entre - Tarif: '+tarif); closeModal('modalParkingEntry'); renderParking(); toast('Vehicule '+plaque+' enregistre'); }catch(e){ console.error(e); toast('Erreur: '+e.message); } }
