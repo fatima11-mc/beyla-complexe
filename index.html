@@ -388,11 +388,19 @@ tbody td{padding:9px 10px;}
 .pm-price{font-weight:700;color:var(--accent);font-size:.88rem;}
 .pm-img{width:40px;height:40px;object-fit:cover;border-radius:6px;background:var(--surface);}
 
-/* ===== CONFIG TABS ===== */
-.config-tab-btn{padding:8px 16px;border-radius:20px;border:1.5px solid var(--border);cursor:pointer;font-size:.78rem;font-weight:600;background:var(--surface);color:var(--muted);transition:.15s;}
-.config-tab-btn.act{background:linear-gradient(135deg,#0d1b2a,#1a2e4a);color:#fff;border-color:transparent;}
-.config-panel{background:var(--surface2);border-radius:var(--r-lg);padding:1.2rem;}
-.config-panel .form-group{margin-bottom:8px;}
+/* ===== CHICHA ===== */
+.chicha-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+.chicha-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:1rem;text-align:center;box-shadow:var(--sh);}
+.chicha-card .chicha-nom{font-weight:700;font-size:1.1rem;}
+.chicha-card .chicha-aromes{font-size:.8rem;color:var(--muted);margin:4px 0;}
+.chicha-card .chicha-prix{font-size:1rem;color:var(--accent);font-weight:700;}
+
+/* ===== CONFIG DANS GRAND STOCK ===== */
+.config-section{margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1.2rem;}
+.config-section .config-tab-btn{padding:8px 16px;border-radius:20px;border:1.5px solid var(--border);cursor:pointer;font-size:.78rem;font-weight:600;background:var(--surface);color:var(--muted);transition:.15s;}
+.config-section .config-tab-btn.act{background:linear-gradient(135deg,#0d1b2a,#1a2e4a);color:#fff;border-color:transparent;}
+.config-section .config-panel{background:var(--surface2);border-radius:var(--r-lg);padding:1.2rem;margin-top:.8rem;}
+.config-section .config-panel .form-group{margin-bottom:8px;}
 
 /* ===== MODALS ===== */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(2px);}
@@ -619,6 +627,7 @@ tbody td{padding:9px 10px;}
       </div>
     </div>
 
+    <!-- Carte Produits & Menu - UN SEUL BOUTON -->
     <div class="admin-card" id="gsProduitsCard" style="margin-bottom:1.2rem;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem;">
         <div class="admin-card-title" style="margin:0">Liste des produits</div>
@@ -648,6 +657,46 @@ tbody td{padding:9px 10px;}
           <thead><tr><th>Date/Heure</th><th>Type</th><th>Produit</th><th>Quantite</th><th>Kiosque</th><th>Stock apres</th><th>Par</th><th>Commentaire</th></tr></thead>
           <tbody id="grandStockMvtTable"></tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- CONFIGURATION DANS GRAND STOCK -->
+    <div class="config-section">
+      <div class="admin-card-title" style="margin-bottom:.8rem;">⚙️ Configuration des prix et tarifs</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem;">
+        <button class="config-tab-btn act" onclick="switchConfigTab('cremerie')">Cremerie</button>
+        <button class="config-tab-btn" onclick="switchConfigTab('popcorn')">Popcorn</button>
+        <button class="config-tab-btn" onclick="switchConfigTab('parking')">Parking</button>
+      </div>
+      
+      <div id="configCremerie" class="config-panel">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="form-group"><label class="form-label">Rendement (GNF/kg)</label><input class="form-in" id="cfgCremerieRendement" type="number" step="1000"></div>
+          <div class="form-group"><label class="form-label">Prix petit pot (GNF)</label><input class="form-in" id="cfgCremeriePetit" type="number" step="100"></div>
+          <div class="form-group"><label class="form-label">Prix grand pot (GNF)</label><input class="form-in" id="cfgCremerieGrand" type="number" step="100"></div>
+          <div style="display:flex;align-items:flex-end;"><button class="btn btn-ok" onclick="saveCremerieConfig()">Sauvegarder</button></div>
+        </div>
+        <div style="margin-top:8px;font-size:.8rem;color:var(--muted);">💡 Le rendement est le prix de vente attendu par kg de crème. <span id="cremerieRendementCalc"></span></div>
+      </div>
+      
+      <div id="configPopcorn" class="config-panel" style="display:none;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="form-group"><label class="form-label">Rendement (GNF/kg)</label><input class="form-in" id="cfgPopcornRendement" type="number" step="1000"></div>
+          <div class="form-group"><label class="form-label">Prix boîte (GNF)</label><input class="form-in" id="cfgPopcornBoite" type="number" step="100"></div>
+          <div style="display:flex;align-items:flex-end;"><button class="btn btn-ok" onclick="savePopcornConfig()">Sauvegarder</button></div>
+        </div>
+        <div style="margin-top:8px;font-size:.8rem;color:var(--muted);">💡 Le rendement est le prix de vente attendu par kg de maïs.<span id="popcornRendementCalc"></span></div>
+      </div>
+      
+      <div id="configParking" class="config-panel" style="display:none;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="form-group"><label class="form-label">Nombre total de places</label><input class="form-in" id="cfgParkingPlaces" type="number"></div>
+          <div class="form-group"><label class="form-label">Tarif horaire (GNF/h)</label><input class="form-in" id="cfgParkingHoraire" type="number" step="100"></div>
+          <div class="form-group"><label class="form-label">Forfait journée (GNF)</label><input class="form-in" id="cfgParkingJour" type="number" step="500"></div>
+          <div class="form-group"><label class="form-label">Forfait nuit (GNF)</label><input class="form-in" id="cfgParkingNuit" type="number" step="500"></div>
+          <div style="display:flex;align-items:flex-end;"><button class="btn btn-ok" onclick="saveParkingConfig()">Sauvegarder</button></div>
+        </div>
+        <div style="margin-top:8px;font-size:.8rem;color:var(--muted);">💡 Les tarifs s'appliquent aux nouvelles entrées uniquement.</div>
       </div>
     </div>
   </div>
@@ -722,6 +771,34 @@ tbody td{padding:9px 10px;}
   </div>
 </div>
 
+<!-- ========== CHICHA ========== -->
+<div id="pg-chicha" class="page">
+  <div class="inner-page">
+    <div class="pg-header">
+      <div><div class="pg-title">Chicha</div><div class="pg-sub" id="chichaSub">Gestion des chichas</div></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <span style="font-size:.8rem;background:var(--surface2);padding:6px 14px;border-radius:20px;">
+          Stock chicha : <strong id="chichaStock">0</strong> unités
+        </span>
+        <button class="add-btn" onclick="openReceptionChicha()">Reception</button>
+        <button class="add-btn" onclick="openVenteChicha()">Vente</button>
+      </div>
+    </div>
+    <div class="stats-grid" id="chichaStats">
+      <div class="stat-c"><div class="stat-l">Unites utilisees</div><div class="stat-v" id="chichaUnites">0</div></div>
+      <div class="stat-c"><div class="stat-l">Recette reversee</div><div class="stat-v g" id="chichaRecette">0 GNF</div></div>
+      <div class="stat-c"><div class="stat-l">Attendu</div><div class="stat-v" id="chichaAttendu">0 GNF</div></div>
+      <div class="stat-c"><div class="stat-l">Ecart</div><div class="stat-v" id="chichaEcart">0 GNF</div></div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Date</th><th>Type</th><th>Unites</th><th>Recette</th><th>Attendu</th><th>Ecart</th><th>Par</th></tr></thead>
+        <tbody id="chichaTable"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 <!-- ========== PARKING ========== -->
 <div id="pg-parking" class="page">
   <div class="inner-page">
@@ -740,6 +817,7 @@ tbody td{padding:9px 10px;}
       <div class="stat-c"><div class="stat-l">Recette aujourd'hui</div><div class="stat-v g" id="parkingRecetteTotal">0 GNF</div></div>
     </div>
     <div class="parking-grid" id="parkingGrid"></div>
+    <!-- Historique complet - UNIQUEMENT ADMIN -->
     <div id="parkingHistoryDiv" style="display:none;">
       <div class="tbl-wrap" style="margin-top:1.5rem;">
         <div class="mvt-title">Historique des sorties</div>
@@ -749,6 +827,7 @@ tbody td{padding:9px 10px;}
         </table>
       </div>
     </div>
+    <!-- Historique du parking - UNIQUEMENT POUR LE PARKING -->
     <div id="parkingMyHistoryDiv" style="display:none;">
       <div class="tbl-wrap" style="margin-top:1.5rem;">
         <div class="mvt-title">Mes enregistrements</div>
@@ -780,48 +859,10 @@ tbody td{padding:9px 10px;}
         <div style="margin-top:1rem;"><button class="btn btn-blue" onclick="exportVentesVendeur()" style="flex:0;padding:8px 20px;">Exporter les ventes</button></div>
       </div>
       
+      <!-- Journal des actions - UNIQUEMENT ADMIN -->
       <div class="admin-card" style="grid-column:1/-1;" id="journalActionsCard">
         <div class="admin-card-title">Journal des actions sensibles</div>
         <div id="journalActions" style="max-height:300px;overflow-y:auto;font-size:.8rem;"></div>
-      </div>
-      
-      <div class="admin-card" style="grid-column:1/-1;">
-        <div class="admin-card-title">⚙️ Configuration des prix et tarifs</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem;">
-          <button class="config-tab-btn act" onclick="switchConfigTab('cremerie')">Cremerie</button>
-          <button class="config-tab-btn" onclick="switchConfigTab('popcorn')">Popcorn</button>
-          <button class="config-tab-btn" onclick="switchConfigTab('parking')">Parking</button>
-        </div>
-        
-        <div id="configCremerie" class="config-panel">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            <div class="form-group"><label class="form-label">Rendement (GNF/kg)</label><input class="form-in" id="cfgCremerieRendement" type="number" step="1000"></div>
-            <div class="form-group"><label class="form-label">Prix petit pot (GNF)</label><input class="form-in" id="cfgCremeriePetit" type="number" step="100"></div>
-            <div class="form-group"><label class="form-label">Prix grand pot (GNF)</label><input class="form-in" id="cfgCremerieGrand" type="number" step="100"></div>
-            <div style="display:flex;align-items:flex-end;"><button class="btn btn-ok" onclick="saveCremerieConfig()">Sauvegarder</button></div>
-          </div>
-          <div style="margin-top:8px;font-size:.8rem;color:var(--muted);">💡 Le rendement est le prix de vente attendu par kg de crème. <span id="cremerieRendementCalc"></span></div>
-        </div>
-        
-        <div id="configPopcorn" class="config-panel" style="display:none;">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            <div class="form-group"><label class="form-label">Rendement (GNF/kg)</label><input class="form-in" id="cfgPopcornRendement" type="number" step="1000"></div>
-            <div class="form-group"><label class="form-label">Prix boîte (GNF)</label><input class="form-in" id="cfgPopcornBoite" type="number" step="100"></div>
-            <div style="display:flex;align-items:flex-end;"><button class="btn btn-ok" onclick="savePopcornConfig()">Sauvegarder</button></div>
-          </div>
-          <div style="margin-top:8px;font-size:.8rem;color:var(--muted);">💡 Le rendement est le prix de vente attendu par kg de maïs.<span id="popcornRendementCalc"></span></div>
-        </div>
-        
-        <div id="configParking" class="config-panel" style="display:none;">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            <div class="form-group"><label class="form-label">Nombre total de places</label><input class="form-in" id="cfgParkingPlaces" type="number"></div>
-            <div class="form-group"><label class="form-label">Tarif horaire (GNF/h)</label><input class="form-in" id="cfgParkingHoraire" type="number" step="100"></div>
-            <div class="form-group"><label class="form-label">Forfait journée (GNF)</label><input class="form-in" id="cfgParkingJour" type="number" step="500"></div>
-            <div class="form-group"><label class="form-label">Forfait nuit (GNF)</label><input class="form-in" id="cfgParkingNuit" type="number" step="500"></div>
-            <div style="display:flex;align-items:flex-end;"><button class="btn btn-ok" onclick="saveParkingConfig()">Sauvegarder</button></div>
-          </div>
-          <div style="margin-top:8px;font-size:.8rem;color:var(--muted);">💡 Les tarifs s'appliquent aux nouvelles entrées uniquement.</div>
-        </div>
       </div>
     </div>
   </div>
@@ -837,6 +878,7 @@ tbody td{padding:9px 10px;}
 <div class="overlay" id="modalOrder"><div class="modal"><span class="modal-handle"></span><h3>Detail commande</h3><div id="modalOrderContent"></div><div class="modal-acts" id="modalOrderActs"><button class="btn btn-ghost" onclick="closeModal('modalOrder')">Fermer</button></div></div></div>
 <div class="overlay" id="modalCancelOrder"><div class="modal"><span class="modal-handle"></span><h3>Annuler la commande</h3><div style="font-size:.88rem;color:var(--muted);margin-bottom:1rem;line-height:1.7;">Cette action supprime definitivement la commande.<br>Le stock sera restaure automatiquement.</div><div class="form-group"><label class="form-label">Raison de l'annulation</label><textarea class="form-in" id="cancelReason" rows="2" placeholder="ex: Erreur de saisie, client parti..."></textarea></div><div class="modal-acts"><button class="btn btn-ghost" onclick="closeModal('modalCancelOrder')">Retour</button><button class="btn" style="background:var(--red);color:#fff;" onclick="confirmCancelOrder()">Confirmer annulation</button></div></div></div>
 
+<!-- Modal Utilisateur -->
 <div class="overlay" id="modalUser">
   <div class="modal">
     <span class="modal-handle"></span>
@@ -875,6 +917,7 @@ tbody td{padding:9px 10px;}
   </div>
 </div>
 
+<!-- Modal Produit -->
 <div class="overlay" id="modalProd">
   <div class="modal">
     <span class="modal-handle"></span>
@@ -907,6 +950,7 @@ tbody td{padding:9px 10px;}
   </div>
 </div>
 
+<!-- Modal Mot de passe -->
 <div class="overlay" id="modalPwd">
   <div class="modal">
     <span class="modal-handle"></span>
@@ -1023,6 +1067,32 @@ tbody td{padding:9px 10px;}
   </div>
 </div>
 
+<!-- ===== MODALS CHICHA ===== -->
+<div class="overlay" id="modalChichaReception">
+  <div class="modal">
+    <span class="modal-handle"></span>
+    <h3>Reception de chicha</h3>
+    <div class="form-group"><label class="form-label">Nombre d'unites</label><input class="form-in" id="chichaReceptionQte" type="number" step="1" placeholder="ex: 10"></div>
+    <div class="form-group"><label class="form-label">Responsable</label><input class="form-in" id="chichaReceptionPar" value=""></div>
+    <div style="font-size:.8rem;color:var(--muted);padding:8px;background:var(--bg);border-radius:8px;margin-bottom:10px;">Prix de vente : 50 000 GNF/unite</div>
+    <div class="modal-acts"><button class="btn btn-ghost" onclick="closeModal('modalChichaReception')">Annuler</button><button class="btn btn-ok" onclick="saveReceptionChicha()">Enregistrer</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="modalChichaVente">
+  <div class="modal">
+    <span class="modal-handle"></span>
+    <h3>Vente du jour - Chicha</h3>
+    <div class="form-group"><label class="form-label">Nombre d'unites utilisees</label><input class="form-in" id="chichaVenteQte" type="number" step="1" placeholder="ex: 5" oninput="calcChichaRecette()"></div>
+    <div class="form-group"><label class="form-label">Responsable</label><input class="form-in" id="chichaVentePar" value=""></div>
+    <div style="background:var(--surface2);padding:12px;border-radius:10px;margin-top:10px;">
+      <div style="display:flex;justify-content:space-between;font-size:.9rem;"><span>Recette calculee :</span><strong id="chichaVenteRecetteCalc">0 GNF</strong></div>
+      <div style="display:flex;justify-content:space-between;font-size:.9rem;font-weight:700;border-top:2px solid var(--border);padding-top:8px;margin-top:8px;"><span>Ecart :</span><strong id="chichaVenteEcart" style="color:var(--green);">0 GNF</strong></div>
+    </div>
+    <div class="modal-acts"><button class="btn btn-ghost" onclick="closeModal('modalChichaVente')">Annuler</button><button class="btn btn-ok" onclick="saveVenteChicha()">Valider</button></div>
+  </div>
+</div>
+
 <!-- ===== MODALS PARKING ===== -->
 <div class="overlay" id="modalParkingEntry">
   <div class="modal">
@@ -1068,25 +1138,16 @@ tbody td{padding:9px 10px;}
 // ================================================================
 // 01-DATA.JS - DONNÉES PAR DÉFAUT
 // ================================================================
-// UTILISATEURS PAR DÉFAUT - TOUS LES KIOSQUES
+// SEUL L'ADMINISTRATEUR EST CRÉÉ PAR DÉFAUT
 const DEFAULT_USERS = [
-  {id:1, name:'Administrateur', login:'admin', pass:'admin123', role:'admin', kiosque:null, catAccess:['Tous']},
-  {id:2, name:'Stock Manager', login:'stock', pass:'stock123', role:'stockmanager', kiosque:null, catAccess:['Tous']},
-  {id:3, name:'Cuisiniere', login:'cuisine', pass:'cuisine123', role:'cuisiniere', kiosque:null, catAccess:['Nourriture']},
-  {id:4, name:'Kiosque Nourriture - Fatou', login:'fatou', pass:'fatou123', role:'vendeur', kiosque:'Kiosque Nourriture', catAccess:['Nourriture']},
-  {id:5, name:'Kiosque Boissons 1 - Ali', login:'ali1', pass:'boissons123', role:'vendeur', kiosque:'Kiosque Boissons 1', catAccess:['Boissons']},
-  {id:6, name:'Kiosque Boissons 2 - Mariam', login:'ali2', pass:'boissons123', role:'vendeur', kiosque:'Kiosque Boissons 2', catAccess:['Boissons']},
-  {id:7, name:'Kiosque Chicha - Souleymane', login:'chicha', pass:'chicha123', role:'vendeur', kiosque:'Kiosque Chicha', catAccess:['Chicha']},
-  {id:8, name:'Kiosque Creme - Oumou', login:'creme', pass:'creme123', role:'vendeur', kiosque:'Kiosque Creme', catAccess:['Cremerie']},
-  {id:9, name:'Kiosque Popcorn - Mamadou', login:'popcorn', pass:'pop123', role:'vendeur', kiosque:'Kiosque Popcorn', catAccess:['Popcorn']},
-  {id:10, name:'Serveur - Ibrahim', login:'serveur', pass:'serveur123', role:'serveur', kiosque:null, catAccess:['Tous']},
-  {id:11, name:'Parking - Amadou', login:'parking', pass:'parking123', role:'parking', kiosque:'Parking', catAccess:['Parking']}
+  {id:1, name:'Administrateur', login:'admin', pass:'admin123', role:'admin', kiosque:null, catAccess:['Tous']}
 ];
 
-// CHARGEMENT DES DONNÉES DEPUIS LOCALSTORAGE
+// CHARGEMENT DES DONNÉES
 let products = JSON.parse(localStorage.getItem('cb_prods')) || [];
 let CREMERIE_PRODUITS = JSON.parse(localStorage.getItem('cb_cremerie_produits')) || [];
 let POPCORN_PRODUITS = JSON.parse(localStorage.getItem('cb_popcorn_produits')) || [];
+let CHICHA_PRODUITS = JSON.parse(localStorage.getItem('cb_chicha_produits')) || [];
 let users = JSON.parse(localStorage.getItem('cb_users')) || DEFAULT_USERS;
 let orders = JSON.parse(localStorage.getItem('cb_orders')) || [];
 let dispo = JSON.parse(localStorage.getItem('cb_dispo')) || {};
@@ -1095,6 +1156,7 @@ let journalActions = JSON.parse(localStorage.getItem('cb_journal_actions')) || [
 let verifs = JSON.parse(localStorage.getItem('cb_verifs')) || {};
 let cremerieMouvements = JSON.parse(localStorage.getItem('cb_cremerie_mouvements')) || [];
 let popcornMouvements = JSON.parse(localStorage.getItem('cb_popcorn_mouvements')) || [];
+let chichaMouvements = JSON.parse(localStorage.getItem('cb_chicha_mouvements')) || [];
 let parkingVehicles = JSON.parse(localStorage.getItem('cb_parking_vehicles')) || [];
 let parkingHistory = JSON.parse(localStorage.getItem('cb_parking_history')) || [];
 let grandStock = JSON.parse(localStorage.getItem('cb_grand_stock')) || {};
@@ -1156,7 +1218,7 @@ function setSyncDot(online) {
 
 async function loadFB() {
   try {
-    const keys = ['cb_users','cb_prods','cb_orders','cb_dispo','cb_verifs','cb_stock_vendeur','cb_journal_actions','cb_cremerie_produits','cb_popcorn_produits','cb_app_config','cb_grand_stock','cb_grand_stock_mvts'];
+    const keys = ['cb_users','cb_prods','cb_orders','cb_dispo','cb_verifs','cb_stock_vendeur','cb_journal_actions','cb_cremerie_produits','cb_popcorn_produits','cb_chicha_produits','cb_app_config','cb_grand_stock','cb_grand_stock_mvts'];
     for (const key of keys) {
       const snap = await db.ref('beyla/' + key).once('value');
       if (snap.exists()) {
@@ -1171,6 +1233,7 @@ async function loadFB() {
         if (key === 'cb_journal_actions') journalActions = Array.isArray(val) ? val : Object.values(val);
         if (key === 'cb_cremerie_produits') { CREMERIE_PRODUITS = val; }
         if (key === 'cb_popcorn_produits') { POPCORN_PRODUITS = val; }
+        if (key === 'cb_chicha_produits') { CHICHA_PRODUITS = val; }
         if (key === 'cb_app_config') { appConfig = val; PARKING_CONFIG = appConfig.parking; }
         if (key === 'cb_grand_stock') { grandStock = val; }
         if (key === 'cb_grand_stock_mvts') { grandStockMvts = Array.isArray(val) ? val : Object.values(val); }
@@ -1294,7 +1357,7 @@ async function saveConfig(config) {
 }
 
 function getProduitInfo(key) {
-  const allProds = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
+  const allProds = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS, ...CHICHA_PRODUITS];
   const prod = allProds.find(p => String(p.id) === String(key));
   if (prod) {
     return { label: prod.name, categorie: prod.cat, unite: 'piece', seuil: prod.seuil || 5, photo: prod.photo || '' };
@@ -1374,7 +1437,8 @@ document.getElementById('loginPass').addEventListener('keydown', function(e) {
 const NAV_ICONS = {
   accueil:'home', caisse:'cart', journal:'list', queue:'clock',
   'grand-stock':'warehouse', 'stock-kiosques':'box',
-  cremerie:'icecream', popcorn:'popcorn', parking:'car', admin:'settings'
+  cremerie:'icecream', popcorn:'popcorn', chicha:'smoke',
+  parking:'car', admin:'settings'
 };
 
 const NAV_MAP = {
@@ -1383,7 +1447,8 @@ const NAV_MAP = {
     {id:'journal', label:'Journal'}, {id:'queue', label:'Cuisine'},
     {id:'grand-stock', label:'Grand Stock'}, {id:'stock-kiosques', label:'Stocks kiosques'},
     {id:'cremerie', label:'Cremerie'}, {id:'popcorn', label:'Popcorn'},
-    {id:'parking', label:'Parking'}, {id:'admin', label:'Admin'}
+    {id:'chicha', label:'Chicha'}, {id:'parking', label:'Parking'},
+    {id:'admin', label:'Admin'}
   ],
   stockmanager: [
     {id:'accueil', label:'Accueil'}, {id:'grand-stock', label:'Grand Stock'},
@@ -1549,6 +1614,7 @@ function showPage(id) {
   if (id === 'stock-kiosques') renderStockKiosques();
   if (id === 'cremerie') renderCremerie();
   if (id === 'popcorn') renderPopcorn();
+  if (id === 'chicha') renderChicha();
   if (id === 'parking') renderParking();
   if (id === 'admin') renderAdmin();
   
@@ -1694,7 +1760,7 @@ function renderProds() {
   const q = document.getElementById('searchIn').value.toLowerCase();
   const allowedCats = currentUser.catAccess || [];
   const hasAllAccess = allowedCats.length === 0 || allowedCats.includes('Tous');
-  const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
+  const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS, ...CHICHA_PRODUITS];
   let produitsFiltres = hasAllAccess ? allProducts : allProducts.filter(function(p) { return allowedCats.includes(p.cat); });
   const filtered = produitsFiltres.filter(function(p) {
     return (activeCat === 'Tout' || p.cat === activeCat) && (!q || p.name.toLowerCase().includes(q));
@@ -1716,7 +1782,7 @@ function renderProds() {
   }
   g.innerHTML = filtered.map(function(p) {
     const avail = dispo[todayKey] === undefined || dispo[todayKey][p.id] !== false;
-    let hasStock = !isFood(p) && p.cat !== 'Cremerie' && p.cat !== 'Popcorn';
+    let hasStock = !isFood(p) && p.cat !== 'Cremerie' && p.cat !== 'Popcorn' && p.cat !== 'Chicha';
     let qty = 0;
     let stockMsg = '';
     let stockCls = 'ok';
@@ -1750,7 +1816,7 @@ function renderProds() {
 }
 
 function addToCart(id) {
-  const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
+  const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS, ...CHICHA_PRODUITS];
   const p = allProducts.find(function(x) { return x.id === id; });
   if (!p) return;
   const allowedCats = currentUser.catAccess || [];
@@ -1760,7 +1826,7 @@ function addToCart(id) {
     return;
   }
   let qtyStock = 0;
-  let hasStock = !isFood(p) && p.cat !== 'Cremerie' && p.cat !== 'Popcorn' && currentUser.role !== 'serveur';
+  let hasStock = !isFood(p) && p.cat !== 'Cremerie' && p.cat !== 'Popcorn' && p.cat !== 'Chicha' && currentUser.role !== 'serveur';
   if (hasStock) {
     let kiosque = '';
     if (currentUser.role === 'vendeur') {
@@ -1784,10 +1850,10 @@ function addToCart(id) {
 function chgQty(id, d) {
   const item = cart.find(function(c) { return c.id === id; });
   if (!item) return;
-  const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
+  const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS, ...CHICHA_PRODUITS];
   const p = allProducts.find(function(x) { return x.id === id; });
   if (!p) return;
-  if (d > 0 && !isFood(p) && p.cat !== 'Cremerie' && p.cat !== 'Popcorn' && currentUser.role !== 'serveur') {
+  if (d > 0 && !isFood(p) && p.cat !== 'Cremerie' && p.cat !== 'Popcorn' && p.cat !== 'Chicha' && currentUser.role !== 'serveur') {
     let kiosque = '';
     if (currentUser.role === 'vendeur') {
       kiosque = currentUser.kiosque || '';
@@ -1819,9 +1885,9 @@ function renderCart() {
     return;
   }
   el.innerHTML = cart.map(function(c) {
-    const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
+    const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS, ...CHICHA_PRODUITS];
     const p = allProducts.find(function(x) { return x.id === c.id; });
-    const hasStock = p && !isFood(p) && p.cat !== 'Cremerie' && p.cat !== 'Popcorn' && currentUser.role !== 'serveur';
+    const hasStock = p && !isFood(p) && p.cat !== 'Cremerie' && p.cat !== 'Popcorn' && p.cat !== 'Chicha' && currentUser.role !== 'serveur';
     let stockRestant = 0;
     if (hasStock) {
       let kiosque = '';
@@ -1857,9 +1923,9 @@ async function confirmOrder() {
   if (isVendeur) {
     for (var i = 0; i < cart.length; i++) {
       var item = cart[i];
-      const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
+      const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS, ...CHICHA_PRODUITS];
       const p = allProducts.find(function(x) { return x.id === item.id; });
-      if (!p || isFood(p) || p.cat === 'Cremerie' || p.cat === 'Popcorn') continue;
+      if (!p || isFood(p) || p.cat === 'Cremerie' || p.cat === 'Popcorn' || p.cat === 'Chicha') continue;
       const qtyStock = (stockVendeur[kiosqueSource] && stockVendeur[kiosqueSource][item.id]) || 0;
       if (qtyStock < item.qty) {
         toast('Stock insuffisant pour : '+item.name+' dans le kiosque '+kiosqueSource);
@@ -1871,19 +1937,20 @@ async function confirmOrder() {
   if (isVendeur) {
     for (var j = 0; j < cart.length; j++) {
       var item2 = cart[j];
-      const allProducts2 = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
+      const allProducts2 = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS, ...CHICHA_PRODUITS];
       const p2 = allProducts2.find(function(x) { return x.id === item2.id; });
-      if (!p2 || isFood(p2) || p2.cat === 'Cremerie' || p2.cat === 'Popcorn') continue;
+      if (!p2 || isFood(p2) || p2.cat === 'Cremerie' || p2.cat === 'Popcorn' || p2.cat === 'Chicha') continue;
       if (!stockVendeur[kiosqueSource]) stockVendeur[kiosqueSource] = {};
       stockVendeur[kiosqueSource][item2.id] = Math.max(0, (stockVendeur[kiosqueSource][item2.id] || 0) - item2.qty);
     }
   }
-  const allProducts3 = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
+  const allProducts3 = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS, ...CHICHA_PRODUITS];
   const hasFood = cart.some(function(item) {
     const p = allProducts3.find(function(x) { return x.id === item.id; });
     return p && isFood(p);
   });
-  let orderStatus = isVendeur ? (hasFood ? 'attente' : 'servie') : 'en_attente';
+  // Les vendeurs n'envoient plus en cuisine, c'est la cuisine qui valide
+  let orderStatus = isVendeur ? (hasFood ? 'en_attente' : 'servie') : 'en_attente';
   const order = {
     id: genId(),
     date: today(),
@@ -1899,7 +1966,7 @@ async function confirmOrder() {
   await saveFB('cb_orders', orders);
   if (isVendeur) await saveFB('cb_stock_vendeur', stockVendeur);
   logAction('Commande', 'Commande ' + order.id + ' - Kiosque: ' + kiosqueSource + ' - Total ' + fmt(order.total) + ' - Statut: ' + orderStatus + ' - Pris par: ' + currentUser.role);
-  toast(isVendeur ? (orderStatus === 'attente' ? 'Commande '+order.id+' envoyée en cuisine' : 'Commande '+order.id+' servie directement') : 'Commande '+order.id+' en attente de validation par la cuisine');
+  toast(isVendeur ? (orderStatus === 'en_attente' ? 'Commande '+order.id+' envoyée en cuisine' : 'Commande '+order.id+' servie directement') : 'Commande '+order.id+' en attente de validation par la cuisine');
   clearCart();
   updateQueueBadge();
   isProcessing = false;
@@ -1937,6 +2004,7 @@ function renderJournal() {
   } else if (currentUser.role === 'serveur') {
     day = day.filter(function(o) { return o.vendeur === currentUser.name; });
   } else if (currentUser.role === 'cuisiniere') {
+    // La cuisine voit uniquement les commandes avec nourriture
     day = day.filter(function(o) {
       return o.items.some(function(item) {
         const p = products.find(function(prod) { return prod.id === item.id; });
@@ -2009,18 +2077,21 @@ function exportExcel() {
 }
 
 // ================================================================
-// 09-ORDERS-MODAL.JS// ================================================================
+// 09-ORDERS-MODAL.JS
+// ================================================================
 function viewOrder(id) {
   const o = orders.find(function(x) { return x.id === id; });
   if (!o) return;
   const stLabel = {en_attente:'En attente de validation', attente:'En cuisine', preparation:'En préparation', servie:'Servie'};
   const stCls = {en_attente:'bg-o', attente:'bg-a', preparation:'bg-b', servie:'bg-g'};
   const st = o.status || 'attente';
-  document.getElementById('modalOrderContent').innerHTML = '<div style="font-size:.85rem;line-height:2;"><div><strong>N° :</strong> '+o.id+'</div><div><strong>Date :</strong> '+o.date+' à '+o.time+'</div><div><strong>Caissier :</strong> '+(o.caissier||'--')+'</div><div><strong>Vendeur :</strong> '+(o.vendeur||'--')+'</div><div><strong>Kiosque source :</strong> '+(o.kiosqueSource||'--')+'</div><div><strong>Statut :</strong> <span class="badge '+(stCls[st]||'bg-a')+'">'+(stLabel[st]||'Attente')+'</span></div><hr style="margin:.6rem 0;border-color:var(--border);">'+o.items.map(function(i) {
-    const p = products.find(function(prod) { return prod.id === i.id; });
+  let itemsHtml = o.items.map(function(i) {
+    const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS, ...CHICHA_PRODUITS];
+    const p = allProducts.find(function(prod) { return prod.id === i.id; });
     const photo = p && p.photo ? '<img src="'+p.photo+'" style="width:30px;height:30px;object-fit:cover;border-radius:6px;">' : '';
     return '<div style="display:flex;justify-content:space-between;padding:3px 0;"><span>'+photo+' '+(p ? getCatIcon(p.cat) : '')+' '+i.name+' x'+i.qty+'</span><span style="font-weight:600">'+fmt(i.price*i.qty)+'</span></div>';
-  }).join('')+'<hr style="margin:.6rem 0;border-color:var(--border);"><div style="display:flex;justify-content:space-between;font-size:1rem"><strong>TOTAL</strong><strong style="color:var(--accent)">'+fmt(o.total)+'</strong></div></div>';
+  }).join('');
+  document.getElementById('modalOrderContent').innerHTML = '<div style="font-size:.85rem;line-height:2;"><div><strong>N° :</strong> '+o.id+'</div><div><strong>Date :</strong> '+o.date+' à '+o.time+'</div><div><strong>Caissier :</strong> '+(o.caissier||'--')+'</div><div><strong>Vendeur :</strong> '+(o.vendeur||'--')+'</div><div><strong>Kiosque source :</strong> '+(o.kiosqueSource||'--')+'</div><div><strong>Statut :</strong> <span class="badge '+(stCls[st]||'bg-a')+'">'+(stLabel[st]||'Attente')+'</span></div><hr style="margin:.6rem 0;border-color:var(--border);">'+itemsHtml+'<hr style="margin:.6rem 0;border-color:var(--border);"><div style="display:flex;justify-content:space-between;font-size:1rem"><strong>TOTAL</strong><strong style="color:var(--accent)">'+fmt(o.total)+'</strong></div></div>';
   const actsEl = document.getElementById('modalOrderActs');
   if (currentUser.role === 'admin') {
     actsEl.innerHTML = '<button class="btn btn-ghost" onclick="closeModal(\'modalOrder\')">Fermer</button><button class="btn btn-blue" onclick="printBon(\''+id+'\')">Imprimer</button><button class="btn" style="background:var(--red);color:#fff;" onclick="closeModal(\'modalOrder\');openCancelOrder(\''+id+'\')">Annuler</button>';
@@ -2067,7 +2138,8 @@ function printBon(id) {
   const order = orders.find(function(o) { return o.id === id; });
   if (!order) return;
   let itemsHtml = order.items.map(function(i) {
-    const p = products.find(function(prod) { return prod.id === i.id; });
+    const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS, ...CHICHA_PRODUITS];
+    const p = allProducts.find(function(prod) { return prod.id === i.id; });
     const photo = p && p.photo ? '<img src="'+p.photo+'" style="width:40px;height:40px;object-fit:cover;border-radius:4px;vertical-align:middle;">' : '';
     return '<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px dotted #ddd;"><span>'+photo+' '+i.name+'</span><span style="font-size:14px;font-weight:bold;background:#000;color:#fff;padding:1px 7px;border-radius:3px;">x'+i.qty+'</span></div>';
   }).join('');
@@ -2086,13 +2158,13 @@ async function validateOrderByCuisine(id) {
   if (!o) return;
   if (o.status !== 'en_attente') { toast('Cette commande ne peut pas être validée'); return; }
   if (currentUser.role !== 'cuisiniere' && currentUser.role !== 'admin') { toast('Seul la cuisine peut valider cette commande'); return; }
-  const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
+  const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS, ...CHICHA_PRODUITS];
   const kiosque = o.kiosqueSource;
   if (kiosque) {
     for (var i = 0; i < o.items.length; i++) {
       var item = o.items[i];
       const p = allProducts.find(function(x) { return x.id === item.id; });
-      if (!p || isFood(p) || p.cat === 'Cremerie' || p.cat === 'Popcorn') continue;
+      if (!p || isFood(p) || p.cat === 'Cremerie' || p.cat === 'Popcorn' || p.cat === 'Chicha') continue;
       const qtyStock = (stockVendeur[kiosque] && stockVendeur[kiosque][item.id]) || 0;
       if (qtyStock < item.qty) {
         toast('Stock insuffisant pour : '+item.name+' dans le kiosque '+kiosque);
@@ -2103,7 +2175,7 @@ async function validateOrderByCuisine(id) {
   for (var j = 0; j < o.items.length; j++) {
     var item2 = o.items[j];
     const p2 = allProducts.find(function(x) { return x.id === item2.id; });
-    if (!p2 || isFood(p2) || p2.cat === 'Cremerie' || p2.cat === 'Popcorn') continue;
+    if (!p2 || isFood(p2) || p2.cat === 'Cremerie' || p2.cat === 'Popcorn' || p2.cat === 'Chicha') continue;
     if (!stockVendeur[kiosque]) stockVendeur[kiosque] = {};
     stockVendeur[kiosque][item2.id] = Math.max(0, (stockVendeur[kiosque][item2.id] || 0) - item2.qty);
   }
@@ -2192,7 +2264,8 @@ function renderQueue() {
     const canStart = st === 'attente' && (currentUser.role === 'cuisiniere' || currentUser.role === 'admin');
     const canDone = st === 'preparation' && (currentUser.role === 'cuisiniere' || currentUser.role === 'admin');
     const itemsHtml = o.items.map(function(i) {
-      const p = products.find(function(prod) { return prod.id === i.id; });
+      const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS, ...CHICHA_PRODUITS];
+      const p = allProducts.find(function(prod) { return prod.id === i.id; });
       const photo = p && p.photo ? '<img src="'+p.photo+'" class="qc-item-img">' : '';
       return '<div class="qc-item-line"><span>'+photo+' '+i.name+'</span><strong style="background:var(--text);color:#fff;padding:1px 7px;border-radius:4px;font-size:.78rem">x'+i.qty+'</strong></div>';
     }).join('');
@@ -2221,7 +2294,7 @@ async function setOrderStatus(id, status) {
 function renderProdMgmt() {
   const grid = document.getElementById('prodMgmtGrid');
   if (!grid) return;
-  const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
+  const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS, ...CHICHA_PRODUITS];
   if (!allProducts.length) {
     grid.innerHTML = '<div style="color:var(--muted);padding:1rem;text-align:center;">Aucun produit. Cliquez sur + Ajouter pour commencer.</div>';
     return;
@@ -2434,7 +2507,7 @@ function renderStockKiosques() {
     container.innerHTML = '<div style="color:var(--muted);padding:2rem;text-align:center;">Aucun kiosque enregistré</div>';
     return;
   }
-  const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS];
+  const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS, ...CHICHA_PRODUITS];
   const produitsAStock = allProducts.filter(function(p) { return !isFood(p); });
   if (!produitsAStock.length) {
     container.innerHTML = '<div style="color:var(--muted);padding:2rem;text-align:center;">Aucun produit avec stock</div>';
@@ -2498,7 +2571,6 @@ function renderAdmin() {
   }).join('');
   renderVentesVendeur();
   renderJournalActions();
-  loadConfigValues(currentConfigTab || 'cremerie');
 }
 
 function renderVentesVendeur() {
@@ -2683,6 +2755,7 @@ function editProdModal(id) {
   let p = products.find(function(x) { return x.id === id; });
   if (!p) p = CREMERIE_PRODUITS.find(function(x) { return x.id === id; });
   if (!p) p = POPCORN_PRODUITS.find(function(x) { return x.id === id; });
+  if (!p) p = CHICHA_PRODUITS.find(function(x) { return x.id === id; });
   if (!p) { toast('Produit non trouvé'); return; }
   editProdId = id;
   document.getElementById('modalProdTitle').textContent = 'Modifier produit';
@@ -2723,10 +2796,10 @@ async function saveProd() {
   if (!price || price <= 0) { toast('Veuillez entrer un prix valide'); return; }
   let ancienCat = null;
   if (editProdId) {
-    const existant = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS].find(function(p) { return p.id === editProdId; });
+    const existant = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS, ...CHICHA_PRODUITS].find(function(p) { return p.id === editProdId; });
     if (existant) ancienCat = existant.cat;
   }
-  const allIds = [...products.map(function(p) { return p.id; }), ...CREMERIE_PRODUITS.map(function(p) { return p.id; }), ...POPCORN_PRODUITS.map(function(p) { return p.id; })];
+  const allIds = [...products.map(function(p) { return p.id; }), ...CREMERIE_PRODUITS.map(function(p) { return p.id; }), ...POPCORN_PRODUITS.map(function(p) { return p.id; }), ...CHICHA_PRODUITS.map(function(p) { return p.id; })];
   const maxId = allIds.length > 0 ? Math.max.apply(null, allIds) : 0;
   const newId = maxId + 1;
   try {
@@ -2740,6 +2813,9 @@ async function saveProd() {
         } else if (cat === 'Popcorn') {
           var p2 = products.splice(idx, 1)[0];
           POPCORN_PRODUITS.push({id: p2.id, name: name, prix: price, cat: 'Popcorn', photo: photo || '', seuil: seuil});
+        } else if (cat === 'Chicha') {
+          var p3 = products.splice(idx, 1)[0];
+          CHICHA_PRODUITS.push({id: p3.id, name: name, prix: price, cat: 'Chicha', photo: photo || '', seuil: seuil});
         } else {
           products[idx] = {id: editProdId, name: name, price: price, cat: cat, photo: photo || '', seuil: seuil};
         }
@@ -2751,11 +2827,14 @@ async function saveProd() {
           if (cat === 'Cremerie') {
             CREMERIE_PRODUITS[idx] = {id: editProdId, name: name, prix: price, cat: cat, photo: photo || '', seuil: seuil};
           } else if (cat === 'Popcorn') {
-            var p3 = CREMERIE_PRODUITS.splice(idx, 1)[0];
-            POPCORN_PRODUITS.push({id: p3.id, name: name, prix: price, cat: 'Popcorn', photo: photo || '', seuil: seuil});
-          } else {
             var p4 = CREMERIE_PRODUITS.splice(idx, 1)[0];
-            products.push({id: p4.id, name: name, price: price, cat: cat, photo: photo || '', seuil: seuil});
+            POPCORN_PRODUITS.push({id: p4.id, name: name, prix: price, cat: 'Popcorn', photo: photo || '', seuil: seuil});
+          } else if (cat === 'Chicha') {
+            var p5 = CREMERIE_PRODUITS.splice(idx, 1)[0];
+            CHICHA_PRODUITS.push({id: p5.id, name: name, prix: price, cat: 'Chicha', photo: photo || '', seuil: seuil});
+          } else {
+            var p6 = CREMERIE_PRODUITS.splice(idx, 1)[0];
+            products.push({id: p6.id, name: name, price: price, cat: cat, photo: photo || '', seuil: seuil});
           }
           found = true;
         }
@@ -2766,11 +2845,32 @@ async function saveProd() {
           if (cat === 'Popcorn') {
             POPCORN_PRODUITS[idx] = {id: editProdId, name: name, prix: price, cat: cat, photo: photo || '', seuil: seuil};
           } else if (cat === 'Cremerie') {
-            var p5 = POPCORN_PRODUITS.splice(idx, 1)[0];
-            CREMERIE_PRODUITS.push({id: p5.id, name: name, prix: price, cat: 'Cremerie', photo: photo || '', seuil: seuil});
+            var p7 = POPCORN_PRODUITS.splice(idx, 1)[0];
+            CREMERIE_PRODUITS.push({id: p7.id, name: name, prix: price, cat: 'Cremerie', photo: photo || '', seuil: seuil});
+          } else if (cat === 'Chicha') {
+            var p8 = POPCORN_PRODUITS.splice(idx, 1)[0];
+            CHICHA_PRODUITS.push({id: p8.id, name: name, prix: price, cat: 'Chicha', photo: photo || '', seuil: seuil});
           } else {
-            var p6 = POPCORN_PRODUITS.splice(idx, 1)[0];
-            products.push({id: p6.id, name: name, price: price, cat: cat, photo: photo || '', seuil: seuil});
+            var p9 = POPCORN_PRODUITS.splice(idx, 1)[0];
+            products.push({id: p9.id, name: name, price: price, cat: cat, photo: photo || '', seuil: seuil});
+          }
+          found = true;
+        }
+      }
+      if (!found) {
+        idx = CHICHA_PRODUITS.findIndex(function(p) { return p.id === editProdId; });
+        if (idx !== -1) {
+          if (cat === 'Chicha') {
+            CHICHA_PRODUITS[idx] = {id: editProdId, name: name, prix: price, cat: cat, photo: photo || '', seuil: seuil};
+          } else if (cat === 'Cremerie') {
+            var p10 = CHICHA_PRODUITS.splice(idx, 1)[0];
+            CREMERIE_PRODUITS.push({id: p10.id, name: name, prix: price, cat: 'Cremerie', photo: photo || '', seuil: seuil});
+          } else if (cat === 'Popcorn') {
+            var p11 = CHICHA_PRODUITS.splice(idx, 1)[0];
+            POPCORN_PRODUITS.push({id: p11.id, name: name, prix: price, cat: 'Popcorn', photo: photo || '', seuil: seuil});
+          } else {
+            var p12 = CHICHA_PRODUITS.splice(idx, 1)[0];
+            products.push({id: p12.id, name: name, price: price, cat: cat, photo: photo || '', seuil: seuil});
           }
           found = true;
         }
@@ -2782,6 +2882,8 @@ async function saveProd() {
         CREMERIE_PRODUITS.push({id: newId, name: name, prix: price, cat: 'Cremerie', photo: photo || '', seuil: seuil});
       } else if (cat === 'Popcorn') {
         POPCORN_PRODUITS.push({id: newId, name: name, prix: price, cat: 'Popcorn', photo: photo || '', seuil: seuil});
+      } else if (cat === 'Chicha') {
+        CHICHA_PRODUITS.push({id: newId, name: name, prix: price, cat: 'Chicha', photo: photo || '', seuil: seuil});
       } else {
         products.push({id: newId, name: name, price: price, cat: cat, photo: photo || '', seuil: seuil});
       }
@@ -2791,9 +2893,11 @@ async function saveProd() {
     await saveFB('cb_prods', products);
     await saveFB('cb_cremerie_produits', CREMERIE_PRODUITS);
     await saveFB('cb_popcorn_produits', POPCORN_PRODUITS);
+    await saveFB('cb_chicha_produits', CHICHA_PRODUITS);
     localStorage.setItem('cb_prods', JSON.stringify(products));
     localStorage.setItem('cb_cremerie_produits', JSON.stringify(CREMERIE_PRODUITS));
     localStorage.setItem('cb_popcorn_produits', JSON.stringify(POPCORN_PRODUITS));
+    localStorage.setItem('cb_chicha_produits', JSON.stringify(CHICHA_PRODUITS));
     closeModal('modalProd');
     renderProdMgmt();
     renderProds();
@@ -2818,6 +2922,11 @@ async function delProd(id) {
       idx = POPCORN_PRODUITS.findIndex(function(x) { return x.id === id; });
       if (idx !== -1) {
         p = POPCORN_PRODUITS.splice(idx, 1)[0];
+      } else {
+        idx = CHICHA_PRODUITS.findIndex(function(x) { return x.id === id; });
+        if (idx !== -1) {
+          p = CHICHA_PRODUITS.splice(idx, 1)[0];
+        }
       }
     }
   }
@@ -2835,10 +2944,12 @@ async function delProd(id) {
     await saveFB('cb_prods', products);
     await saveFB('cb_cremerie_produits', CREMERIE_PRODUITS);
     await saveFB('cb_popcorn_produits', POPCORN_PRODUITS);
+    await saveFB('cb_chicha_produits', CHICHA_PRODUITS);
     await saveFB('cb_stock_vendeur', stockVendeur);
     localStorage.setItem('cb_prods', JSON.stringify(products));
     localStorage.setItem('cb_cremerie_produits', JSON.stringify(CREMERIE_PRODUITS));
     localStorage.setItem('cb_popcorn_produits', JSON.stringify(POPCORN_PRODUITS));
+    localStorage.setItem('cb_chicha_produits', JSON.stringify(CHICHA_PRODUITS));
     logAction('Gestion produit', 'Produit ' + p.name + ' supprimé par ' + currentUser.name);
     renderProdMgmt();
     renderProds();
@@ -2849,7 +2960,7 @@ async function delProd(id) {
 }
 
 // ================================================================
-// CONFIGURATION
+// CONFIGURATION DANS GRAND STOCK
 // ================================================================
 let currentConfigTab = 'cremerie';
 
@@ -3257,7 +3368,111 @@ async function saveVentePopcorn() {
 }
 
 // ================================================================
-// 17-PARKING.JS
+// 17-CHICHA.JS
+// ================================================================
+function renderChicha() {
+  const todayStr = today();
+  const mouvementsJour = chichaMouvements.filter(function(m) { return m.date === todayStr; });
+  const ventesJour = mouvementsJour.filter(function(m) { return m.type === 'vente'; });
+  const totalUnites = ventesJour.reduce(function(s, m) { return s + m.qte; }, 0);
+  const recette = ventesJour.reduce(function(s, m) { return s + (m.recette || 0); }, 0);
+  const attendu = totalUnites * 50000;
+  const ecart = attendu - recette;
+  
+  document.getElementById('chichaUnites').textContent = totalUnites;
+  document.getElementById('chichaRecette').textContent = fmt(recette);
+  document.getElementById('chichaAttendu').textContent = fmt(attendu);
+  var ecartEl = document.getElementById('chichaEcart');
+  ecartEl.textContent = (ecart >= 0 ? '+' : '') + fmt(Math.abs(ecart));
+  ecartEl.style.color = ecart === 0 ? 'var(--green)' : 'var(--red)';
+  
+  const tb = document.getElementById('chichaTable');
+  if (!chichaMouvements.length) {
+    tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:var(--muted)">Aucun mouvement</td></tr>';
+    return;
+  }
+  const typeLabel = {reception:'Reception', vente:'Vente', perte:'Perte'};
+  const typeMap = {reception:'bg-g', vente:'bg-b', perte:'bg-r'};
+  tb.innerHTML = chichaMouvements.slice(0, 50).map(function(m) {
+    var ecartMvt = (m.attendu || 0) - (m.recette || 0);
+    return '<tr><td style="font-size:.75rem">'+m.date+'</td><td><span class="badge '+(typeMap[m.type]||'bg-b')+'">'+(typeLabel[m.type]||m.type)+'</span></td><td>'+(m.qte||0)+'</td><td><strong>'+fmt(m.recette||0)+'</strong></td><td>'+fmt(m.attendu||0)+'</td><td style="color:'+(ecartMvt===0?'var(--green)':'var(--red)')+'">'+fmt(Math.abs(ecartMvt))+'</td><td style="font-size:.75rem">'+(m.par||'--')+'</td></tr>';
+  }).join('');
+}
+
+function openReceptionChicha() {
+  document.getElementById('chichaReceptionQte').value = '';
+  document.getElementById('chichaReceptionPar').value = currentUser.name;
+  openModal('modalChichaReception');
+}
+
+async function saveReceptionChicha() {
+  const qte = parseInt(document.getElementById('chichaReceptionQte').value);
+  const par = document.getElementById('chichaReceptionPar').value || currentUser.name;
+  if (!qte || qte <= 0) { toast('Entrer une quantité valide'); return; }
+  const mouvement = {
+    id: 'CHICH-REC-' + Date.now().toString(36).toUpperCase(),
+    date: today(),
+    type: 'reception',
+    qte: qte,
+    recette: 0,
+    attendu: qte * 50000,
+    par: par,
+    commentaire: 'Reception de chicha'
+  };
+  chichaMouvements.unshift(mouvement);
+  if (chichaMouvements.length > 500) chichaMouvements = chichaMouvements.slice(0, 500);
+  await saveFB('cb_chicha_mouvements', chichaMouvements);
+  logAction('Reception chicha', 'Reception de ' + qte + ' unites par ' + par);
+  closeModal('modalChichaReception');
+  renderChicha();
+  toast('Reception de ' + qte + ' unites de chicha');
+}
+
+function openVenteChicha() {
+  document.getElementById('chichaVenteQte').value = '';
+  document.getElementById('chichaVentePar').value = currentUser.name;
+  document.getElementById('chichaVenteRecetteCalc').textContent = '0 GNF';
+  document.getElementById('chichaVenteEcart').textContent = '0 GNF';
+  document.getElementById('chichaVenteEcart').style.color = 'var(--green)';
+  openModal('modalChichaVente');
+}
+
+function calcChichaRecette() {
+  const qte = parseInt(document.getElementById('chichaVenteQte').value) || 0;
+  const recette = qte * 50000;
+  document.getElementById('chichaVenteRecetteCalc').textContent = fmt(recette);
+  var ecartEl = document.getElementById('chichaVenteEcart');
+  ecartEl.textContent = fmt(0);
+  ecartEl.style.color = 'var(--green)';
+}
+
+async function saveVenteChicha() {
+  const qte = parseInt(document.getElementById('chichaVenteQte').value);
+  const par = document.getElementById('chichaVentePar').value || currentUser.name;
+  if (!qte || qte <= 0) { toast('Entrer une quantité valide'); return; }
+  const recette = qte * 50000;
+  const mouvement = {
+    id: 'CHICH-VEN-' + Date.now().toString(36).toUpperCase(),
+    date: today(),
+    type: 'vente',
+    qte: qte,
+    recette: recette,
+    attendu: recette,
+    ecart: 0,
+    par: par,
+    commentaire: 'Vente du jour'
+  };
+  chichaMouvements.unshift(mouvement);
+  if (chichaMouvements.length > 500) chichaMouvements = chichaMouvements.slice(0, 500);
+  await saveFB('cb_chicha_mouvements', chichaMouvements);
+  logAction('Vente chicha', qte + ' unites vendues - Recette: ' + fmt(recette));
+  closeModal('modalChichaVente');
+  renderChicha();
+  toast('Vente chicha enregistrée');
+}
+
+// ================================================================
+// 18-PARKING.JS
 // ================================================================
 function renderParking() {
   const historyDiv = document.getElementById('parkingHistoryDiv');
