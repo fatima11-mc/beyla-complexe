@@ -758,12 +758,11 @@ tbody td{padding:9px 10px;}
     <!-- Filtres par kiosque -->
     <div class="sk-filter-bar" id="skFilterBar">
       <button class="sk-filter-btn act" onclick="setSKFilter('tous')">Tous</button>
-      <button class="sk-filter-btn" onclick="setSKFilter('Kiosque Nourriture')">🍽️ Nourriture</button>
-      <button class="sk-filter-btn" onclick="setSKFilter('Kiosque Boissons 1')">🥤 Boissons 1</button>
-      <button class="sk-filter-btn" onclick="setSKFilter('Kiosque Boissons 2')">🥤 Boissons 2</button>
-      <button class="sk-filter-btn" onclick="setSKFilter('Kiosque Chicha')">💨 Chicha</button>
-      <button class="sk-filter-btn" onclick="setSKFilter('Kiosque Popcorn')">🍿 Popcorn</button>
-      <button class="sk-filter-btn" onclick="setSKFilter('Kiosque Creme')">🍦 Cremerie</button>
+      <button class="sk-filter-btn" onclick="setSKFilter('Premier kiosque')">🍽️ Premier kiosque</button>
+      <button class="sk-filter-btn" onclick="setSKFilter('Deuxième kiosque')">🥤 Deuxième kiosque</button>
+      <button class="sk-filter-btn" onclick="setSKFilter('Chicha')">💨 Chicha</button>
+      <button class="sk-filter-btn" onclick="setSKFilter('Popcorn')">🍿 Popcorn</button>
+      <button class="sk-filter-btn" onclick="setSKFilter('Cremerie')">🍦 Cremerie</button>
       <button class="sk-filter-btn" onclick="setSKFilter('Cuisine')">🍳 Cuisine</button>
     </div>
     <div id="stockKiosquesContent"></div>
@@ -952,8 +951,8 @@ tbody td{padding:9px 10px;}
     </div>
     <div class="form-group" id="kiosqueGroup" style="display:none;">
       <label class="form-label">Kiosque / Point de vente</label>
-      <input class="form-in" id="uKiosque" placeholder="ex: Kiosque Nourriture">
-      <div style="font-size:.7rem;color:var(--muted);margin-top:4px;">Kiosques disponibles : Nourriture, Boissons 1, Boissons 2, Chicha, Creme, Popcorn</div>
+      <input class="form-in" id="uKiosque" placeholder="ex: Premier kiosque">
+      <div style="font-size:.7rem;color:var(--muted);margin-top:4px;">Kiosques disponibles : Premier kiosque, Deuxième kiosque, Chicha, Cremerie, Popcorn, Cuisine</div>
     </div>
     <div class="form-group" id="categoriesGroup" style="display:none;">
       <label class="form-label">Categories visibles en caisse</label>
@@ -1038,12 +1037,11 @@ tbody td{padding:9px 10px;}
     <div class="form-group"><label class="form-label">Quantite</label><input class="form-in" id="stockSortieQte" type="number" step="0.1" placeholder="ex: 5"></div>
     <div class="form-group"><label class="form-label">Kiosque destinataire</label>
       <select class="form-in" id="stockSortieKiosque">
-        <option value="Kiosque Nourriture">Kiosque Nourriture</option>
-        <option value="Kiosque Boissons 1">Kiosque Boissons 1</option>
-        <option value="Kiosque Boissons 2">Kiosque Boissons 2</option>
-        <option value="Kiosque Chicha">Kiosque Chicha</option>
-        <option value="Kiosque Creme">Kiosque Creme</option>
-        <option value="Kiosque Popcorn">Kiosque Popcorn</option>
+        <option value="Premier kiosque">Premier kiosque</option>
+        <option value="Deuxième kiosque">Deuxième kiosque</option>
+        <option value="Chicha">Chicha</option>
+        <option value="Cremerie">Cremerie</option>
+        <option value="Popcorn">Popcorn</option>
         <option value="Cuisine">Cuisine</option>
       </select>
     </div>
@@ -1198,6 +1196,7 @@ tbody td{padding:9px 10px;}
 // ================================================================
 // 01-DATA.JS - DONNÉES PAR DÉFAUT
 // ================================================================
+// SEUL L'ADMINISTRATEUR EST CRÉÉ PAR DÉFAUT
 const DEFAULT_USERS = [
   {id:1, name:'Administrateur', login:'admin', pass:'admin123', role:'admin', kiosque:null, catAccess:['Tous']}
 ];
@@ -1631,6 +1630,11 @@ function populateKiosqueSource() {
   const sel = document.getElementById('kiosqueSourceSel');
   const kiosques = users.filter(u => u.role === 'vendeur' && u.kiosque).map(u => u.kiosque);
   const unique = [...new Set(kiosques)];
+  // Ajouter les kiosques spéciaux s'ils n'existent pas déjà
+  const specialKiosques = ['Chicha', 'Cremerie', 'Popcorn', 'Cuisine'];
+  for (const k of specialKiosques) {
+    if (!unique.includes(k)) unique.push(k);
+  }
   sel.innerHTML = '<option value="">-- Selectionner --</option>' + unique.map(k => '<option value="'+k+'">'+k+'</option>').join('');
 }
 
@@ -2425,7 +2429,6 @@ function renderGrandStock() {
   renderProdMgmt();
   populateGrandStockSelects();
   
-  // Afficher l'onglet actif
   if (currentGSTab === 'apercu') renderGrandStockApercu();
   else if (currentGSTab === 'stock') renderGrandStockTable();
   else if (currentGSTab === 'mouvements') renderGrandStockMvt();
@@ -2621,14 +2624,14 @@ function renderStockKiosques() {
   const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS, ...CHICHA_PRODUITS];
   const produitsAStock = allProducts.filter(function(p) { return !isFood(p); });
   
-  // Récupérer tous les kiosques disponibles
+  // Récupérer tous les kiosques disponibles avec des noms cohérents
   const kiosquesDisponibles = new Set();
   // Kiosques des vendeurs
   users.filter(u => u.role === 'vendeur' && u.kiosque).forEach(u => kiosquesDisponibles.add(u.kiosque));
   // Kiosques spéciaux
-  if (produitsAStock.some(p => p.cat === 'Cremerie')) kiosquesDisponibles.add('Kiosque Creme');
-  if (produitsAStock.some(p => p.cat === 'Popcorn')) kiosquesDisponibles.add('Kiosque Popcorn');
-  if (produitsAStock.some(p => p.cat === 'Chicha')) kiosquesDisponibles.add('Kiosque Chicha');
+  if (produitsAStock.some(p => p.cat === 'Cremerie')) kiosquesDisponibles.add('Cremerie');
+  if (produitsAStock.some(p => p.cat === 'Popcorn')) kiosquesDisponibles.add('Popcorn');
+  if (produitsAStock.some(p => p.cat === 'Chicha')) kiosquesDisponibles.add('Chicha');
   // Cuisine
   kiosquesDisponibles.add('Cuisine');
   
@@ -3384,7 +3387,6 @@ function getPopcornConfig() {
 
 function renderPopcorn() {
   const config = getPopcornConfig();
-  const totalBoites = popcornMouvements.filter(m => m.date === today()).reduce((s, m) => s + (m.boites || 0), 0);
   document.getElementById('popcornSub').textContent = '🍿 Avec lait: ' + fmt(config.lait.prixBoite) + '/boîte - 🧂 Avec sel: ' + fmt(config.sel.prixBoite) + '/boîte';
   document.getElementById('popcornStock').textContent = grandStock.mais || 0;
   const todayStr = today();
@@ -3393,7 +3395,7 @@ function renderPopcorn() {
   const totalKg = ventesJour.reduce(function(s, m) { return s + m.kg; }, 0);
   const totalBoitesV = ventesJour.reduce(function(s, m) { return s + (m.boites || 0); }, 0);
   const recette = ventesJour.reduce(function(s, m) { return s + (m.recette || 0); }, 0);
-  const attendu = totalKg * config.lait.rendement; // On prend le rendement moyen
+  const attendu = totalKg * config.lait.rendement;
   const ecart = attendu - recette;
   document.getElementById('popKg').textContent = totalKg + ' kg';
   document.getElementById('popBoites').textContent = totalBoitesV;
