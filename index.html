@@ -443,6 +443,9 @@ tbody td{padding:9px 10px;}
 @media(max-width:380px){.prod-card{padding:8px;}.prod-name{font-size:.82rem;}.prod-price{font-size:.9rem;}.bn-item{font-size:.55rem;}.bn-icon{font-size:1.15rem;}}
 #floatingValidate{display:none;position:fixed;bottom:calc(var(--bottom-h) + 10px);left:0;right:0;z-index:999;padding:0 16px;}
 #floatingValidate button{width:100%;background:linear-gradient(135deg,var(--accent),#d4581f);color:white;border:none;padding:16px;border-radius:50px;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 6px 24px rgba(184,74,26,.5);letter-spacing:.03em;}
+
+/* ===== CONFIG VISIBILITY ===== */
+.config-section.admin-only{display:none;}
 </style>
 </head>
 <body>
@@ -627,7 +630,7 @@ tbody td{padding:9px 10px;}
       </div>
     </div>
 
-    <!-- Carte Produits & Menu - UN SEUL BOUTON -->
+    <!-- Carte Produits & Menu -->
     <div class="admin-card" id="gsProduitsCard" style="margin-bottom:1.2rem;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem;">
         <div class="admin-card-title" style="margin:0">Liste des produits</div>
@@ -660,8 +663,8 @@ tbody td{padding:9px 10px;}
       </div>
     </div>
 
-    <!-- CONFIGURATION DANS GRAND STOCK -->
-    <div class="config-section">
+    <!-- CONFIGURATION DANS GRAND STOCK - UNIQUEMENT ADMIN & STOCK MANAGER -->
+    <div class="config-section admin-only" id="configSection">
       <div class="admin-card-title" style="margin-bottom:.8rem;">⚙️ Configuration des prix et tarifs</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem;">
         <button class="config-tab-btn act" onclick="switchConfigTab('cremerie')">Cremerie</button>
@@ -1379,6 +1382,7 @@ function getProduitInfo(key) {
 
 function getGrandStockItems() {
   const items = {};
+  // Ajouter tous les produits du grand stock
   for (const key of Object.keys(grandStock)) {
     const info = getProduitInfo(key);
     items[key] = { label: info.label, categorie: info.categorie, unite: info.unite };
@@ -1544,12 +1548,20 @@ function initApp() {
     '<button class="bn-item" id="bn-'+n.id+'" onclick="showPage(\''+n.id+'\')"><span class="bn-icon">'+icon(NAV_ICONS[n.id]||'box',20)+'</span><span>'+n.label+'</span></button>'
   ).join('');
   
+  // Ajouter le bouton parking uniquement pour les rôles qui ont accès
   if (currentUser.role !== 'cuisiniere') {
     bottomHTML += '<button class="bn-item" onclick="openChangePwd()" title="Mot de passe"><span class="bn-icon">'+icon('key',20)+'</span>MDP</button>';
   }
   bottomHTML += '<button class="bn-logout" onclick="doLogout()" title="Déconnexion"><span class="bn-icon">'+icon('logout',20)+'</span><span>Deco.</span></button>';
   
   document.getElementById('bottomNav').innerHTML = bottomHTML;
+  
+  // Afficher/masquer la section de configuration
+  const configSection = document.getElementById('configSection');
+  if (configSection) {
+    const isAdminOrStock = currentUser.role === 'admin' || currentUser.role === 'stockmanager';
+    configSection.style.display = isAdminOrStock ? 'block' : 'none';
+  }
   
   setTimeout(checkScrollIndicator, 100);
   populateKiosqueSource();
@@ -1949,7 +1961,6 @@ async function confirmOrder() {
     const p = allProducts3.find(function(x) { return x.id === item.id; });
     return p && isFood(p);
   });
-  // Les vendeurs n'envoient plus en cuisine, c'est la cuisine qui valide
   let orderStatus = isVendeur ? (hasFood ? 'en_attente' : 'servie') : 'en_attente';
   const order = {
     id: genId(),
@@ -2004,7 +2015,6 @@ function renderJournal() {
   } else if (currentUser.role === 'serveur') {
     day = day.filter(function(o) { return o.vendeur === currentUser.name; });
   } else if (currentUser.role === 'cuisiniere') {
-    // La cuisine voit uniquement les commandes avec nourriture
     day = day.filter(function(o) {
       return o.items.some(function(item) {
         const p = products.find(function(prod) { return prod.id === item.id; });
@@ -2237,7 +2247,7 @@ function renderQueue() {
   });
   const grid = document.getElementById('queueGrid');
   if (!filtered.length) {
-    grid.innerHTML = '<div class="queue-empty"><div style="font-size:2.5rem;opacity:.2">-</div><div style="margin-top:.8rem;font-weight:600">Aucune commande</div></div>';
+    grid.innerHTML = '<div class="queue-empty"><div style="font-size:2.5rem;opacity:.2;">-</div><div style="margin-top:.8rem;font-weight:600">Aucune commande</div></div>';
     return;
   }
   const stLabel = {en_attente:'À valider', attente:'En cuisine', preparation:'En prep.', servie:'Servie'};
@@ -2272,7 +2282,7 @@ function renderQueue() {
     return '<div class="queue-card '+st+'"><div class="qc-head"><span class="qc-num">'+o.id+'</span><span><span class="badge '+(stMap[st]||'bg-a')+'">'+(stLabel[st]||'Attente')+'</span></span><span class="qc-time">'+o.time+'</span></div><div style="font-size:.78rem;color:var(--muted);margin-bottom:.5rem;">Kiosque : '+(o.kiosqueSource||'--')+'</div><div class="qc-items">'+itemsHtml+'</div><div class="qc-actions">'+(canValidate ? '<button class="qc-btn qc-btn-validate" onclick="validateOrderByCuisine(\''+o.id+'\')">Valider</button>' : '')+(canStart ? '<button class="qc-btn qc-btn-start" onclick="setOrderStatus(\''+o.id+'\',\'preparation\')">Prendre en charge</button>' : '')+(canDone ? '<button class="qc-btn qc-btn-done" onclick="setOrderStatus(\''+o.id+'\',\'servie\')">Commande servie</button>' : '')+(st === 'servie' ? '<span style="font-size:.8rem;color:var(--green);flex:1;text-align:center;font-weight:700">Servie</span>' : '')+(currentUser.role === 'admin' ? '<button class="qc-btn" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);flex:0 0 auto;width:40px;font-size:1rem;" onclick="printBon(\''+o.id+'\')" title="Imprimer">I</button>' : '')+'</div></div>';
   }).join('');
   if (!grid.innerHTML) {
-    grid.innerHTML = '<div class="queue-empty"><div style="font-size:2.5rem;opacity:.2">-</div><div style="margin-top:.8rem;font-weight:600">Aucune commande</div></div>';
+    grid.innerHTML = '<div class="queue-empty"><div style="font-size:2.5rem;opacity:.2;">-</div><div style="margin-top:.8rem;font-weight:600">Aucune commande</div></div>';
   }
   updateQueueBadge();
 }
@@ -2348,20 +2358,28 @@ function renderGrandStock() {
   const table = document.getElementById('grandStockTable');
   let html = '';
   populateGrandStockSelects();
-  for (var produit in grandStock) {
-    if (!grandStock.hasOwnProperty(produit)) continue;
-    var qte = grandStock[produit];
-    const info0 = getProduitInfo(produit);
-    const seuil = info0.seuil || STOCK_SEUILS[produit] || 5;
-    const statut = qte <= 0 ? 'rupture' : qte <= seuil ? 'alerte' : 'ok';
-    if (qte <= seuil) alertes++;
-    totalProduits += qte;
-    const info = getProduitInfo(produit);
-    const statutClass = statut === 'ok' ? 'bg-g' : statut === 'alerte' ? 'bg-a' : 'bg-r';
-    const statutLabel = statut === 'ok' ? 'OK' : statut === 'alerte' ? 'Stock bas' : 'Rupture';
-    html += '<tr><td><strong>'+info.label+'</strong></td><td>'+info.categorie+'</td><td><strong>'+qte+'</strong></td><td>'+info.unite+'</td><td>'+seuil+'</td><td><span class="badge '+statutClass+'">'+statutLabel+'</span></td><td class="gs-admin-only"><button class="icon-btn" onclick="openStockAjustement(\''+produit+'\')" title="Ajuster">'+icon('sliders')+'</button></td></tr>';
+  
+  // Parcourir tous les produits du grand stock
+  const grandStockKeys = Object.keys(grandStock);
+  if (grandStockKeys.length === 0) {
+    table.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:var(--muted)">Aucun produit en stock</td></tr>';
+  } else {
+    for (var produit of grandStockKeys) {
+      if (!grandStock.hasOwnProperty(produit)) continue;
+      var qte = grandStock[produit];
+      const info0 = getProduitInfo(produit);
+      const seuil = info0.seuil || STOCK_SEUILS[produit] || 5;
+      const statut = qte <= 0 ? 'rupture' : qte <= seuil ? 'alerte' : 'ok';
+      if (qte <= seuil) alertes++;
+      totalProduits += qte;
+      const info = getProduitInfo(produit);
+      const statutClass = statut === 'ok' ? 'bg-g' : statut === 'alerte' ? 'bg-a' : 'bg-r';
+      const statutLabel = statut === 'ok' ? 'OK' : statut === 'alerte' ? 'Stock bas' : 'Rupture';
+      html += '<tr><td><strong>'+info.label+'</strong></td><td>'+info.categorie+'</td><td><strong>'+qte+'</strong></td><td>'+info.unite+'</td><td>'+seuil+'</td><td><span class="badge '+statutClass+'">'+statutLabel+'</span></td><td class="gs-admin-only"><button class="icon-btn" onclick="openStockAjustement(\''+produit+'\')" title="Ajuster">'+icon('sliders')+'</button></td></tr>';
+    }
+    table.innerHTML = html;
   }
-  table.innerHTML = html;
+  
   document.getElementById('gsTotalProduits').textContent = totalProduits;
   document.getElementById('gsAlertes').textContent = alertes;
   document.getElementById('stockLastUpdate').textContent = nowFull();
@@ -2371,6 +2389,7 @@ function renderGrandStock() {
 }
 
 function populateGrandStockSelects() {
+  // Récupérer tous les produits du grand stock
   const items = getGrandStockItems();
   const selects = ['stockReceptionProduit', 'stockSortieProduit', 'stockAjustementProduit'];
   selects.forEach(function(selId) {
@@ -2378,14 +2397,25 @@ function populateGrandStockSelects() {
     if (!sel) return;
     const currentVal = sel.value;
     sel.innerHTML = '';
-    for (var key in items) {
-      if (!items.hasOwnProperty(key)) continue;
-      var info = items[key];
-      var option = document.createElement('option');
-      option.value = key;
-      option.textContent = info.label + ' (' + info.categorie + ')';
+    
+    // Ajouter toutes les options
+    const keys = Object.keys(items);
+    if (keys.length === 0) {
+      const option = document.createElement('option');
+      option.value = '';
+      option.textContent = 'Aucun produit en stock';
       sel.appendChild(option);
+    } else {
+      for (var key of keys) {
+        if (!items.hasOwnProperty(key)) continue;
+        var info = items[key];
+        var option = document.createElement('option');
+        option.value = key;
+        option.textContent = info.label + ' (' + info.categorie + ')';
+        sel.appendChild(option);
+      }
     }
+    
     if (currentVal && sel.querySelector('option[value="'+currentVal+'"]')) {
       sel.value = currentVal;
     }
@@ -2501,21 +2531,44 @@ async function saveStockAjustement() {
 // ================================================================
 function renderStockKiosques() {
   const container = document.getElementById('stockKiosquesContent');
+  // Récupérer tous les kiosques avec leurs produits
   const kiosques = users.filter(function(u) { return u.role === 'vendeur' && u.kiosque; }).map(function(u) { return u.kiosque; });
   const uniqueKiosques = [...new Set(kiosques)];
+  
+  // Ajouter les kiosques spéciaux si des produits existent pour eux
+  const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS, ...CHICHA_PRODUITS];
+  const produitsAStock = allProducts.filter(function(p) { return !isFood(p); });
+  
+  // Vérifier si des produits existent pour les kiosques spéciaux
+  const cremerieExists = produitsAStock.some(p => p.cat === 'Cremerie');
+  const popcornExists = produitsAStock.some(p => p.cat === 'Popcorn');
+  const chichaExists = produitsAStock.some(p => p.cat === 'Chicha');
+  
+  // Ajouter les kiosques spéciaux s'ils n'existent pas déjà
+  if (cremerieExists && !uniqueKiosques.includes('Kiosque Creme')) {
+    uniqueKiosques.push('Kiosque Creme');
+  }
+  if (popcornExists && !uniqueKiosques.includes('Kiosque Popcorn')) {
+    uniqueKiosques.push('Kiosque Popcorn');
+  }
+  if (chichaExists && !uniqueKiosques.includes('Kiosque Chicha')) {
+    uniqueKiosques.push('Kiosque Chicha');
+  }
+  
   if (!uniqueKiosques.length) {
     container.innerHTML = '<div style="color:var(--muted);padding:2rem;text-align:center;">Aucun kiosque enregistré</div>';
     return;
   }
-  const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS, ...CHICHA_PRODUITS];
-  const produitsAStock = allProducts.filter(function(p) { return !isFood(p); });
+  
   if (!produitsAStock.length) {
     container.innerHTML = '<div style="color:var(--muted);padding:2rem;text-align:center;">Aucun produit avec stock</div>';
     return;
   }
+  
   let html = '<div class="tbl-wrap"><table><thead><tr><th>Produit</th>';
   uniqueKiosques.forEach(function(k) { html += '<th>'+k+'</th>'; });
   html += '<th>Statut</th></tr></thead><tbody>';
+  
   produitsAStock.forEach(function(p) {
     let totalQty = 0;
     let hasStock = false;
@@ -2539,6 +2592,7 @@ function renderStockKiosques() {
     html += '<td>'+statut+'</td></tr>';
   });
   html += '</tbody></table></div>';
+  
   let alertesHtml = '<div style="margin-top:1rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;">';
   uniqueKiosques.forEach(function(k) {
     let ruptures = 0, stockBas = 0;
