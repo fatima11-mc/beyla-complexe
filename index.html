@@ -446,6 +446,24 @@ tbody td{padding:9px 10px;}
 
 /* ===== CONFIG VISIBILITY ===== */
 .config-section.admin-only{display:none;}
+
+/* ===== GRAND STOCK TABS ===== */
+.gs-tabs{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:8px;}
+.gs-tab-btn{padding:8px 20px;border-radius:20px;border:1.5px solid var(--border);cursor:pointer;font-size:.8rem;font-weight:600;background:var(--surface);color:var(--muted);transition:.15s;}
+.gs-tab-btn.act{background:linear-gradient(135deg,#0d1b2a,#1a2e4a);color:#fff;border-color:transparent;box-shadow:0 2px 8px rgba(0,0,0,.2);}
+.gs-tab-panel{display:none;}
+.gs-tab-panel.act{display:block;}
+
+/* ===== STOCK KIOSQUE FILTER ===== */
+.sk-filter-bar{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;}
+.sk-filter-btn{padding:8px 16px;border-radius:20px;border:1.5px solid var(--border);cursor:pointer;font-size:.78rem;font-weight:600;background:var(--surface);color:var(--muted);transition:.15s;}
+.sk-filter-btn.act{background:linear-gradient(135deg,#0d1b2a,#1a2e4a);color:#fff;border-color:transparent;box-shadow:0 2px 8px rgba(0,0,0,.2);}
+
+/* ===== POPCORN CONFIG ===== */
+.popcorn-type-group{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;}
+.popcorn-type-card{border:1.5px solid var(--border);border-radius:10px;padding:12px;background:var(--surface);}
+.popcorn-type-card .form-group{margin-bottom:4px;}
+
 </style>
 </head>
 <body>
@@ -639,22 +657,35 @@ tbody td{padding:9px 10px;}
       <div class="prod-mgmt-grid" id="prodMgmtGrid"></div>
     </div>
 
-    <div class="stats-grid" id="grandStockStats">
-      <div class="stat-c"><div class="stat-l">Total produits</div><div class="stat-v" id="gsTotalProduits">0</div></div>
-      <div class="stat-c"><div class="stat-l">Valeur totale</div><div class="stat-v g" id="gsValeurTotale">0 GNF</div></div>
-      <div class="stat-c"><div class="stat-l">Alertes stock bas</div><div class="stat-v r" id="gsAlertes">0</div></div>
-      <div class="stat-c"><div class="stat-l">Mouvements aujourd'hui</div><div class="stat-v a" id="gsMouvements">0</div></div>
+    <!-- SOUS-ONGLETS GRAND STOCK -->
+    <div class="gs-tabs">
+      <button class="gs-tab-btn act" onclick="switchGSTab('apercu')">Aperçu</button>
+      <button class="gs-tab-btn" onclick="switchGSTab('stock')">Stock détaillé</button>
+      <button class="gs-tab-btn" onclick="switchGSTab('mouvements')">Mouvements</button>
     </div>
-    
-    <div class="tbl-wrap">
-      <table>
-        <thead><tr><th>Produit</th><th>Categorie</th><th>Quantite</th><th>Unite</th><th>Seuil</th><th>Statut</th><th class="gs-admin-only">Actions</th></tr></thead>
-        <tbody id="grandStockTable"></tbody>
-      </table>
+
+    <!-- Onglet Aperçu -->
+    <div id="gs-tab-apercu" class="gs-tab-panel act">
+      <div class="stats-grid" id="grandStockStats">
+        <div class="stat-c"><div class="stat-l">Total produits</div><div class="stat-v" id="gsTotalProduits">0</div></div>
+        <div class="stat-c"><div class="stat-l">Valeur totale</div><div class="stat-v g" id="gsValeurTotale">0 GNF</div></div>
+        <div class="stat-c"><div class="stat-l">Alertes stock bas</div><div class="stat-v r" id="gsAlertes">0</div></div>
+        <div class="stat-c"><div class="stat-l">Mouvements aujourd'hui</div><div class="stat-v a" id="gsMouvements">0</div></div>
+      </div>
     </div>
-    
-    <div class="mvt-grid" style="margin-top:2rem;">
-      <div class="mvt-title">Historique des mouvements</div>
+
+    <!-- Onglet Stock détaillé -->
+    <div id="gs-tab-stock" class="gs-tab-panel">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Produit</th><th>Categorie</th><th>Quantite</th><th>Unite</th><th>Seuil</th><th>Statut</th><th class="gs-admin-only">Actions</th></tr></thead>
+          <tbody id="grandStockTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Onglet Mouvements -->
+    <div id="gs-tab-mouvements" class="gs-tab-panel">
       <div class="tbl-wrap">
         <table>
           <thead><tr><th>Date/Heure</th><th>Type</th><th>Produit</th><th>Quantite</th><th>Kiosque</th><th>Stock apres</th><th>Par</th><th>Commentaire</th></tr></thead>
@@ -683,12 +714,21 @@ tbody td{padding:9px 10px;}
       </div>
       
       <div id="configPopcorn" class="config-panel" style="display:none;">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <div class="form-group"><label class="form-label">Rendement (GNF/kg)</label><input class="form-in" id="cfgPopcornRendement" type="number" step="1000"></div>
-          <div class="form-group"><label class="form-label">Prix boîte (GNF)</label><input class="form-in" id="cfgPopcornBoite" type="number" step="100"></div>
-          <div style="display:flex;align-items:flex-end;"><button class="btn btn-ok" onclick="savePopcornConfig()">Sauvegarder</button></div>
+        <div class="admin-card-title" style="font-size:.8rem;margin-bottom:.8rem;">🍿 Popcorn - Types</div>
+        <div class="popcorn-type-group">
+          <div class="popcorn-type-card">
+            <div class="form-group"><label class="form-label">Popcorn avec lait - Rendement (GNF/kg)</label><input class="form-in" id="cfgPopcornLaitRendement" type="number" step="1000"></div>
+            <div class="form-group"><label class="form-label">Popcorn avec lait - Prix boîte (GNF)</label><input class="form-in" id="cfgPopcornLaitBoite" type="number" step="100"></div>
+          </div>
+          <div class="popcorn-type-card">
+            <div class="form-group"><label class="form-label">Popcorn avec sel - Rendement (GNF/kg)</label><input class="form-in" id="cfgPopcornSelRendement" type="number" step="1000"></div>
+            <div class="form-group"><label class="form-label">Popcorn avec sel - Prix boîte (GNF)</label><input class="form-in" id="cfgPopcornSelBoite" type="number" step="100"></div>
+          </div>
         </div>
-        <div style="margin-top:8px;font-size:.8rem;color:var(--muted);">💡 Le rendement est le prix de vente attendu par kg de maïs.<span id="popcornRendementCalc"></span></div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-ok" onclick="savePopcornConfig()" style="flex:0;">Sauvegarder les deux types</button>
+        </div>
+        <div style="margin-top:8px;font-size:.8rem;color:var(--muted);">💡 Chaque type de popcorn a son propre rendement et prix de vente.</div>
       </div>
       
       <div id="configParking" class="config-panel" style="display:none;">
@@ -711,9 +751,20 @@ tbody td{padding:9px 10px;}
     <div class="pg-header">
       <div>
         <div class="pg-title">Stock des kiosques</div>
-        <div class="pg-sub">Visualisation des stocks par point de vente</div>
+        <div class="pg-sub">Visualisation des stocks par point de vente en temps réel</div>
       </div>
       <button class="add-btn" onclick="syncNow()" style="background:var(--blue);">Actualiser</button>
+    </div>
+    <!-- Filtres par kiosque -->
+    <div class="sk-filter-bar" id="skFilterBar">
+      <button class="sk-filter-btn act" onclick="setSKFilter('tous')">Tous</button>
+      <button class="sk-filter-btn" onclick="setSKFilter('Kiosque Nourriture')">🍽️ Nourriture</button>
+      <button class="sk-filter-btn" onclick="setSKFilter('Kiosque Boissons 1')">🥤 Boissons 1</button>
+      <button class="sk-filter-btn" onclick="setSKFilter('Kiosque Boissons 2')">🥤 Boissons 2</button>
+      <button class="sk-filter-btn" onclick="setSKFilter('Kiosque Chicha')">💨 Chicha</button>
+      <button class="sk-filter-btn" onclick="setSKFilter('Kiosque Popcorn')">🍿 Popcorn</button>
+      <button class="sk-filter-btn" onclick="setSKFilter('Kiosque Creme')">🍦 Cremerie</button>
+      <button class="sk-filter-btn" onclick="setSKFilter('Cuisine')">🍳 Cuisine</button>
     </div>
     <div id="stockKiosquesContent"></div>
   </div>
@@ -1058,6 +1109,12 @@ tbody td{padding:9px 10px;}
   <div class="modal">
     <span class="modal-handle"></span>
     <h3>Vente du jour - Popcorn</h3>
+    <div class="form-group"><label class="form-label">Type de popcorn</label>
+      <select class="form-in" id="popVenteType" onchange="calcPopcornRecette()">
+        <option value="lait">🍿 Avec lait</option>
+        <option value="sel">🧂 Avec sel</option>
+      </select>
+    </div>
     <div class="form-group"><label class="form-label">Quantite de mais utilisee (kg)</label><input class="form-in" id="popVenteKg" type="number" step="0.1" placeholder="ex: 2" oninput="calcPopcornRecette()"></div>
     <div class="form-group"><label class="form-label">Boites vendues (<span id="labelPrixBoite">0</span> GNF)</label><input class="form-in" id="popVenteBoites" type="number" placeholder="ex: 25" oninput="calcPopcornRecette()"></div>
     <div class="form-group"><label class="form-label">Responsable</label><input class="form-in" id="popVentePar" value=""></div>
@@ -1141,7 +1198,6 @@ tbody td{padding:9px 10px;}
 // ================================================================
 // 01-DATA.JS - DONNÉES PAR DÉFAUT
 // ================================================================
-// SEUL L'ADMINISTRATEUR EST CRÉÉ PAR DÉFAUT
 const DEFAULT_USERS = [
   {id:1, name:'Administrateur', login:'admin', pass:'admin123', role:'admin', kiosque:null, catAccess:['Tous']}
 ];
@@ -1167,7 +1223,7 @@ let grandStockMvts = JSON.parse(localStorage.getItem('cb_grand_stock_mvts')) || 
 
 const DEFAULT_CONFIG = { 
   cremerie:{rendement:600000, prixPetitPot:5000, prixGrandPot:10000}, 
-  popcorn:{rendement:200000, prixBoite:10000}, 
+  popcorn:{lait:{rendement:200000, prixBoite:10000}, sel:{rendement:180000, prixBoite:8000}}, 
   parking:{totalPlaces:50, tarifHoraire:2000, tarifForfaitJour:15000, tarifForfaitNuit:10000} 
 };
 let appConfig = JSON.parse(localStorage.getItem('cb_app_config')) || DEFAULT_CONFIG;
@@ -1183,6 +1239,10 @@ let cancelOrderId = null;
 let currentKiosqueSource = '';
 const ALL_CATEGORIES = ['Nourriture','Boissons','Chicha','Cremerie','Popcorn'];
 const STOCK_SEUILS = {};
+
+// Variables pour les onglets
+let currentGSTab = 'apercu';
+let currentSKFilter = 'tous';
 
 // ================================================================
 // 02-FIREBASE.JS
@@ -1382,7 +1442,6 @@ function getProduitInfo(key) {
 
 function getGrandStockItems() {
   const items = {};
-  // Ajouter tous les produits du grand stock
   for (const key of Object.keys(grandStock)) {
     const info = getProduitInfo(key);
     items[key] = { label: info.label, categorie: info.categorie, unite: info.unite };
@@ -1548,7 +1607,6 @@ function initApp() {
     '<button class="bn-item" id="bn-'+n.id+'" onclick="showPage(\''+n.id+'\')"><span class="bn-icon">'+icon(NAV_ICONS[n.id]||'box',20)+'</span><span>'+n.label+'</span></button>'
   ).join('');
   
-  // Ajouter le bouton parking uniquement pour les rôles qui ont accès
   if (currentUser.role !== 'cuisiniere') {
     bottomHTML += '<button class="bn-item" onclick="openChangePwd()" title="Mot de passe"><span class="bn-icon">'+icon('key',20)+'</span>MDP</button>';
   }
@@ -1556,7 +1614,6 @@ function initApp() {
   
   document.getElementById('bottomNav').innerHTML = bottomHTML;
   
-  // Afficher/masquer la section de configuration
   const configSection = document.getElementById('configSection');
   if (configSection) {
     const isAdminOrStock = currentUser.role === 'admin' || currentUser.role === 'stockmanager';
@@ -2343,6 +2400,20 @@ async function syncProduitGrandStock(id, cat, ancienCat) {
   await saveFB('cb_grand_stock', grandStock);
 }
 
+// Gestion des onglets du Grand Stock
+function switchGSTab(tab) {
+  currentGSTab = tab;
+  document.querySelectorAll('.gs-tab-btn').forEach(b => b.classList.remove('act'));
+  document.querySelectorAll('.gs-tab-panel').forEach(p => p.classList.remove('act'));
+  const btn = document.querySelector('.gs-tab-btn[onclick*="' + tab + '"]');
+  if (btn) btn.classList.add('act');
+  const panel = document.getElementById('gs-tab-' + tab);
+  if (panel) panel.classList.add('act');
+  if (tab === 'apercu') renderGrandStockApercu();
+  if (tab === 'stock') renderGrandStockTable();
+  if (tab === 'mouvements') renderGrandStockMvt();
+}
+
 function renderGrandStock() {
   const isGsAdmin = (currentUser.role === 'admin' || currentUser.role === 'stockmanager');
   document.querySelectorAll('.gs-admin-only').forEach(function(el) { el.style.display = isGsAdmin ? '' : 'none'; });
@@ -2352,44 +2423,55 @@ function renderGrandStock() {
   if (gsProduitsCard) gsProduitsCard.style.display = isGsAdmin ? '' : 'none';
   
   renderProdMgmt();
-  
-  let totalProduits = 0;
-  let alertes = 0;
-  const table = document.getElementById('grandStockTable');
-  let html = '';
   populateGrandStockSelects();
   
-  // Parcourir tous les produits du grand stock
-  const grandStockKeys = Object.keys(grandStock);
-  if (grandStockKeys.length === 0) {
-    table.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:var(--muted)">Aucun produit en stock</td></tr>';
-  } else {
-    for (var produit of grandStockKeys) {
-      if (!grandStock.hasOwnProperty(produit)) continue;
-      var qte = grandStock[produit];
-      const info0 = getProduitInfo(produit);
-      const seuil = info0.seuil || STOCK_SEUILS[produit] || 5;
-      const statut = qte <= 0 ? 'rupture' : qte <= seuil ? 'alerte' : 'ok';
-      if (qte <= seuil) alertes++;
-      totalProduits += qte;
-      const info = getProduitInfo(produit);
-      const statutClass = statut === 'ok' ? 'bg-g' : statut === 'alerte' ? 'bg-a' : 'bg-r';
-      const statutLabel = statut === 'ok' ? 'OK' : statut === 'alerte' ? 'Stock bas' : 'Rupture';
-      html += '<tr><td><strong>'+info.label+'</strong></td><td>'+info.categorie+'</td><td><strong>'+qte+'</strong></td><td>'+info.unite+'</td><td>'+seuil+'</td><td><span class="badge '+statutClass+'">'+statutLabel+'</span></td><td class="gs-admin-only"><button class="icon-btn" onclick="openStockAjustement(\''+produit+'\')" title="Ajuster">'+icon('sliders')+'</button></td></tr>';
-    }
-    table.innerHTML = html;
+  // Afficher l'onglet actif
+  if (currentGSTab === 'apercu') renderGrandStockApercu();
+  else if (currentGSTab === 'stock') renderGrandStockTable();
+  else if (currentGSTab === 'mouvements') renderGrandStockMvt();
+}
+
+function renderGrandStockApercu() {
+  let totalProduits = 0;
+  let alertes = 0;
+  for (var produit in grandStock) {
+    if (!grandStock.hasOwnProperty(produit)) continue;
+    var qte = grandStock[produit];
+    const info0 = getProduitInfo(produit);
+    const seuil = info0.seuil || STOCK_SEUILS[produit] || 5;
+    if (qte <= seuil) alertes++;
+    totalProduits += qte;
   }
-  
   document.getElementById('gsTotalProduits').textContent = totalProduits;
   document.getElementById('gsAlertes').textContent = alertes;
   document.getElementById('stockLastUpdate').textContent = nowFull();
   const mvtsJour = grandStockMvts.filter(function(m) { return m.date === today(); });
   document.getElementById('gsMouvements').textContent = mvtsJour.length;
-  renderGrandStockMvt();
+}
+
+function renderGrandStockTable() {
+  const table = document.getElementById('grandStockTable');
+  let html = '';
+  const grandStockKeys = Object.keys(grandStock);
+  if (grandStockKeys.length === 0) {
+    table.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:var(--muted)">Aucun produit en stock</td></tr>';
+    return;
+  }
+  for (var produit of grandStockKeys) {
+    if (!grandStock.hasOwnProperty(produit)) continue;
+    var qte = grandStock[produit];
+    const info0 = getProduitInfo(produit);
+    const seuil = info0.seuil || STOCK_SEUILS[produit] || 5;
+    const statut = qte <= 0 ? 'rupture' : qte <= seuil ? 'alerte' : 'ok';
+    const info = getProduitInfo(produit);
+    const statutClass = statut === 'ok' ? 'bg-g' : statut === 'alerte' ? 'bg-a' : 'bg-r';
+    const statutLabel = statut === 'ok' ? 'OK' : statut === 'alerte' ? 'Stock bas' : 'Rupture';
+    html += '<tr><td><strong>'+info.label+'</strong></td><td>'+info.categorie+'</td><td><strong>'+qte+'</strong></td><td>'+info.unite+'</td><td>'+seuil+'</td><td><span class="badge '+statutClass+'">'+statutLabel+'</span></td><td class="gs-admin-only"><button class="icon-btn" onclick="openStockAjustement(\''+produit+'\')" title="Ajuster">'+icon('sliders')+'</button></td></tr>';
+  }
+  table.innerHTML = html;
 }
 
 function populateGrandStockSelects() {
-  // Récupérer tous les produits du grand stock
   const items = getGrandStockItems();
   const selects = ['stockReceptionProduit', 'stockSortieProduit', 'stockAjustementProduit'];
   selects.forEach(function(selId) {
@@ -2397,8 +2479,6 @@ function populateGrandStockSelects() {
     if (!sel) return;
     const currentVal = sel.value;
     sel.innerHTML = '';
-    
-    // Ajouter toutes les options
     const keys = Object.keys(items);
     if (keys.length === 0) {
       const option = document.createElement('option');
@@ -2415,7 +2495,6 @@ function populateGrandStockSelects() {
         sel.appendChild(option);
       }
     }
-    
     if (currentVal && sel.querySelector('option[value="'+currentVal+'"]')) {
       sel.value = currentVal;
     }
@@ -2529,44 +2608,49 @@ async function saveStockAjustement() {
 // ================================================================
 // 12-STOCK-KIOSQUES.JS
 // ================================================================
+function setSKFilter(filter) {
+  currentSKFilter = filter;
+  document.querySelectorAll('.sk-filter-btn').forEach(b => b.classList.remove('act'));
+  const btn = document.querySelector('.sk-filter-btn[onclick*="' + filter + '"]');
+  if (btn) btn.classList.add('act');
+  renderStockKiosques();
+}
+
 function renderStockKiosques() {
   const container = document.getElementById('stockKiosquesContent');
-  // Récupérer tous les kiosques avec leurs produits
-  const kiosques = users.filter(function(u) { return u.role === 'vendeur' && u.kiosque; }).map(function(u) { return u.kiosque; });
-  const uniqueKiosques = [...new Set(kiosques)];
-  
-  // Ajouter les kiosques spéciaux si des produits existent pour eux
   const allProducts = [...products, ...CREMERIE_PRODUITS, ...POPCORN_PRODUITS, ...CHICHA_PRODUITS];
   const produitsAStock = allProducts.filter(function(p) { return !isFood(p); });
   
-  // Vérifier si des produits existent pour les kiosques spéciaux
-  const cremerieExists = produitsAStock.some(p => p.cat === 'Cremerie');
-  const popcornExists = produitsAStock.some(p => p.cat === 'Popcorn');
-  const chichaExists = produitsAStock.some(p => p.cat === 'Chicha');
+  // Récupérer tous les kiosques disponibles
+  const kiosquesDisponibles = new Set();
+  // Kiosques des vendeurs
+  users.filter(u => u.role === 'vendeur' && u.kiosque).forEach(u => kiosquesDisponibles.add(u.kiosque));
+  // Kiosques spéciaux
+  if (produitsAStock.some(p => p.cat === 'Cremerie')) kiosquesDisponibles.add('Kiosque Creme');
+  if (produitsAStock.some(p => p.cat === 'Popcorn')) kiosquesDisponibles.add('Kiosque Popcorn');
+  if (produitsAStock.some(p => p.cat === 'Chicha')) kiosquesDisponibles.add('Kiosque Chicha');
+  // Cuisine
+  kiosquesDisponibles.add('Cuisine');
   
-  // Ajouter les kiosques spéciaux s'ils n'existent pas déjà
-  if (cremerieExists && !uniqueKiosques.includes('Kiosque Creme')) {
-    uniqueKiosques.push('Kiosque Creme');
-  }
-  if (popcornExists && !uniqueKiosques.includes('Kiosque Popcorn')) {
-    uniqueKiosques.push('Kiosque Popcorn');
-  }
-  if (chichaExists && !uniqueKiosques.includes('Kiosque Chicha')) {
-    uniqueKiosques.push('Kiosque Chicha');
+  let kiosques = Array.from(kiosquesDisponibles).filter(k => k);
+  
+  // Filtrer si un kiosque spécifique est sélectionné
+  if (currentSKFilter !== 'tous') {
+    kiosques = kiosques.filter(k => k === currentSKFilter);
   }
   
-  if (!uniqueKiosques.length) {
-    container.innerHTML = '<div style="color:var(--muted);padding:2rem;text-align:center;">Aucun kiosque enregistré</div>';
+  if (kiosques.length === 0) {
+    container.innerHTML = '<div style="color:var(--muted);padding:2rem;text-align:center;">Aucun kiosque disponible</div>';
     return;
   }
   
-  if (!produitsAStock.length) {
+  if (produitsAStock.length === 0) {
     container.innerHTML = '<div style="color:var(--muted);padding:2rem;text-align:center;">Aucun produit avec stock</div>';
     return;
   }
   
   let html = '<div class="tbl-wrap"><table><thead><tr><th>Produit</th>';
-  uniqueKiosques.forEach(function(k) { html += '<th>'+k+'</th>'; });
+  kiosques.forEach(function(k) { html += '<th>'+k+'</th>'; });
   html += '<th>Statut</th></tr></thead><tbody>';
   
   produitsAStock.forEach(function(p) {
@@ -2575,7 +2659,7 @@ function renderStockKiosques() {
     let ruptureCount = 0;
     let stockCount = 0;
     html += '<tr><td><strong>'+p.name+'</strong><br><span style="font-size:.65rem;color:var(--muted)">'+p.cat+'</span></td>';
-    uniqueKiosques.forEach(function(k) {
+    kiosques.forEach(function(k) {
       const qty = (stockVendeur[k] && stockVendeur[k][p.id]) || 0;
       totalQty += qty;
       if (qty > 0) hasStock = true;
@@ -2593,8 +2677,9 @@ function renderStockKiosques() {
   });
   html += '</tbody></table></div>';
   
+  // Alertes par kiosque
   let alertesHtml = '<div style="margin-top:1rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;">';
-  uniqueKiosques.forEach(function(k) {
+  kiosques.forEach(function(k) {
     let ruptures = 0, stockBas = 0;
     produitsAStock.forEach(function(p) {
       const qty = (stockVendeur[k] && stockVendeur[k][p.id]) || 0;
@@ -3036,9 +3121,10 @@ function loadConfigValues(tab) {
     document.getElementById('cfgCremerieGrand').value = appConfig.cremerie.prixGrandPot;
     document.getElementById('cremerieRendementCalc').textContent = '💰 ' + fmt(appConfig.cremerie.rendement) + ' / kg → ' + fmt(appConfig.cremerie.rendement / 2) + ' le demi-kg';
   } else if (tab === 'popcorn') {
-    document.getElementById('cfgPopcornRendement').value = appConfig.popcorn.rendement;
-    document.getElementById('cfgPopcornBoite').value = appConfig.popcorn.prixBoite;
-    document.getElementById('popcornRendementCalc').textContent = '💰 ' + fmt(appConfig.popcorn.rendement) + ' / kg → ' + fmt(appConfig.popcorn.rendement / 2) + ' le demi-kg';
+    document.getElementById('cfgPopcornLaitRendement').value = appConfig.popcorn.lait.rendement;
+    document.getElementById('cfgPopcornLaitBoite').value = appConfig.popcorn.lait.prixBoite;
+    document.getElementById('cfgPopcornSelRendement').value = appConfig.popcorn.sel.rendement;
+    document.getElementById('cfgPopcornSelBoite').value = appConfig.popcorn.sel.prixBoite;
   } else if (tab === 'parking') {
     document.getElementById('cfgParkingPlaces').value = appConfig.parking.totalPlaces;
     document.getElementById('cfgParkingHoraire').value = appConfig.parking.tarifHoraire;
@@ -3065,14 +3151,20 @@ async function saveCremerieConfig() {
 }
 
 async function savePopcornConfig() {
-  const rendement = parseInt(document.getElementById('cfgPopcornRendement').value);
-  const boite = parseInt(document.getElementById('cfgPopcornBoite').value);
-  if (!rendement || rendement <= 0 || !boite || boite <= 0) {
-    toast('Veuillez entrer des valeurs valides');
+  const laitRendement = parseInt(document.getElementById('cfgPopcornLaitRendement').value);
+  const laitBoite = parseInt(document.getElementById('cfgPopcornLaitBoite').value);
+  const selRendement = parseInt(document.getElementById('cfgPopcornSelRendement').value);
+  const selBoite = parseInt(document.getElementById('cfgPopcornSelBoite').value);
+  
+  if (!laitRendement || laitRendement <= 0 || !laitBoite || laitBoite <= 0 ||
+      !selRendement || selRendement <= 0 || !selBoite || selBoite <= 0) {
+    toast('Veuillez entrer des valeurs valides pour les deux types');
     return;
   }
-  appConfig.popcorn.rendement = rendement;
-  appConfig.popcorn.prixBoite = boite;
+  appConfig.popcorn.lait.rendement = laitRendement;
+  appConfig.popcorn.lait.prixBoite = laitBoite;
+  appConfig.popcorn.sel.rendement = selRendement;
+  appConfig.popcorn.sel.prixBoite = selBoite;
   await saveConfig(appConfig);
   logAction('Configuration', 'Mise à jour des prix Popcorn');
   loadConfigValues('popcorn');
@@ -3285,25 +3377,26 @@ async function saveVenteCremerie() {
 // ================================================================
 function getPopcornConfig() {
   return {
-    rendement: appConfig.popcorn.rendement || 200000,
-    prixBoite: appConfig.popcorn.prixBoite || 10000
+    lait: { rendement: appConfig.popcorn.lait.rendement || 200000, prixBoite: appConfig.popcorn.lait.prixBoite || 10000 },
+    sel: { rendement: appConfig.popcorn.sel.rendement || 180000, prixBoite: appConfig.popcorn.sel.prixBoite || 8000 }
   };
 }
 
 function renderPopcorn() {
   const config = getPopcornConfig();
-  document.getElementById('popcornSub').textContent = 'Gestion des popcorns - Prix: ' + fmt(config.prixBoite) + '/boîte - Rendement: ' + fmt(config.rendement) + '/kg';
+  const totalBoites = popcornMouvements.filter(m => m.date === today()).reduce((s, m) => s + (m.boites || 0), 0);
+  document.getElementById('popcornSub').textContent = '🍿 Avec lait: ' + fmt(config.lait.prixBoite) + '/boîte - 🧂 Avec sel: ' + fmt(config.sel.prixBoite) + '/boîte';
   document.getElementById('popcornStock').textContent = grandStock.mais || 0;
   const todayStr = today();
   const mouvementsJour = popcornMouvements.filter(function(m) { return m.date === todayStr; });
   const ventesJour = mouvementsJour.filter(function(m) { return m.type === 'vente'; });
   const totalKg = ventesJour.reduce(function(s, m) { return s + m.kg; }, 0);
-  const totalBoites = ventesJour.reduce(function(s, m) { return s + (m.boites || 0); }, 0);
+  const totalBoitesV = ventesJour.reduce(function(s, m) { return s + (m.boites || 0); }, 0);
   const recette = ventesJour.reduce(function(s, m) { return s + (m.recette || 0); }, 0);
-  const attendu = totalKg * config.rendement;
+  const attendu = totalKg * config.lait.rendement; // On prend le rendement moyen
   const ecart = attendu - recette;
   document.getElementById('popKg').textContent = totalKg + ' kg';
-  document.getElementById('popBoites').textContent = totalBoites;
+  document.getElementById('popBoites').textContent = totalBoitesV;
   document.getElementById('popRecette').textContent = fmt(recette);
   document.getElementById('popAttendu').textContent = fmt(attendu);
   var ecartEl = document.getElementById('popEcart');
@@ -3318,7 +3411,9 @@ function renderPopcorn() {
   const typeMap = {reception:'bg-g', vente:'bg-b', perte:'bg-r'};
   tb.innerHTML = popcornMouvements.slice(0, 50).map(function(m) {
     var ecartMvt = (m.attendu || 0) - (m.recette || 0);
-    return '<tr><td style="font-size:.75rem">'+m.date+'</td><td><span class="badge '+(typeMap[m.type]||'bg-b')+'">'+(typeLabel[m.type]||m.type)+'</span></td><td>'+(m.kg||0)+' kg</td><td>'+(m.boites||0)+'</td><td><strong>'+fmt(m.recette||0)+'</strong></td><td>'+fmt(m.attendu||0)+'</td><td style="color:'+(ecartMvt===0?'var(--green)':'var(--red)')+'">'+fmt(Math.abs(ecartMvt))+'</td><td style="font-size:.75rem">'+(m.par||'--')+'</td></tr>';
+    const type = m.typePopcorn || 'lait';
+    const typeLabel2 = type === 'lait' ? '🍿 Lait' : '🧂 Sel';
+    return '<tr><td style="font-size:.75rem">'+m.date+'</td><td><span class="badge '+(typeMap[m.type]||'bg-b')+'">'+(typeLabel[m.type]||m.type)+'</span> '+typeLabel2+'</td><td>'+(m.kg||0)+' kg</td><td>'+(m.boites||0)+'</td><td><strong>'+fmt(m.recette||0)+'</strong></td><td>'+fmt(m.attendu||0)+'</td><td style="color:'+(ecartMvt===0?'var(--green)':'var(--red)')+'">'+fmt(Math.abs(ecartMvt))+'</td><td style="font-size:.75rem">'+(m.par||'--')+'</td></tr>';
   }).join('');
 }
 
@@ -3326,7 +3421,7 @@ function openReceptionPopcorn() {
   const config = getPopcornConfig();
   document.getElementById('popReceptionKg').value = '';
   document.getElementById('popReceptionPar').value = currentUser.name;
-  document.getElementById('popReceptionRendement').textContent = fmt(config.rendement);
+  document.getElementById('popReceptionRendement').textContent = fmt(config.lait.rendement) + ' / ' + fmt(config.sel.rendement);
   openModal('modalPopcornReception');
 }
 
@@ -3343,7 +3438,7 @@ async function saveReceptionPopcorn() {
     type: 'reception',
     kg: kg,
     recette: 0,
-    attendu: kg * config.rendement,
+    attendu: kg * config.lait.rendement,
     par: par,
     commentaire: 'Reception de maïs'
   };
@@ -3359,11 +3454,11 @@ async function saveReceptionPopcorn() {
 
 function openVentePopcorn() {
   const config = getPopcornConfig();
+  document.getElementById('popVenteType').value = 'lait';
   document.getElementById('popVenteKg').value = '';
   document.getElementById('popVenteBoites').value = '';
   document.getElementById('popVentePar').value = currentUser.name;
-  document.getElementById('labelPrixBoite').textContent = fmt(config.prixBoite);
-  document.getElementById('popVenteRendement').textContent = fmt(config.rendement);
+  updatePopcornLabels();
   document.getElementById('popVenteRecetteCalc').textContent = '0 GNF';
   document.getElementById('popVenteAttendu').textContent = '0 GNF';
   document.getElementById('popVenteEcart').textContent = '0 GNF';
@@ -3371,12 +3466,28 @@ function openVentePopcorn() {
   openModal('modalPopcornVente');
 }
 
-function calcPopcornRecette() {
+function updatePopcornLabels() {
+  const type = document.getElementById('popVenteType').value;
   const config = getPopcornConfig();
+  const prix = type === 'lait' ? config.lait.prixBoite : config.sel.prixBoite;
+  document.getElementById('labelPrixBoite').textContent = fmt(prix);
+  document.getElementById('popVenteRendement').textContent = fmt(type === 'lait' ? config.lait.rendement : config.sel.rendement);
+}
+
+document.getElementById('popVenteType').addEventListener('change', function() {
+  updatePopcornLabels();
+  calcPopcornRecette();
+});
+
+function calcPopcornRecette() {
+  const type = document.getElementById('popVenteType').value;
+  const config = getPopcornConfig();
+  const prix = type === 'lait' ? config.lait.prixBoite : config.sel.prixBoite;
+  const rendement = type === 'lait' ? config.lait.rendement : config.sel.rendement;
   const kg = parseFloat(document.getElementById('popVenteKg').value) || 0;
   const boites = parseInt(document.getElementById('popVenteBoites').value) || 0;
-  const recette = boites * config.prixBoite;
-  const attendu = kg * config.rendement;
+  const recette = boites * prix;
+  const attendu = kg * rendement;
   const ecart = attendu - recette;
   document.getElementById('popVenteRecetteCalc').textContent = fmt(recette);
   document.getElementById('popVenteAttendu').textContent = fmt(attendu);
@@ -3386,28 +3497,32 @@ function calcPopcornRecette() {
 }
 
 async function saveVentePopcorn() {
+  const type = document.getElementById('popVenteType').value;
   const config = getPopcornConfig();
+  const prix = type === 'lait' ? config.lait.prixBoite : config.sel.prixBoite;
+  const rendement = type === 'lait' ? config.lait.rendement : config.sel.rendement;
   const kg = parseFloat(document.getElementById('popVenteKg').value);
   const boites = parseInt(document.getElementById('popVenteBoites').value) || 0;
   const par = document.getElementById('popVentePar').value || currentUser.name;
   if (!kg || kg <= 0) { toast('Entrer une quantité de kg valide'); return; }
   if (boites === 0) { toast('Entrer au moins une boîte vendue'); return; }
   if ((grandStock.mais || 0) < kg) { toast('Stock insuffisant (disponible: ' + grandStock.mais + ' kg)'); return; }
-  const recette = boites * config.prixBoite;
-  const attendu = kg * config.rendement;
+  const recette = boites * prix;
+  const attendu = kg * rendement;
   const ecart = attendu - recette;
   grandStock.mais -= kg;
   const mouvement = {
     id: 'POP-VEN-' + Date.now().toString(36).toUpperCase(),
     date: today(),
     type: 'vente',
+    typePopcorn: type,
     kg: kg,
     boites: boites,
     recette: recette,
     attendu: attendu,
     ecart: ecart,
     par: par,
-    commentaire: 'Vente du jour'
+    commentaire: 'Vente du jour - ' + (type === 'lait' ? 'Avec lait' : 'Avec sel')
   };
   popcornMouvements.unshift(mouvement);
   if (popcornMouvements.length > 500) popcornMouvements = popcornMouvements.slice(0, 500);
